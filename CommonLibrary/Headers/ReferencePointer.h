@@ -1,6 +1,6 @@
 #pragma once
 #include <atomic>
-
+#include <stdexcept>
 
 namespace CommonsLibrary
 {
@@ -79,6 +79,7 @@ namespace CommonsLibrary
 
         void ConstructFromMove(__ReferencePointerBase& other)
         {
+            DecrementReferenceBlock();
             m_pointer = other.m_pointer;
             m_reference_block = other.m_reference_block;
 
@@ -87,19 +88,10 @@ namespace CommonsLibrary
         }
 
     protected:
-        void DeletePointerInternal()
+        void DeletePointer()
         {
-            if (!m_reference_block)
-                return;
-
-            if (!m_reference_block->PointerExists())
-                return;
-
-            m_reference_block->DeletePointer();
+            DeletePointerInternal();
             DecrementReferenceBlock();
-
-            delete m_pointer;
-            m_pointer = nullptr;
         }
 
         void DecrementReferenceBlock()
@@ -115,6 +107,21 @@ namespace CommonsLibrary
                 delete m_reference_block;
             }
             m_reference_block = nullptr;
+        }
+
+    private:
+        void DeletePointerInternal()
+        {
+            if (!m_reference_block)
+                return;
+
+            if (!m_reference_block->PointerExists())
+                return;
+
+            m_reference_block->DeletePointer();
+
+            delete m_pointer;
+            m_pointer = nullptr;
         }
     };
 
@@ -141,7 +148,7 @@ namespace CommonsLibrary
             BaseClass::ConstructFromOther(other);
             m_owner = false;
         }
-        ReferencePointer(ReferencePointer&& other)
+        ReferencePointer(ReferencePointer&& other) noexcept
         {
             BaseClass::ConstructFromMove(other);
             m_owner = other.m_owner;
@@ -165,17 +172,31 @@ namespace CommonsLibrary
         ~ReferencePointer()
         {
             if (m_owner)
-                BaseClass::DeletePointerInternal();
+                BaseClass::DeletePointer();
             else
                 BaseClass::DecrementReferenceBlock();
         }
 
     public:
-        VariableType* operator->() { return get(); }
+        VariableType* operator->()
+        {
+            try
+            {
+                if (BaseClass::m_reference_block == nullptr)
+                    throw std::runtime_error("pointer is nullptr");
+                if (!BaseClass::m_reference_block->PointerExists())
+                    throw std::runtime_error("pointer is nullptr");
+                return Get();
+            }
+            catch (std::runtime_error e)
+            {
+                throw;
+            }
+        }
         void operator=(std::nullptr_t)
         {
             if (m_owner)
-                BaseClass::DeletePointerInternal();
+                BaseClass::DeletePointer();
             else
             {
                 BaseClass::DecrementReferenceBlock();
@@ -185,6 +206,7 @@ namespace CommonsLibrary
         void operator=(const ReferencePointer& other)
         {
             BaseClass::ConstructFromOther(other);
+            m_owner = false;
         }
 
         void operator=(ReferencePointer&& other)
@@ -226,6 +248,22 @@ namespace CommonsLibrary
         bool operator!=(const ReferencePointer<DerivedType>& other) const
         {
             return (BaseClass::m_reference_block && other.m_reference_block) ? BaseClass::m_reference_block != other.m_reference_block : true;
+        }
+
+        VariableType& operator*() {
+            try
+            {
+                if (BaseClass::m_reference_block == nullptr)
+                    throw std::runtime_error("pointer is nullptr");
+                if (!BaseClass::m_reference_block->PointerExists())
+                    throw std::runtime_error("pointer is nullptr");
+                return *Get();
+            }
+            catch (std::runtime_error e)
+            {
+                throw;
+            }
+
         }
 
         operator bool() const

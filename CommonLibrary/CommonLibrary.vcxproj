@@ -166,6 +166,9 @@
     <ClInclude Include="Headers\Delegates\FunctionPointer.h" />
     <ClInclude Include="Headers\Delegates\MethodPointer.h" />
     <ClInclude Include="Headers\Delegates\~Header.h" />
+    <ClInclude Include="Headers\ECS\Component.h" />
+    <ClInclude Include="Headers\ECS\ComponentRegistry.h" />
+    <ClInclude Include="Headers\ECS\GameObject.h" />
     <ClInclude Include="Headers\Math\MathConstants.h" />
     <ClInclude Include="Headers\Math\Matrix4x4.h" />
     <ClInclude Include="Headers\Math\Quaternion.h" />
@@ -179,6 +182,7 @@
     <ClInclude Include="Headers\UnorderedMapHelpers.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Headers\ECS\ComponentRegistry.cpp" />
     <ClCompile Include="Source\DebugTools\Logger.cpp" />
     <ClCompile Include="Source\DebugTools\ScopedTimer.cpp" />
     <ClCompile Include="Source\Singleton.cpp" />

@@ -20,12 +20,12 @@ namespace CommonsLibrary
     public:
         Function() = default;
 
-        Function(const TFunction& other) { m_funcPtr = other; }
+        Function(const TFunction& other) { m_funcPtr = other.m_funcPtr; }
         void operator=(const TFunction& func) { m_funcPtr = func.m_funcPtr; }
         bool operator==(const TFunction& func) const { return m_funcPtr == func.m_funcPtr; }
         bool operator!=(const TFunction& func) const { return m_funcPtr != func.m_funcPtr; }
 
-        Function(const TFunctionPtr& other) { m_funcPtr = other.m_funcPtr; }
+        Function(const TFunctionPtr& other) { m_funcPtr = other; }
         void operator=(const TFunctionPtr& func) { m_funcPtr = func; }
         bool operator==(const TFunctionPtr& func) const { return m_funcPtr == func; }
         bool operator!=(const TFunctionPtr& func) const { return m_funcPtr != func; }

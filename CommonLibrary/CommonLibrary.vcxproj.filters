@@ -69,6 +69,15 @@
     <ClInclude Include="Headers\DebugTools\ScopedTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\ECS\Component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\ECS\GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\ECS\ComponentRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Singleton.cpp">
@@ -78,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\DebugTools\ScopedTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Headers\ECS\ComponentRegistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
