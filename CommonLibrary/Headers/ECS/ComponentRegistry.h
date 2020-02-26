@@ -7,10 +7,10 @@
 
 namespace CommonsLibrary
 {
+    class GameObject;
+    class World;
     class ComponentRegistry
     {
-        class GameObject;
-        class World;
     private:
         static std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> m_registry;
 

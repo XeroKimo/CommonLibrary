@@ -8,7 +8,7 @@
 
 namespace CommonsLibrary
 {
-    //class Transform;
+    class Transform;
     class GameObject final : public ReferenceFromThis<GameObject>
     {
         friend class Component;
@@ -16,7 +16,7 @@ namespace CommonsLibrary
     private:
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_activeComponents;
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_inactiveComponents;
-        //ReferencePointer<Transform> m_transform;
+        ReferencePointer<Transform> m_transform;
         ReferencePointer<World> m_world;
 
         bool m_active;

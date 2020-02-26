@@ -3,13 +3,14 @@
 #include "ECS/World.h"
 #include "DebugTools/Logger.h"
 
+
 namespace CommonsLibrary
 {
     GameObject::GameObject(const ReferencePointer<World>& world)
     {
         m_world = world;
 
-        //AddComponent<Transform>();
+        m_transform =  AddComponent<Transform>();
     }
 
     void CommonsLibrary::GameObject::Start()
