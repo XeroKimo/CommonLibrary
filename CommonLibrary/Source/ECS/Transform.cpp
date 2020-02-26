@@ -12,7 +12,6 @@ namespace CommonsLibrary
 
     void Transform::SetParent(ReferencePointer<Transform> parent)
     {
-        ReferencePointer<Component> transform = MakeReference<Transform>();
         if (m_parent)
         {
             m_parent->RemoveChild(ReferencePointerStaticCast<Transform>(GetReferencePointer()));

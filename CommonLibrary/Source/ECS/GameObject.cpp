@@ -5,11 +5,11 @@
 
 namespace CommonsLibrary
 {
-
     GameObject::GameObject(const ReferencePointer<World>& world)
     {
         m_world = world;
-        AddComponent<Transform>();
+
+        //AddComponent<Transform>();
     }
 
     void CommonsLibrary::GameObject::Start()
@@ -91,7 +91,7 @@ namespace CommonsLibrary
         }
     }
 
-    void CommonsLibrary::GameObject::SetComponentActive(ReferencePointer<Component> component, bool active)
+    void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component, bool active)
     {
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToSearchIn = (active) ? &m_inactiveComponents : &m_activeComponents;
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToMoveComponent = (active) ? &m_activeComponents : &m_inactiveComponents;

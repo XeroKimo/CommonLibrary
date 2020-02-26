@@ -16,8 +16,8 @@ namespace CommonsLibrary
         bool m_hasStarted;
 
     public:
-        Component() = default;
-        //Component(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world) : m_gameObject(gameObject), m_world(world) {}
+        //Component() = default;
+        Component(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world) : m_gameObject(gameObject), m_world(world) {}
 
     public:
         virtual void Start() = 0;

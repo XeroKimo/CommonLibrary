@@ -166,6 +166,8 @@ namespace CommonsLibrary
         }
         ReferencePointer(const ReferencePointer& other)
         {
+            if (m_owner)
+                BaseClass::DeletePointerInternal();
             BaseClass::ConstructFromOther(other);
             m_owner = false;
         }
@@ -178,6 +180,22 @@ namespace CommonsLibrary
             other.m_owner = false;
         }
 
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
+        ReferencePointer(const ReferencePointer<DerivedType>& other)
+        {
+            if (m_owner)
+                BaseClass::DeletePointerInternal();
+            BaseClass::ConstructFromDerived(other);
+            m_owner = false;
+        }
+        template<class DerivedType>
+        ReferencePointer(const ReferencePointer<DerivedType>& other, VariableType* pointer)
+        {
+            if (m_owner)
+                BaseClass::DeletePointerInternal();
+            BaseClass::ConstructFromCast(other, pointer);
+            m_owner = false;
+        }
         template<class DerivedType>
         ReferencePointer(ReferencePointer<DerivedType>&& other) noexcept
         {
@@ -193,23 +211,7 @@ namespace CommonsLibrary
             m_owner = other.m_owner;
             other.m_owner = false;
         }
-        template<class DerivedType>
-        ReferencePointer(const ReferencePointer<DerivedType>& other, VariableType* pointer)
-        {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::ConstructFromCast(other, pointer);
-            m_owner = false;
-        }
 
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
-        ReferencePointer(const ReferencePointer<DerivedType>& other)
-        {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::ConstructFromDerived(other);
-            m_owner = false;
-        }
 
         ~ReferencePointer()
         {
@@ -274,23 +276,23 @@ namespace CommonsLibrary
             m_owner = false;
         }
 
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
+        void operator=(const ReferencePointer<DerivedType>& other)
+        {
+            BaseClass::ConstructFromDerived(other);
+        }
         void operator=(ReferencePointer&& other)
         {
             BaseClass::ConstructFromMove(other);
             m_owner = other.m_owner;
             other.m_owner = false;
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
-        void operator=(const ReferencePointer<DerivedType>& other)
-        {
-            BaseClass::ConstructFromDerived(other);
-        }
 
-        bool operator==(std::nullptr_t)
+        bool operator==(std::nullptr_t) const
         {
             return (BaseClass::m_reference_block) ? BaseClass::m_reference_block->PointerExists() : true;
         }
-        bool operator!=(std::nullptr_t)
+        bool operator!=(std::nullptr_t) const
         {
             return (BaseClass::m_reference_block) ? BaseClass::m_reference_block->PointerExists() : false;
         }
@@ -334,7 +336,7 @@ namespace CommonsLibrary
             BaseClass::m_reference_block = block;
             if constexpr (std::conjunction_v<__ReferenceEnabledFromThis<Derived>>)
             {
-                pointer->m_refPointer = *this;
+                pointer->m_refPointer = ReferencePointer<VariableType>(*this);
             }
             m_owner = true;
         }

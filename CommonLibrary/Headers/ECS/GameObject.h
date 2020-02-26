@@ -8,7 +8,7 @@
 
 namespace CommonsLibrary
 {
-    class Transform;
+    //class Transform;
     class GameObject final : public ReferenceFromThis<GameObject>
     {
         friend class Component;
@@ -16,7 +16,7 @@ namespace CommonsLibrary
     private:
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_activeComponents;
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_inactiveComponents;
-        ReferencePointer<Transform> m_transform;
+        //ReferencePointer<Transform> m_transform;
         ReferencePointer<World> m_world;
 
         bool m_active;
@@ -37,18 +37,19 @@ namespace CommonsLibrary
             std::type_index key(typeid(Type));
 
             auto& components = m_activeComponents[key];
-            components.push_back(ComponentRegistry::Create(key));
+            components.push_back(ComponentRegistry::Create(key, GetReferencePointer(), m_world));
             return ReferencePointerStaticCast<Type>(components.back());
         }
 
         void RemoveComponent(ReferencePointer<Component> component);
 
         template<class Type>
-        ReferencePointer<Type> GetComponent() const
+        ReferencePointer<Type> GetComponent()
         {
-            std::type_index key(typeid(Type));
-            ReferencePointer<Type> component = GetComponent<Type>(m_activeComponents, key);
-            return (component) ? component : GetComponent<Type>(m_inactiveComponents, key);
+            return nullptr;
+            //std::type_index key(typeid(Type));
+            //ReferencePointer<Type> component = GetComponent<Type>(m_activeComponents, key);
+            //return (component) ? component : GetComponent<Type>(m_inactiveComponents, key);
         }
 
         template<class Type>
@@ -61,29 +62,29 @@ namespace CommonsLibrary
             return components;
         }
 
-        ReferencePointer<Transform> GetTransform() { return m_transform; }
+        //ReferencePointer<Transform> GetTransform() { return m_transform; }
     private:
-        void SetComponentActive(ReferencePointer<Component> component, bool active);
+        void SetComponentActive(const ReferencePointer<Component>& component, bool active);
 
-        template<class Type>
-        ReferencePointer<Type> GetComponent(std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> componentMap, const std::type_index& key) const
-        {
-            if (KeyExists(componentMap, key))
-            {
-                return ReferencePointerStaticCast<Type>(componentMap[key][0]);
-            }
-            else
-            {
-                ReferencePointer<Type> type;
-                for (const auto& componentPair : componentMap)
-                {
-                    type = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
-                    if (type)
-                        return type;
-                }
-                return nullptr;
-            }
-        }
+        //template<class Type>
+        //ReferencePointer<Type> GetComponent(std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> componentMap, const std::type_index& key) const
+        //{
+        //    if (KeyExists(componentMap, key))
+        //    {
+        //        return ReferencePointerStaticCast<Type>(componentMap[key][0]);
+        //    }
+        //    else
+        //    {
+        //        ReferencePointer<Type> type;
+        //        for (const auto& componentPair : componentMap)
+        //        {
+        //            type = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
+        //            if (type)
+        //                return type;
+        //        }
+        //        return nullptr;
+        //    }
+        //}
 
         template<class Type>
         void GetComponents(std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> componentMap, const std::type_index& key, std::vector<Type>& components) const

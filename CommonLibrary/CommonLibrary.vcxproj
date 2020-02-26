@@ -190,9 +190,9 @@
     <ClCompile Include="Source\ECS\GameObject.cpp" />
     <ClCompile Include="Source\ECS\Component.cpp" />
     <ClCompile Include="Source\ECS\ComponentRegistry.cpp" />
-    <ClCompile Include="Source\ECS\Transform.cpp" />
     <ClCompile Include="Source\DebugTools\Logger.cpp" />
     <ClCompile Include="Source\DebugTools\ScopedTimer.cpp" />
+    <ClCompile Include="Source\ECS\Transform.cpp" />
     <ClCompile Include="Source\Singleton.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
