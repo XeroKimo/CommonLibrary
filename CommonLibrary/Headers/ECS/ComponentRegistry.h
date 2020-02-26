@@ -4,14 +4,15 @@
 #include "Delegates/FunctionPointer.h"
 #include "ReferencePointer.h"
 #include <typeindex>
-#include <memory>
 
 namespace CommonsLibrary
 {
     class ComponentRegistry
     {
+        class GameObject;
+        class World;
     private:
-        static std::unordered_map<std::string, FunctionPointer<ReferencePointer<Component>>> m_registry;
+        static std::unordered_map<std::string, Function<ReferencePointer<Component>()>> m_registry;
 
     public:
         template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
@@ -29,7 +30,7 @@ namespace CommonsLibrary
         template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
         static ReferencePointer<T> CreateComponent()
         {
-            return MakeReference<T>();
+            return MakeReference<T>(nullptr, nullptr);
         }
     };
 }

@@ -14,12 +14,19 @@ namespace CommonsLibrary
 {
     struct Matrix4x4
     {
+
+    public:
+        Vector4 vx;
+        Vector4 vy;
+        Vector4 vz;
+        Vector4 vw;
+
     public:
 
         Matrix4x4() { Identity(); }
         Matrix4x4(Vector4 x, Vector4 y, Vector4 z, Vector4 w) { vx = x; vy = y; vz = z; vw = w; }
 
-        Matrix4x4 operator+(const Matrix4x4& other)
+        Matrix4x4 operator+(const Matrix4x4& other) const
         {
             Matrix4x4 mat;
             mat.vx = vx + other.vx;
@@ -29,7 +36,7 @@ namespace CommonsLibrary
 
             return mat;
         }
-        Matrix4x4 operator-(const Matrix4x4& other)
+        Matrix4x4 operator-(const Matrix4x4& other) const
         {
             Matrix4x4 mat;
             mat.vx = vx - other.vx;
@@ -39,7 +46,7 @@ namespace CommonsLibrary
 
             return mat;
         }
-        Matrix4x4 operator*(const Matrix4x4& other)
+        Matrix4x4 operator*(const Matrix4x4& other) const
         {
             Matrix4x4 mat = other;
             mat.Transpose();
@@ -68,7 +75,7 @@ namespace CommonsLibrary
             return output;
         }
 
-        Vector4 operator*(const Vector4& other)
+        Vector4 operator*(const Vector4& other) const
         {
             float x = vx.Dot(other);
             float y = vy.Dot(other);
@@ -289,11 +296,19 @@ namespace CommonsLibrary
             return temp;
         }
 
-    public:
-        Vector4 vx;
-        Vector4 vy;
-        Vector4 vz;
-        Vector4 vw;
+        static Matrix4x4 PositionMatrix(Vector3 position)
+        {
+            Matrix4x4 matrix;
+            matrix.SetPosition(position);
+            return matrix;
+        }
+        static Matrix4x4 ScaleMatrix(Vector3 scale)
+        {
+            Matrix4x4 matrix;
+            matrix.SetScale(scale);
+            return matrix;
+        }
+
     };
 }
 #ifndef near
