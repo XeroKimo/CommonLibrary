@@ -4,124 +4,92 @@
 
 namespace CommonsLibrary
 {
-    GameObject::GameObject(const ReferencePointer<World>& world)
-    {
-        m_world = world;
+	GameObject::GameObject(const ReferencePointer<World>& world)
+	{
+		m_world = world;
 
-        m_transform =  AddComponent<Transform>();
-    }
+		m_transform = AddComponent<Transform>();
+	}
 
-    void CommonsLibrary::GameObject::Start()
-    {
-        for (const std::pair<std::type_index, std::vector<ReferencePointer<Component>>>& components : m_activeComponents)
-        {
-            for (const ReferencePointer<Component>& component : components.second)
-            {
+	void CommonsLibrary::GameObject::Start()
+	{
+		for (const ReferencePointer<Component>& component : m_activeComponents)
+		{
 #ifdef _DEBUG
-                try
-                {
-                    component->Start();
-                }
-                catch (std::exception e)
-                {
-                    Logger::Instance()->Log(e.what());
-                }
+			try
+			{
+				component->Start();
+			}
+			catch (std::exception e)
+			{
+				Logger::Instance()->Log(e.what());
+			}
 #else
-                component->Start();
+			component->Start();
 #endif
-            }
-        }
-    }
+		}
+	}
 
-    void CommonsLibrary::GameObject::Update(float deltaTime)
-    {
-        for (const std::pair<std::type_index, std::vector<ReferencePointer<Component>>>& components : m_activeComponents)
-        {
-            for (const ReferencePointer<Component>& component : components.second)
-            {
+	void CommonsLibrary::GameObject::Update(float deltaTime)
+	{
+		for (const ReferencePointer<Component>& component : m_activeComponents)
+		{
 #ifdef _DEBUG
-                try
-                {
-                    component->Update(deltaTime);
-                }
-                catch (std::exception e)
-                {
-                    Logger::Instance()->Log(e.what());
-                }
+			try
+			{
+				component->Update(deltaTime);
+			}
+			catch (std::exception e)
+			{
+				Logger::Instance()->Log(e.what());
+			}
 #else
-                component->Update(deltaTime);
+			component->Update(deltaTime);
 #endif
-            }
-        }
-    }
+		}
+	}
 
-    void CommonsLibrary::GameObject::RemoveComponent(ReferencePointer<Component> component)
-    {
-        if (!component)
-            return;
-        if (component->GetGameObject() != GetReferencePointer())
-            return;
+	void CommonsLibrary::GameObject::RemoveComponent(ReferencePointer<Component> component)
+	{
+		if (!component)
+			return;
+		if (component->GetGameObject() != GetReferencePointer())
+			return;
 
-        std::type_index key(typeid(*component));
+		std::type_index key(typeid(*component));
 
-        std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToSearchIn = (component->IsActive()) ? &m_activeComponents : &m_inactiveComponents;
-        if (KeyExists(*mapToSearchIn, key))
-        {
-            std::vector<ReferencePointer<Component>>* searchComponents = &((*mapToSearchIn)[key]);
-            auto it = std::find(searchComponents->begin(), searchComponents->end(), component);
-            if (it != searchComponents->end())
-            {
-                searchComponents->erase(it);
-                return;
-            }
-        }
-        else
-        {
-            for (auto componentPair : *mapToSearchIn)
-            {
-                std::vector<ReferencePointer<Component>>* searchComponents = &componentPair.second;
-                auto it = std::find(searchComponents->begin(), searchComponents->end(), component);
-                if (it != searchComponents->end())
-                {
-                    searchComponents->erase(it);
-                    return;
-                }
-            }
-        }
-    }
+		std::vector<ReferencePointer<Component>>& componentVector = (component->IsActive()) ? m_activeComponents : m_inactiveComponents;
 
-	void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component, bool active)
-    {
-        std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToSearchIn = (active) ? &m_inactiveComponents : &m_activeComponents;
-        std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToMoveComponent = (active) ? &m_activeComponents : &m_inactiveComponents;
+		auto it = std::find(componentVector.begin(), componentVector.end(), component);
+		if (it != componentVector.end())
+			componentVector.erase(it);
 
-        std::type_index key(typeid(*component));
-        if (KeyExists(*mapToSearchIn, key))
-        {
-            std::vector<ReferencePointer<Component>>* searchComponents = &((*mapToSearchIn)[key]);
-            std::vector<ReferencePointer<Component>>* moveComponents = &((*mapToMoveComponent)[key]);
+		if (KeyExists(m_components, key))
+		{
+			m_components.erase(key);
+		}
+		else
+		{
+			for (auto componentPair : m_components)
+			{
+				std::vector<ReferencePointer<Component>>* searchComponents = &componentPair.second;
+				auto it = std::find(searchComponents->begin(), searchComponents->end(), component);
+				if (it != searchComponents->end())
+				{
+					searchComponents->erase(it);
+					return;
+				}
+			}
+		}
+	}
 
-            auto it = std::find(searchComponents->begin(), searchComponents->end(), component);
-            if (it != searchComponents->end())
-            {
-                moveComponents->push_back(std::move(*it));
-                searchComponents->erase(it);
-            }
-        }
-        else
-        {
-            std::vector<ReferencePointer<Component>>* moveComponents = &((*mapToMoveComponent)[key]);
-            for (auto componentPair : *mapToSearchIn)
-            {
-                std::vector<ReferencePointer<Component>>* searchComponents = &componentPair.second;
-                auto it = std::find(searchComponents->begin(), searchComponents->end(), component);
-                if (it != searchComponents->end())
-                {
-                    moveComponents->push_back(std::move(*it));
-                    searchComponents->erase(it);
-                    return;
-                }
-            }
-        }
-    }
+	void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component)
+	{
+		std::vector<ReferencePointer<Component>>& mapToSearchIn = (component->IsActive()) ? m_activeComponents : m_inactiveComponents; 
+		std::vector<ReferencePointer<Component>>& mapToMoveComponent = (component->IsActive()) ? m_inactiveComponents : m_activeComponents;
+
+		auto findIt = std::find(mapToSearchIn.begin(), mapToSearchIn.end(), component);
+		mapToSearchIn.erase(findIt);
+		mapToMoveComponent.push_back(component);
+	}
 }

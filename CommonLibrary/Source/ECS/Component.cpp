@@ -9,7 +9,8 @@ namespace CommonsLibrary
         if (m_active == active)
             return;
 
-        //m_gameObject->SetComponentActive(GetReferencePointer(), active);
+        m_gameObject->SetComponentActive(GetReferencePointer());
+		m_active = active;
     }
 	ReferencePointer<GameObject> Component::GetGameObject()
 	{

@@ -16,7 +16,6 @@ namespace CommonsLibrary
         Vector3 m_scale;
         Quaternion m_rotation;
     public:
-        //Transform() = default;
         Transform(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world) : Component(gameObject, world) {}
 
     public:

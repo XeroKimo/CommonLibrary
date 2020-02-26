@@ -7,7 +7,6 @@
 
 namespace CommonsLibrary
 {
-    //class Scene;
     class World : ReferenceFromThis<World>
     {
     private:
