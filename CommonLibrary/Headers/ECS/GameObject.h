@@ -2,8 +2,8 @@
 #include "Component.h"
 #include "ComponentRegistry.h"
 #include "UnorderedMapHelpers.h"
+#include "Transform.h"
 #include <typeindex>
-#include "World.h"
 
 
 namespace CommonsLibrary
@@ -24,6 +24,7 @@ namespace CommonsLibrary
     public:
         std::string name;
     public:
+		GameObject() = default;
         GameObject(const ReferencePointer<World>& world);
 
     public:
@@ -44,12 +45,11 @@ namespace CommonsLibrary
         void RemoveComponent(ReferencePointer<Component> component);
 
         template<class Type>
-        ReferencePointer<Type> GetComponent()
+        ReferencePointer<Type> GetComponent() const
         {
-            return nullptr;
-            //std::type_index key(typeid(Type));
-            //ReferencePointer<Type> component = GetComponent<Type>(m_activeComponents, key);
-            //return (component) ? component : GetComponent<Type>(m_inactiveComponents, key);
+            std::type_index key(typeid(Type));
+            ReferencePointer<Type> component = GetComponent<Type>(m_activeComponents, key);
+            return (component) ? component : GetComponent<Type>(m_inactiveComponents, key);
         }
 
         template<class Type>
@@ -62,29 +62,29 @@ namespace CommonsLibrary
             return components;
         }
 
-        //ReferencePointer<Transform> GetTransform() { return m_transform; }
+		ReferencePointer<Transform> GetTransform() { return m_transform; }
     private:
         void SetComponentActive(const ReferencePointer<Component>& component, bool active);
 
-        //template<class Type>
-        //ReferencePointer<Type> GetComponent(std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> componentMap, const std::type_index& key) const
-        //{
-        //    if (KeyExists(componentMap, key))
-        //    {
-        //        return ReferencePointerStaticCast<Type>(componentMap[key][0]);
-        //    }
-        //    else
-        //    {
-        //        ReferencePointer<Type> type;
-        //        for (const auto& componentPair : componentMap)
-        //        {
-        //            type = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
-        //            if (type)
-        //                return type;
-        //        }
-        //        return nullptr;
-        //    }
-        //}
+        template<class Type>
+        ReferencePointer<Type> GetComponent(std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> componentMap, const std::type_index& key) const
+        {
+            if (KeyExists(componentMap, key))
+            {
+                return ReferencePointerStaticCast<Type>(componentMap[key][0]);
+            }
+            else
+            {
+                ReferencePointer<Type> type;
+                for (const auto& componentPair : componentMap)
+                {
+                    type = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
+                    if (type)
+                        return type;
+                }
+                return nullptr;
+            }
+        }
 
         template<class Type>
         void GetComponents(std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> componentMap, const std::type_index& key, std::vector<Type>& components) const

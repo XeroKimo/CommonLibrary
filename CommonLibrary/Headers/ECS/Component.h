@@ -26,6 +26,6 @@ namespace CommonsLibrary
         bool IsActive() { return m_active; }
         void SetActive(bool active);
 
-        ReferencePointer<GameObject> GetGameObject() { return m_gameObject; }
+		ReferencePointer<GameObject> GetGameObject();
     };
 }

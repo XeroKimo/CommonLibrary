@@ -1,5 +1,5 @@
 #include "ECS/Component.h"
-#include "ECS/World.h"
+//#include "ECS/World.h"
 #include "ECS/GameObject.h"
 
 namespace CommonsLibrary
@@ -9,6 +9,10 @@ namespace CommonsLibrary
         if (m_active == active)
             return;
 
-        m_gameObject->SetComponentActive(GetReferencePointer(), active);
+        //m_gameObject->SetComponentActive(GetReferencePointer(), active);
     }
+	ReferencePointer<GameObject> Component::GetGameObject()
+	{
+		return m_gameObject;
+	}
 }

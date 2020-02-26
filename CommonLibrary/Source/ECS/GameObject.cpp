@@ -1,8 +1,6 @@
 #include "ECS/GameObject.h"
-#include "ECS/Transform.h"
 #include "ECS/World.h"
 #include "DebugTools/Logger.h"
-
 
 namespace CommonsLibrary
 {
@@ -92,7 +90,7 @@ namespace CommonsLibrary
         }
     }
 
-    void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component, bool active)
+	void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component, bool active)
     {
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToSearchIn = (active) ? &m_inactiveComponents : &m_activeComponents;
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>* mapToMoveComponent = (active) ? &m_activeComponents : &m_inactiveComponents;
