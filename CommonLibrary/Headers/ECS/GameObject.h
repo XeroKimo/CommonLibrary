@@ -9,29 +9,31 @@
 namespace CommonsLibrary
 {
 	class Transform;
+	class Scene;
 	class GameObject final : public ReferenceFromThis<GameObject>
 	{
 		friend class Component;
 		friend class World;
+		friend class Transform;
 	private:
 		std::vector<ReferencePointer<Component>> m_activeComponents;
 		std::vector<ReferencePointer<Component>> m_inactiveComponents;
 
 		std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_components;
-		//std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_inactiveComponents;
+
 		ReferencePointer<Transform> m_transform;
 		ReferencePointer<World> m_world;
+		Scene* m_owningScene;
 
-		bool m_active;
+		bool m_activeInWorld;
+		bool m_activeInHeirarchy;
 
 	public:
 		std::string name;
 	public:
-		GameObject() = default;
-		GameObject(const ReferencePointer<World>& world);
+		GameObject(const ReferencePointer<World>& world, Scene* const scene);
 
 	public:
-		void Start();
 		void Update(float deltaTime);
 
 	public:
@@ -40,8 +42,20 @@ namespace CommonsLibrary
 		{
 			std::type_index key(typeid(Type));
 			auto& components = m_components[key];
-			components.push_back(ComponentRegistry::Create(key, GetReferencePointer(), m_world));
-			m_activeComponents.push_back(components.back());
+
+			ReferencePointer<Component> createdComponent = ComponentRegistry::Create(key, GetReferencePointer(), m_world);
+			if (createdComponent->IsActive())
+			{
+				m_activeComponents.push_back(createdComponent);
+				if (m_activeInWorld)
+					AddComponentToStart(createdComponent.Get());
+			}
+			else
+			{
+				m_inactiveComponents.push_back(createdComponent);
+			}
+			components.push_back(std::move(createdComponent));
+
 			return ReferencePointerStaticCast<Type>(components.back());
 		}
 
@@ -65,6 +79,10 @@ namespace CommonsLibrary
 		}
 
 		ReferencePointer<Transform> GetTransform() { return m_transform; }
+
+		void SetIsActive(bool active);
+		bool IsActiveInHeirarchy() { return m_activeInHeirarchy; }
+		bool IsActiveInWorld() { return m_activeInWorld; }
 	private:
 		void SetComponentActive(const ReferencePointer<Component>& component);
 
@@ -114,5 +132,11 @@ namespace CommonsLibrary
 				}
 			}
 		}
+
+		void AddComponentToStart(Component* component);
+
+		void SetChildrenActiveInWorld();
+		bool IsParentActiveInWorld();
+		void SetIsActiveInWorld();
 	};
 }

@@ -1,4 +1,5 @@
 #include "ECS/Transform.h"
+#include "ECS/GameObject.h"
 
 namespace CommonsLibrary
 {
@@ -18,7 +19,10 @@ namespace CommonsLibrary
         }
         m_parent = parent;
         if (m_parent)
+        {
             m_parent->AddChild(ReferencePointerStaticCast<Transform>(GetReferencePointer()));
+            GetGameObject()->SetIsActiveInWorld();
+        }
     }
 
     Matrix4x4 Transform::GetTransformMatrix()

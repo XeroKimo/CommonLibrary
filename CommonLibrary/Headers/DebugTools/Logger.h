@@ -4,7 +4,7 @@
 
 namespace CommonsLibrary
 {
-#define LoggerFileName "Log"
+    constexpr char fileName[] = "Log";
     class Logger : public Singleton<Logger>
     {
         friend class Singleton<Logger>;

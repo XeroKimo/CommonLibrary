@@ -11,6 +11,10 @@ namespace CommonsLibrary
     }
     ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
     {
+#if _DEBUG
         return (KeyExists(m_registry, type)) ? m_registry[type](gameObject, world) : nullptr;
+#else
+        return m_registry[type](gameObject, world);
+#endif
     }
 }

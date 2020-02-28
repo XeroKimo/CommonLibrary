@@ -37,6 +37,7 @@ namespace CommonsLibrary
         Quaternion GetLocalRotation() { return m_rotation; }
         Matrix4x4 GetTransformMatrix();
 
+        ReferencePointer<Transform> GetParent() { return m_parent; }
         ReferencePointer<Transform> GetChild(unsigned int index) { return m_children[index]; }
         std::vector<ReferencePointer<Transform>> GetChildren() { return m_children; }
     private:

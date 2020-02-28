@@ -183,6 +183,7 @@
     <ClInclude Include="Headers\Singleton.h" />
     <ClInclude Include="Headers\StringHelpers.h" />
     <ClInclude Include="Headers\UnorderedMapHelpers.h" />
+    <ClInclude Include="Headers\VectorHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ECS\Component.cpp" />

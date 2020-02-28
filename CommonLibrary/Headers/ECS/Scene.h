@@ -7,6 +7,7 @@ namespace CommonsLibrary
 	class GameObject;
     class Scene
     {
+        friend class World;
     private:
         std::vector<ReferencePointer<GameObject>> m_activeGameObjects;
         std::vector<ReferencePointer<GameObject>> m_inactiveGameObjects;
@@ -14,14 +15,8 @@ namespace CommonsLibrary
     public:
         Scene() = default;
 
-    public:
         void Update(float deltaTime);
 
-        virtual void LoadScene() = 0;
-
-    public:
-        void AddGameObject(ReferencePointer<GameObject> gameObject);
-        void DeleteGameObject(const ReferencePointer<GameObject>& gameObject);
         ReferencePointer<GameObject> FindObject(const std::string& name);
 
         template <class Type>
@@ -38,6 +33,15 @@ namespace CommonsLibrary
             FindObjectsType<Type>(m_inactiveGameObjects, components);
             return components;
         }
+
+    protected:
+        virtual void LoadScene() = 0;
+
+    private:
+        void AddGameObject(ReferencePointer<GameObject> gameObject);
+        void DeleteGameObject(const ReferencePointer<GameObject>& gameObject);
+
+        void SetObjectActive(const ReferencePointer<GameObject>& gameObject);
 
     private:
         bool FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject);

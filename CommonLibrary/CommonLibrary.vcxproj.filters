@@ -87,6 +87,9 @@
     <ClInclude Include="Headers\ECS\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\VectorHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Singleton.cpp">

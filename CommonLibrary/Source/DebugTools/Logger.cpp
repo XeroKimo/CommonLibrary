@@ -8,7 +8,7 @@ namespace CommonsLibrary
 
     Logger::Logger() : Singleton()
     {
-        m_outputFile.open(std::string(LoggerFileName) + ".txt");
+        m_outputFile.open(std::string(fileName) + ".txt");
     }
 
     Logger::~Logger()
