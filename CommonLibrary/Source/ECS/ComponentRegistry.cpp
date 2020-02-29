@@ -1,6 +1,8 @@
 #include "ECS/ComponentRegistry.h"
 #include "ECS/World.h"
 #include "ECS/GameObject.h"
+#include <assert.h>
+#include <string>
 
 namespace CommonsLibrary
 {
@@ -12,7 +14,15 @@ namespace CommonsLibrary
     ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
     {
 #if _DEBUG
-        return (KeyExists(m_registry, type)) ? m_registry[type](gameObject, world) : nullptr;
+        if (KeyExists(m_registry, type))
+        {
+            return m_registry[type](gameObject, world);
+        }
+        else
+        {
+            _wassert(L"Component not registered", _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
+            return nullptr;
+        }
 #else
         return m_registry[type](gameObject, world);
 #endif

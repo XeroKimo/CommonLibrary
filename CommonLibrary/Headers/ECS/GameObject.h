@@ -40,6 +40,7 @@ namespace CommonsLibrary
 		template<class Type, class = std::enable_if_t<std::is_base_of_v<Component, Type>>>
 		ReferencePointer<Type> AddComponent()
 		{
+            static_assert(std::is_convertible<std::remove_cv_t<Type>*, typename Component::RefThis*>::value, "Multiple inheritance of type Component is not allowed");
 			std::type_index key(typeid(Type));
 			auto& components = m_components[key];
 

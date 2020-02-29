@@ -1,9 +1,14 @@
 #include "ECS/Scene.h"
 #include "ECS/Component.h"
+#include "ECS/World.h"
 #include "VectorHelpers.h"
 
 namespace CommonsLibrary
 {
+    Scene::Scene(std::string sceneName)
+    {
+        m_sceneName = std::move(sceneName);
+    }
     void Scene::Update(float deltaTime)
     {
         for (const ReferencePointer<GameObject>& gameObject : m_activeGameObjects)
@@ -31,7 +36,7 @@ namespace CommonsLibrary
         toAddVector.push_back(std::move(*it));
         toRemoveVector.erase(it);
     }
-    ReferencePointer<GameObject> Scene::FindObject(const std::string& name)
+    ReferencePointer<GameObject> Scene::FindObject(const std::string& name) const
     {
         ReferencePointer<GameObject> objectToFind = FindObject(m_activeGameObjects, name);
         return (objectToFind) ? objectToFind : FindObject(m_inactiveGameObjects, name);
@@ -40,7 +45,7 @@ namespace CommonsLibrary
     {
         return RemoveFromVector(objectVector, gameObject);
     }
-    ReferencePointer<GameObject> Scene::FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name)
+    ReferencePointer<GameObject> Scene::FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name) const
     {
         for (const ReferencePointer<GameObject>& gameObject : objectVector)
         {

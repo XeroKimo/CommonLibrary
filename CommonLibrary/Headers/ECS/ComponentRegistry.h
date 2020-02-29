@@ -20,17 +20,16 @@ namespace CommonsLibrary
         {
             std::string name = typeid(T).name();
             if (!KeyExists(m_registry, name))
-                m_registry[name] = &ComponentRegistry::CreateComponent<T>;
+                m_registry[name] = &ComponentRegistry::CreateComponent;
         }
 
         static ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
         static ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
 
     private:
-        template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
-        static ReferencePointer<T> CreateComponent(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+        static ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
         {
-            return MakeReference<T>(gameObject, world);
+            return MakeReference<Component>(gameObject, world);
         }
     };
 }

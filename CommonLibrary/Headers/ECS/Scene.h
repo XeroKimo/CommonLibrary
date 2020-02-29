@@ -5,6 +5,7 @@
 namespace CommonsLibrary
 {
 	class GameObject;
+    class World;
     class Scene
     {
         friend class World;
@@ -12,21 +13,22 @@ namespace CommonsLibrary
         std::vector<ReferencePointer<GameObject>> m_activeGameObjects;
         std::vector<ReferencePointer<GameObject>> m_inactiveGameObjects;
 
+        std::string m_sceneName;
     public:
-        Scene() = default;
+        Scene(std::string sceneName);
 
         void Update(float deltaTime);
 
-        ReferencePointer<GameObject> FindObject(const std::string& name);
+        ReferencePointer<GameObject> FindObject(const std::string& name) const;
 
         template <class Type>
-        ReferencePointer<Type> FindObjectType()
+        ReferencePointer<Type> FindObjectType() const
         {
-            ReferencePointer<Type> component = FindObjectType<Type>();
-            return (component) ? component : FindObjectType<Type>();
+            ReferencePointer<Type> component = FindObjectType<Type>(m_activeGameObjects);
+            return (component) ? component : FindObjectType<Type>(m_inactiveGameObjects);
         }
         template <class Type>
-        std::vector<ReferencePointer<Type>> FindObjectsType()
+        std::vector<ReferencePointer<Type>> FindObjectsType() const
         {
             std::vector<ReferencePointer<Type>> components;
             FindObjectsType<Type>(m_activeGameObjects, components);
@@ -34,9 +36,9 @@ namespace CommonsLibrary
             return components;
         }
 
+        std::string GetSceneName() { return m_sceneName; }
     protected:
-        virtual void LoadScene() = 0;
-
+        virtual void LoadScene(const ReferencePointer<World>& world) = 0;
     private:
         void AddGameObject(ReferencePointer<GameObject> gameObject);
         void DeleteGameObject(const ReferencePointer<GameObject>& gameObject);
@@ -45,14 +47,14 @@ namespace CommonsLibrary
 
     private:
         bool FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject);
-        ReferencePointer<GameObject> FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name);
+        ReferencePointer<GameObject> FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name) const;
 
         template <class Type>
-        ReferencePointer<Type> FindObjectType(const std::vector<ReferencePointer<GameObject>>& objectVector)
+        ReferencePointer<Type> FindObjectType(const std::vector<ReferencePointer<GameObject>>& objectVector) const
         {
             for (const ReferencePointer<GameObject>& gameObject : objectVector)
             {
-                ReferencePointer<Type> component = gameObject->GetComponent();
+                ReferencePointer<Type> component = gameObject->GetComponent<Type>();
                 if (component)
                     return component;
             }
@@ -60,11 +62,11 @@ namespace CommonsLibrary
         }
 
         template <class Type>
-        void FindObjectsType(const std::vector<ReferencePointer<GameObject>>& objectVector, std::vector<ReferencePointer<Type>>& outputVector)
+        void FindObjectsType(const std::vector<ReferencePointer<GameObject>>& objectVector, std::vector<ReferencePointer<Type>>& outputVector) const
         {
             for (const ReferencePointer<GameObject>& gameObject : objectVector)
             {
-                ReferencePointer<Type> component = gameObject->GetComponent();
+                ReferencePointer<Type> component = gameObject->GetComponent<Type>();
                 if (component)
                     return component;
             }

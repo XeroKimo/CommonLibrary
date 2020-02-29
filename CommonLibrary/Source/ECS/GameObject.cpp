@@ -12,8 +12,8 @@ namespace CommonsLibrary
 		m_owningScene = scene;
 
 		m_transform = AddComponent<Transform>();
-		m_activeInHeirarchy = true;
-		SetIsActiveInWorld();
+		m_activeInHeirarchy = m_activeInWorld = true;
+        name = "GameObject";
 	}
 
 	void CommonsLibrary::GameObject::Update(float deltaTime)
