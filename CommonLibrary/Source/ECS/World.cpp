@@ -42,6 +42,8 @@ namespace CommonsLibrary
     ReferencePointer<GameObject> World::CreateGameObject()
     {
         ReferencePointer<GameObject> instantiatedObject = MakeReference<GameObject>(GetReferencePointer(), m_activeScene);
+        instantiatedObject->InitTransform();
+
         ReferencePointer<GameObject> returnObject = instantiatedObject;
         m_activeScene->AddGameObject(std::move(instantiatedObject));
         return returnObject;

@@ -85,6 +85,7 @@ namespace CommonsLibrary
 		bool IsActiveInHeirarchy() { return m_activeInHeirarchy; }
 		bool IsActiveInWorld() { return m_activeInWorld; }
 	private:
+        void InitTransform();
 		void SetComponentActive(const ReferencePointer<Component>& component);
 
 		template<class Type>

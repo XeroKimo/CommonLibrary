@@ -11,7 +11,6 @@ namespace CommonsLibrary
 		m_world = world;
 		m_owningScene = scene;
 
-		m_transform = AddComponent<Transform>();
 		m_activeInHeirarchy = m_activeInWorld = true;
         name = "GameObject";
 	}
@@ -72,7 +71,12 @@ namespace CommonsLibrary
 		SetIsActiveInWorld();
 	}
 
-	void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component)
+    void GameObject::InitTransform()
+    {
+        m_transform = AddComponent<Transform>();
+    }
+
+    void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component)
 	{
 		std::vector<ReferencePointer<Component>>& arrayToSearchIn = (component->IsActive()) ? m_activeComponents : m_inactiveComponents; 
 		std::vector<ReferencePointer<Component>>& arrayToMoveIn = (component->IsActive()) ? m_inactiveComponents : m_activeComponents;
