@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\BitMaskEnum.h" />
     <ClInclude Include="Headers\DebugTools\Logger.h" />
     <ClInclude Include="Headers\DebugTools\ScopedTimer.h" />
     <ClInclude Include="Headers\Delegates\Delegate.h" />

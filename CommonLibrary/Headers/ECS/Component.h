@@ -18,6 +18,7 @@ namespace CommonsLibrary
         bool m_hasStarted = false;
 
     public:
+        Component() = delete;
         Component(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
 
     public:

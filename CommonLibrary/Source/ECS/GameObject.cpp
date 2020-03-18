@@ -6,13 +6,13 @@
 
 namespace CommonsLibrary
 {
-	GameObject::GameObject(const ReferencePointer<World>& world, Scene* const scene)
+	GameObject::GameObject(const ReferencePointer<World>& world, Scene* const scene) :
+		m_world(world),
+		m_owningScene(scene),
+		m_activeInHeirarchy(true),
+		m_activeInWorld(true),
+		name("GameObject")
 	{
-		m_world = world;
-		m_owningScene = scene;
-
-		m_activeInHeirarchy = m_activeInWorld = true;
-        name = "GameObject";
 	}
 
 	void CommonsLibrary::GameObject::Update(float deltaTime)

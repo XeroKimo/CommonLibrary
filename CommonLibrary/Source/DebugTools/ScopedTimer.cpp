@@ -9,5 +9,7 @@ namespace CommonsLibrary
 
     ScopedTimer::~ScopedTimer()
     {
+        if (!m_onDestroy.IsNull())
+            m_onDestroy();
     }
 }

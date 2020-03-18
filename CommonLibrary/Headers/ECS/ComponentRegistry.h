@@ -9,27 +9,28 @@ namespace CommonsLibrary
 {
     class GameObject;
     class World;
-    class ComponentRegistry
-    {
-    private:
-        static std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> m_registry;
 
-    public:
+    namespace ComponentRegistry
+    {
+        namespace Internal
+        {
+            extern std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> g_registry;
+            template <class T>
+            inline ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+            {
+                return MakeReference<T>(gameObject, world);
+            }
+        }
         template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
-        static void Register()
+        inline void Register()
         {
             std::string name = typeid(T).name();
-            if (!KeyExists(m_registry, name))
-                m_registry[name] = &ComponentRegistry::CreateComponent;
+            if (!KeyExists(Internal::g_registry, name))
+                Internal::g_registry[name] = Internal::CreateComponent<T>;
         }
 
-        static ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
-        static ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
 
-    private:
-        static ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
-        {
-            return MakeReference<Component>(gameObject, world);
-        }
-    };
+        ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
+        ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
+    }
 }

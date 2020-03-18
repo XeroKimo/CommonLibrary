@@ -6,25 +6,31 @@
 
 namespace CommonsLibrary
 {
-    std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> ComponentRegistry::m_registry;
-    ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+    namespace ComponentRegistry
     {
-        return Create(type.name(), gameObject, world);
-    }
-    ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
-    {
+        namespace Internal
+        {
+            std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> g_registry;
+        }
+        ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+        {
+            return Create(type.name(), gameObject, world);
+        }
+        ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+        {
 #if _DEBUG
-        if (KeyExists(m_registry, type))
-        {
-            return m_registry[type](gameObject, world);
-        }
-        else
-        {
-            _wassert(L"Component not registered", _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
-            return nullptr;
-        }
+            if (KeyExists(Internal::g_registry, type))
+            {
+                return Internal::g_registry[type](gameObject, world);
+            }
+            else
+            {
+                _wassert(L"Component not registered", _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
+                return nullptr;
+            }
 #else
-        return m_registry[type](gameObject, world);
+            return m_registry[type](gameObject, world);
 #endif
+        }
     }
 }
