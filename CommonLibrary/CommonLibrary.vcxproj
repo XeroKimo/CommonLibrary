@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\ApplicationClock.h" />
     <ClInclude Include="Headers\BitMaskEnum.h" />
     <ClInclude Include="Headers\DebugTools\Logger.h" />
     <ClInclude Include="Headers\DebugTools\ScopedTimer.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Headers\VectorHelpers.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ApplicationClock.cpp" />
     <ClCompile Include="Source\ECS\Component.cpp" />
     <ClCompile Include="Source\ECS\ComponentRegistry.cpp" />
     <ClCompile Include="Source\DebugTools\Logger.cpp" />

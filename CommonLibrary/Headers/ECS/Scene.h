@@ -38,7 +38,8 @@ namespace CommonsLibrary
 
         std::string GetSceneName() { return m_sceneName; }
     protected:
-        virtual void LoadScene(const ReferencePointer<World>& world) = 0;
+        virtual void LoadScene(const ReferencePointer<World>& world) { }
+
     private:
         void AddGameObject(ReferencePointer<GameObject> gameObject);
         void DeleteGameObject(const ReferencePointer<GameObject>& gameObject);

@@ -93,6 +93,9 @@
     <ClInclude Include="Headers\BitMaskEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\ApplicationClock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Singleton.cpp">
@@ -120,6 +123,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ECS\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ApplicationClock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
