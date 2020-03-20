@@ -1,8 +1,9 @@
 #include "ECS/ComponentRegistry.h"
 #include "ECS/World.h"
 #include "ECS/GameObject.h"
-#include <assert.h>
+#include "DebugTools/Assert.h"
 #include <string>
+#include <cstdlib>
 
 namespace CommonsLibrary
 {
@@ -10,26 +11,31 @@ namespace CommonsLibrary
     {
         namespace Internal
         {
-            std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> g_registry;
+            std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&)>> g_registry;
         }
-        ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+        ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject)
         {
-            return Create(type.name(), gameObject, world);
+            return Create(type.name(), gameObject);
         }
-        ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+        ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject)
         {
 #if _DEBUG
             if (KeyExists(Internal::g_registry, type))
             {
-                return Internal::g_registry[type](gameObject, world);
+                return Internal::g_registry[type](gameObject);
             }
             else
             {
-                _wassert(L"Component not registered", _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
+                wchar_t* wideString = nullptr;
+                mbtowc(wideString, type.c_str(), type.size());
+
+                std::wstring errorMessage = wideString;
+                errorMessage += L" is no reigstered";
+                _wassert(errorMessage.c_str(), _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
                 return nullptr;
             }
 #else
-            return m_registry[type](gameObject, world);
+            return Internal::g_registry[type](gameObject);
 #endif
         }
     }

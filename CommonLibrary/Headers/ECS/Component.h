@@ -5,29 +5,34 @@ namespace CommonsLibrary
 {
     class GameObject;
     class World;
-
+    class Scene;
     class Component : public ReferenceFromThis<Component>
     {
         friend class GameObject;
-        friend class World;
-    private:
-        ReferencePointer<GameObject> m_gameObject;
-        ReferencePointer<World> m_world;
 
+    private:
         bool m_active = true;
         bool m_hasStarted = false;
 
-    public:
-        Component() = delete;
-        Component(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
+    private:
+        ReferencePointer<GameObject> m_gameObject;
 
     public:
-        virtual void Start() {};
-        virtual void Update(float deltaTime) {};
+        Component() = delete;
+        Component(const ReferencePointer<GameObject>& _gameObject);
+
 
         bool IsActive() { return m_active; }
         void SetActive(bool active);
 
-		ReferencePointer<GameObject> GetGameObject();
+        ReferencePointer<GameObject> GetGameObject();
+        Scene* GetScene();
+        World* GetWorld();
+
+    protected:
+        virtual void Start() {};
+        virtual void Update(float deltaTime) {};
+        virtual void OnDestroy() {};
+
     };
 }

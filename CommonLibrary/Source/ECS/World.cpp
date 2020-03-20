@@ -6,40 +6,19 @@
 
 namespace CommonsLibrary
 {
-    World::World(std::vector<std::unique_ptr<Scene>> scenes)
+    World::World(std::vector<std::unique_ptr<Scene>> scenes) :
+        m_sceneManager(std::move(scenes), this)
     {
         ComponentRegistry::Register<Transform>();
-        m_scenes = std::move(scenes);
-        
-        std::string key;
-        for (int i = 0; i < m_scenes.size(); i++)
-        {
-            key = m_scenes[i]->GetSceneName();
-            if (KeyExists(m_sceneIndices, key))
-            {
-                m_sceneIndices[key + std::to_string(i)] = i;
-            }
-            else
-                m_sceneIndices[key] = i;
-        }
+        AddSystem(&m_sceneManager);
     }
     void World::Update(float deltaTime)
     {
-        if (!m_componentsToStart.empty())
-        {
-            for (Component* component : m_componentsToStart)
-            {
-                component->Start();
-                component->m_hasStarted = true;
-            }
-            m_componentsToStart.clear();
-        }
-        for (const auto& scene : m_loadedScenes)
-        {
-            scene->Update(deltaTime);
-        }
+        m_sceneManager.StartGameObjects();
+        m_sceneManager.UpdateGameObjects(deltaTime);
+        m_sceneManager.DestroyGameObjects();
     }
-    ReferencePointer<GameObject> World::CreateGameObject()
+  /*  ReferencePointer<GameObject> World::CreateGameObject()
     {
         ReferencePointer<GameObject> instantiatedObject = MakeReference<GameObject>(GetReferencePointer(), m_activeScene);
         instantiatedObject->InitTransform();
@@ -85,5 +64,5 @@ namespace CommonsLibrary
         {
             it->get()->SetObjectActive(gameObject);
         }
-    }
+    }*/
 }

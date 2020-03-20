@@ -8,17 +8,17 @@
 namespace CommonsLibrary
 {
     class GameObject;
-    class World;
+    class Scene;
 
     namespace ComponentRegistry
     {
         namespace Internal
         {
-            extern std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&, const ReferencePointer<World>&)>> g_registry;
+            extern std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&)>> g_registry;
             template <class T>
-            inline ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world)
+            inline ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject)
             {
-                return MakeReference<T>(gameObject, world);
+                return MakeReference<T>(gameObject);
             }
         }
         template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
@@ -30,7 +30,7 @@ namespace CommonsLibrary
         }
 
 
-        ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
-        ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<GameObject>& gameObject, const ReferencePointer<World>& world);
+        ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject);
+        ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<GameObject>& gameObject);
     }
 }

@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="Headers\ApplicationClock.h" />
     <ClInclude Include="Headers\BitMaskEnum.h" />
+    <ClInclude Include="Headers\DebugTools\Assert.h" />
     <ClInclude Include="Headers\DebugTools\Logger.h" />
     <ClInclude Include="Headers\DebugTools\ScopedTimer.h" />
     <ClInclude Include="Headers\Delegates\Delegate.h" />
@@ -172,6 +173,8 @@
     <ClInclude Include="Headers\ECS\ComponentRegistry.h" />
     <ClInclude Include="Headers\ECS\GameObject.h" />
     <ClInclude Include="Headers\ECS\Scene.h" />
+    <ClInclude Include="Headers\ECS\SceneManager.h" />
+    <ClInclude Include="Headers\ECS\ECSSystem.h" />
     <ClInclude Include="Headers\ECS\Transform.h" />
     <ClInclude Include="Headers\ECS\World.h" />
     <ClInclude Include="Headers\Math\MathConstants.h" />
@@ -195,6 +198,7 @@
     <ClCompile Include="Source\DebugTools\ScopedTimer.cpp" />
     <ClCompile Include="Source\ECS\GameObject.cpp" />
     <ClCompile Include="Source\ECS\Scene.cpp" />
+    <ClCompile Include="Source\ECS\SceneManager.cpp" />
     <ClCompile Include="Source\ECS\Transform.cpp" />
     <ClCompile Include="Source\ECS\World.cpp" />
     <ClCompile Include="Source\Singleton.cpp" />

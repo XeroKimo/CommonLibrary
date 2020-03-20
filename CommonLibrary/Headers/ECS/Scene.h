@@ -1,24 +1,26 @@
 #pragma once
 #include "GameObject.h"
-#include "Component.h"
 
 namespace CommonsLibrary
 {
-	class GameObject;
     class World;
     class Scene
     {
-        friend class World;
+        friend class SceneManager;
+        friend class GameObject;
     private:
         std::vector<ReferencePointer<GameObject>> m_activeGameObjects;
         std::vector<ReferencePointer<GameObject>> m_inactiveGameObjects;
+        std::vector<ReferencePointer<GameObject>> m_gameObjectsToDestroy;
+        std::vector<ReferencePointer<GameObject>> m_gameObjectsToStart;
 
         std::string m_sceneName;
+
+        World* m_world;
     public:
         Scene(std::string sceneName);
 
-        void Update(float deltaTime);
-
+        ReferencePointer<GameObject> CreateGameObject();
         ReferencePointer<GameObject> FindObject(const std::string& name) const;
 
         template <class Type>
@@ -36,15 +38,22 @@ namespace CommonsLibrary
             return components;
         }
 
+    public:
         std::string GetSceneName() { return m_sceneName; }
+
+        World* GetWorld() { return m_world; }
+
     protected:
-        virtual void LoadScene(const ReferencePointer<World>& world) { }
+        virtual void LoadScene(World* world) { m_world = world; }
+    private:
+        void StartGameObjects();
+        void UpdateGameObjects(float deltaTime);
+        void DestroyGameObjects();
 
     private:
-        void AddGameObject(ReferencePointer<GameObject> gameObject);
-        void DeleteGameObject(const ReferencePointer<GameObject>& gameObject);
-
+        void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
         void SetObjectActive(const ReferencePointer<GameObject>& gameObject);
+        void SetGameObjectToStart(const ReferencePointer<GameObject>& gameObject);
 
     private:
         bool FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject);
@@ -69,9 +78,8 @@ namespace CommonsLibrary
             {
                 ReferencePointer<Type> component = gameObject->GetComponent<Type>();
                 if (component)
-                    return component;
+                    outputVector.push_back(component);
             }
-            return nullptr;
         }
     };
 }

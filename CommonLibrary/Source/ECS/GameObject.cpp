@@ -6,32 +6,36 @@
 
 namespace CommonsLibrary
 {
-	GameObject::GameObject(const ReferencePointer<World>& world, Scene* const scene) :
-		m_world(world),
-		m_owningScene(scene),
+	GameObject::GameObject(Scene* const scene) :
+		m_scene(scene),
 		m_activeInHeirarchy(true),
 		m_activeInWorld(true),
-		name("GameObject")
+		name("GameObject"),
+		m_isStart(false)
 	{
+	}
+
+	void GameObject::Start()
+	{
+		if (!m_componentsToStart.empty())
+		{
+			for (const auto components : m_componentsToStart)
+				components->Start();
+			m_componentsToStart.clear();
+			m_isStart = false;
+		}
 	}
 
 	void CommonsLibrary::GameObject::Update(float deltaTime)
 	{
 		for (const ReferencePointer<Component>& component : m_activeComponents)
-		{
-#ifdef _DEBUG
-			try
-			{
-				component->Update(deltaTime);
-			}
-			catch (std::exception e)
-			{
-				Logger::Instance()->Log(e.what());
-			}
-#else
 			component->Update(deltaTime);
-#endif
-		}
+	}
+
+	void GameObject::OnDestroy()
+	{
+		for (auto component : m_activeComponents)
+			component->OnDestroy();
 	}
 
 	void CommonsLibrary::GameObject::RemoveComponent(ReferencePointer<Component> component)
@@ -43,18 +47,16 @@ namespace CommonsLibrary
 
 		std::type_index key(typeid(*component));
 
-		std::vector<ReferencePointer<Component>>& componentVector = (component->IsActive()) ? m_activeComponents : m_inactiveComponents;
-		if (component->IsActive() && !component->m_hasStarted)
-			m_world->RemoveComponentToStart(component.Get());
+		std::vector<Component*>& componentVector = (component->IsActive()) ? m_activeComponents : m_inactiveComponents;
 
-		RemoveFromVector(componentVector, component);
-		if (KeyExists(m_components, key))
+		RemoveFromVector(componentVector, component.Get());
+		if (KeyExists(m_componentMap, key))
 		{
-			RemoveFromVector(m_components[key], component);
+			RemoveFromVector(m_componentMap[key], component);
 		}
 		else
 		{
-			for (auto componentPair : m_components)
+			for (auto componentPair : m_componentMap)
 			{
 				std::vector<ReferencePointer<Component>>* searchComponents = &componentPair.second;
 				RemoveFromVector(*searchComponents, component);
@@ -76,19 +78,23 @@ namespace CommonsLibrary
         m_transform = AddComponent<Transform>();
     }
 
+	void GameObject::SetGameObjectToStart()
+	{
+		if (!m_isStart)
+			return;
+
+		m_scene->SetGameObjectToStart(GetReferencePointer());
+	}
+
     void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component)
 	{
-		std::vector<ReferencePointer<Component>>& arrayToSearchIn = (component->IsActive()) ? m_activeComponents : m_inactiveComponents; 
-		std::vector<ReferencePointer<Component>>& arrayToMoveIn = (component->IsActive()) ? m_inactiveComponents : m_activeComponents;
+		std::vector<Component*>& arrayToSearchIn = (component->IsActive()) ? m_activeComponents : m_inactiveComponents; 
+		std::vector<Component*>& arrayToMoveIn = (component->IsActive()) ? m_inactiveComponents : m_activeComponents;
 
-		RemoveFromVector(arrayToSearchIn, component);
-		arrayToMoveIn.push_back(component);
+		RemoveFromVector(arrayToSearchIn, component.Get());
+		arrayToMoveIn.push_back(component.Get());
 		if (!component->m_hasStarted)
-			m_world->AddComponentToStart(component.Get());
-	}
-	void GameObject::AddComponentToStart(Component* component)
-	{
-		m_world->AddComponentToStart(component);
+			m_componentsToStart.push_back(component.Get());
 	}
 	void GameObject::SetChildrenActiveInWorld()
 	{
@@ -119,14 +125,7 @@ namespace CommonsLibrary
 		if (active == m_activeInWorld)
 			return;
 		m_activeInWorld = active;
-		m_world->SetObjectActive(GetReferencePointer());
-		if (!m_activeInWorld)
-		{
-			for (const ReferencePointer<Component>& component : m_activeComponents)
-			{
-				if (!component->m_hasStarted)
-					m_world->RemoveComponentToStart(component.Get());
-			}
-		}
+		//m_world->SetObjectActive(GetReferencePointer());
+
 	}
 }
