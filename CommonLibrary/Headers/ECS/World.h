@@ -1,7 +1,4 @@
 #pragma once
-#include "Component.h"
-#include "ComponentRegistry.h"
-#include "GameObject.h"
 #include "SceneManager.h"
 #include "ECSSystem.h"
 
@@ -11,7 +8,6 @@ namespace CommonsLibrary
 
     class World
     {
-        friend class GameObject;
     private:
         std::unordered_map<std::type_index, ECSSystem*> m_systems;
         std::unique_ptr<SceneManager> m_sceneManager;

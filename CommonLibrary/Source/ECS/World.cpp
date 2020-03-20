@@ -1,8 +1,6 @@
 #include "ECS/World.h"
+#include "ECS/ComponentRegistry.h"
 #include "ECS/Transform.h"
-#include "VectorHelpers.h"
-#include <algorithm>
-#include <string>
 
 namespace CommonsLibrary
 {

@@ -1,6 +1,4 @@
 #include "ECS/Scene.h"
-#include "ECS/Component.h"
-#include "ECS/World.h"
 #include "VectorHelpers.h"
 
 namespace CommonsLibrary
@@ -33,7 +31,6 @@ namespace CommonsLibrary
         if (!m_world)
             return nullptr;
         ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
-        createdObject->InitTransform();
         m_activeGameObjects.push_back(std::move(createdObject));
         return m_activeGameObjects.back();
     }

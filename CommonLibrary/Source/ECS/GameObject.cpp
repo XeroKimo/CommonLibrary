@@ -64,6 +64,19 @@ namespace CommonsLibrary
 		}
 	}
 
+	ReferencePointer<Transform> GameObject::GetTransform()
+	{
+		if (!m_transform)
+		{
+			ReferencePointer<Transform> transform = GetComponent<Transform>();
+			if (transform)
+				m_transform = transform;
+			else
+				m_transform = AddComponent<Transform>();
+		}
+		return m_transform;
+	}
+
 	void GameObject::SetIsActive(bool active)
 	{
 		if (active == m_activeInHeirarchy)

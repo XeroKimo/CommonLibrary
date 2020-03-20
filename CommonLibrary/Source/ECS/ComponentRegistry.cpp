@@ -2,8 +2,10 @@
 #include "ECS/World.h"
 #include "ECS/GameObject.h"
 #include "DebugTools/Assert.h"
+
+#include <locale>
+#include <codecvt>
 #include <string>
-#include <cstdlib>
 
 namespace CommonsLibrary
 {
@@ -26,11 +28,10 @@ namespace CommonsLibrary
             }
             else
             {
-                wchar_t* wideString = nullptr;
-                mbtowc(wideString, type.c_str(), type.size());
+                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
-                std::wstring errorMessage = wideString;
-                errorMessage += L" is no reigstered";
+                std::wstring errorMessage = converter.from_bytes(type);
+                errorMessage += L" is not reigstered";
                 _wassert(errorMessage.c_str(), _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
                 return nullptr;
             }

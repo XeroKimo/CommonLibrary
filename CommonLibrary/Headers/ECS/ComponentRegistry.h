@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "../UnorderedMapHelpers.h"
+#include "UnorderedMapHelpers.h"
 #include "Delegates/FunctionPointer.h"
 #include "ReferencePointer.h"
 #include <typeindex>

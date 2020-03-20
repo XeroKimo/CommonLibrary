@@ -5,7 +5,6 @@
 #include "Transform.h"
 #include <typeindex>
 
-
 namespace CommonsLibrary
 {
 	class Transform;
@@ -67,48 +66,17 @@ namespace CommonsLibrary
 		void RemoveComponent(ReferencePointer<Component> component);
 
 		template<class Type>
-		ReferencePointer<Type> GetComponent() const
+		ReferencePointer<Type> GetComponent() 
 		{
 			std::type_index key(typeid(Type));
-			ReferencePointer<Type> component = GetComponent<Type>(m_componentMap, key);
-			return component;
-		}
-
-		template<class Type>
-		std::vector<Type> GetComponents() const
-		{
-			std::type_index key(typeid(Type));
-			std::vector<Type> components;
-			GetComponents<Type>(m_componentMap, key, components);
-			return components;
-		}
-
-		ReferencePointer<Transform> GetTransform() { return m_transform; }
-
-	public:
-		void SetIsActive(bool active);
-		bool IsActiveInHeirarchy() { return m_activeInHeirarchy; }
-		bool IsActiveInWorld() { return m_activeInWorld; }
-
-	public:
-		Scene* GetScene() { return m_scene; } 
-
-	private:
-        void InitTransform();
-		void SetGameObjectToStart();
-		void SetComponentActive(const ReferencePointer<Component>& component);
-
-		template<class Type>
-		ReferencePointer<Type> GetComponent(const std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>& componentMap, const std::type_index& key) const
-		{
-			if (KeyExists(componentMap, key))
+			if (KeyExists(m_componentMap, key))
 			{
-				return ReferencePointerStaticCast<Type>(componentMap[key][0]);
+				return ReferencePointerStaticCast<Type>(m_componentMap[key][0]);
 			}
 			else
 			{
 				ReferencePointer<Type> type;
-				for (const auto& componentPair : componentMap)
+				for (const auto& componentPair : m_componentMap)
 				{
 					type = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
 					if (type)
@@ -119,9 +87,12 @@ namespace CommonsLibrary
 		}
 
 		template<class Type>
-		void GetComponents(const std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>>& componentMap, const std::type_index& key, std::vector<Type>& components) const
+		std::vector<Type> GetComponents() 
 		{
-			for (const auto& componentPair : componentMap)
+			std::type_index key(typeid(Type));
+			std::vector<Type> components;
+
+			for (const auto& componentPair : m_componentMap)
 			{
 				if (componentPair.first == key)
 				{
@@ -143,7 +114,24 @@ namespace CommonsLibrary
 					}
 				}
 			}
+
+			return components;
 		}
+
+		ReferencePointer<Transform> GetTransform();
+
+	public:
+		void SetIsActive(bool active);
+		bool IsActiveInHeirarchy() { return m_activeInHeirarchy; }
+		bool IsActiveInWorld() { return m_activeInWorld; }
+
+	public:
+		Scene* GetScene() { return m_scene; } 
+
+	private:
+        void InitTransform();
+		void SetGameObjectToStart();
+		void SetComponentActive(const ReferencePointer<Component>& component);
 
 		void SetChildrenActiveInWorld();
 		bool IsParentActiveInWorld();
