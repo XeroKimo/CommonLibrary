@@ -1,5 +1,5 @@
-#include "ECS/SceneManager.h"
-#include "DebugTools/Assert.h"
+#include "CommonsLibrary/ECS/SceneManager.h"
+#include "CommonsLibrary/DebugTools/Assert.h"
 #include <string>
 
 namespace CommonsLibrary

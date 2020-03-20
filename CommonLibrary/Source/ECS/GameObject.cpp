@@ -1,8 +1,8 @@
-#include "ECS/GameObject.h"
-#include "ECS/World.h"
-#include "DebugTools/Logger.h"
-#include "VectorHelpers.h"
-#include "ECS/Scene.h"
+#include "CommonsLibrary/ECS/GameObject.h"
+#include "CommonsLibrary/ECS/World.h"
+#include "CommonsLibrary/ECS/Scene.h"
+#include "CommonsLibrary/DebugTools/Logger.h"
+#include "CommonsLibrary/StdHelpers/VectorHelpers.h"
 
 namespace CommonsLibrary
 {

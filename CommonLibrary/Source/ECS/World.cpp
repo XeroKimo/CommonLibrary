@@ -1,6 +1,6 @@
-#include "ECS/World.h"
-#include "ECS/ComponentRegistry.h"
-#include "ECS/Transform.h"
+#include "CommonsLibrary/ECS/World.h"
+#include "CommonsLibrary/ECS/ComponentRegistry.h"
+#include "CommonsLibrary/ECS/Transform.h"
 
 namespace CommonsLibrary
 {

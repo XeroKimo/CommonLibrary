@@ -1,5 +1,5 @@
-#include "ECS/Scene.h"
-#include "VectorHelpers.h"
+#include "CommonsLibrary/ECS/Scene.h"
+#include "CommonsLibrary/StdHelpers/VectorHelpers.h"
 
 namespace CommonsLibrary
 {

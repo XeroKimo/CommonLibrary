@@ -1,6 +1,6 @@
-#include "ECS/Component.h"
-#include "ECS/GameObject.h"
-#include "ECS/Scene.h"
+#include "CommonsLibrary/ECS/Component.h"
+#include "CommonsLibrary/ECS/GameObject.h"
+#include "CommonsLibrary/ECS/Scene.h"
 
 namespace CommonsLibrary
 {

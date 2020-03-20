@@ -15,105 +15,123 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\Singleton.h">
+    <ClInclude Include="Headers\CommonsLibrary\DebugTools\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\StringHelpers.h">
+    <ClInclude Include="Headers\CommonsLibrary\DebugTools\Assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\UnorderedMapHelpers.h">
+    <ClInclude Include="Headers\CommonsLibrary\DebugTools\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\~Header.h">
+    <ClInclude Include="Headers\CommonsLibrary\DebugTools\ScopedTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\MathConstants.h">
+    <ClInclude Include="Headers\CommonsLibrary\Delegates\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\Matrix4x4.h">
+    <ClInclude Include="Headers\CommonsLibrary\Delegates\Delegate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\Quaternion.h">
+    <ClInclude Include="Headers\CommonsLibrary\Delegates\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\Vector2.h">
+    <ClInclude Include="Headers\CommonsLibrary\Delegates\FunctionPointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\Vector3.h">
+    <ClInclude Include="Headers\CommonsLibrary\Delegates\MethodPointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Math\Vector4.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Delegates\~Header.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Delegates\Delegate.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentRegistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Delegates\Event.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Delegates\FunctionPointer.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Delegates\MethodPointer.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ReferencePointer.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\DebugTools\Logger.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\DebugTools\ScopedTimer.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\Component.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\ComponentRegistry.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\MathConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\GameObject.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\Matrix4x4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\Transform.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\Quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\World.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\Vector2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\Scene.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\Vector3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\VectorHelpers.h">
+    <ClInclude Include="Headers\CommonsLibrary\Math\Vector4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\BitMaskEnum.h">
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ApplicationClock.h">
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\ApplicationClock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\SceneManager.h">
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\BitMaskEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ECS\ECSSystem.h">
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\ReferencePointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\DebugTools\Assert.h">
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\Singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\StdHelpers\~Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\StdHelpers\StringHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\StdHelpers\UnorderedMapHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\StdHelpers\VectorHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Windows\~Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Windows\Client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Windows\WindowsHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Singleton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DebugTools\Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DebugTools\ScopedTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\ECS\Component.cpp">
@@ -134,10 +152,13 @@
     <ClCompile Include="Source\ECS\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ApplicationClock.cpp">
+    <ClCompile Include="Source\ECS\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ECS\SceneManager.cpp">
+    <ClCompile Include="Source\Miscellaneous\ApplicationClock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Miscellaneous\Singleton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

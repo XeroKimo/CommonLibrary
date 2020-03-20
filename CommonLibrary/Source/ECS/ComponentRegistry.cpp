@@ -1,7 +1,7 @@
-#include "ECS/ComponentRegistry.h"
-#include "ECS/World.h"
-#include "ECS/GameObject.h"
-#include "DebugTools/Assert.h"
+#include "CommonsLibrary/ECS/ComponentRegistry.h"
+#include "CommonsLibrary/ECS/World.h"
+#include "CommonsLibrary/ECS/GameObject.h"
+#include "CommonsLibrary/DebugTools/Assert.h"
 
 #include <locale>
 #include <codecvt>
