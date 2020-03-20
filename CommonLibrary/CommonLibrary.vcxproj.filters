@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\CommonsLibrary\DebugTools\~Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\DebugTools\Assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -25,9 +22,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\DebugTools\ScopedTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\Delegates\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Delegates\Delegate.h">
@@ -40,9 +34,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Delegates\MethodPointer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\~Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\ECS\Component.h">
@@ -69,9 +60,6 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\Math\~Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Math\MathConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,9 +78,6 @@
     <ClInclude Include="Headers\CommonsLibrary\Math\Vector4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\~Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\ApplicationClock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,9 +90,6 @@
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\Singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\StdHelpers\~Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\StdHelpers\StringHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,9 +99,6 @@
     <ClInclude Include="Headers\CommonsLibrary\StdHelpers\VectorHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\Windows\~Header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Windows\Client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -127,6 +106,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\DebugTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Delegates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\ECS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Windows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\~Header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\StdHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

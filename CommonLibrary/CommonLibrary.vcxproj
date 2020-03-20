@@ -160,8 +160,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Headers\CommonsLibrary.h" />
-    <ClInclude Include="Headers\CommonsLibrary\DebugTools\~Header.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\~Header.h" />
+    <ClInclude Include="Headers\CommonsLibrary\DebugTools.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS.h" />
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous.h" />
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\ApplicationClock.h" />
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\BitMaskEnum.h" />
     <ClInclude Include="Headers\CommonsLibrary\DebugTools\Assert.h" />
@@ -171,7 +172,7 @@
     <ClInclude Include="Headers\CommonsLibrary\Delegates\Event.h" />
     <ClInclude Include="Headers\CommonsLibrary\Delegates\FunctionPointer.h" />
     <ClInclude Include="Headers\CommonsLibrary\Delegates\MethodPointer.h" />
-    <ClInclude Include="Headers\CommonsLibrary\Delegates\~Header.h" />
+    <ClInclude Include="Headers\CommonsLibrary\Delegates.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\Component.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentRegistry.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\GameObject.h" />
@@ -186,16 +187,15 @@
     <ClInclude Include="Headers\CommonsLibrary\Math\Vector2.h" />
     <ClInclude Include="Headers\CommonsLibrary\Math\Vector3.h" />
     <ClInclude Include="Headers\CommonsLibrary\Math\Vector4.h" />
-    <ClInclude Include="Headers\CommonsLibrary\Math\~Header.h" />
-    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\~Header.h" />
+    <ClInclude Include="Headers\CommonsLibrary\Math.h" />
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\ReferencePointer.h" />
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\Singleton.h" />
-    <ClInclude Include="Headers\CommonsLibrary\StdHelpers\~Header.h" />
+    <ClInclude Include="Headers\CommonsLibrary\StdHelpers.h" />
     <ClInclude Include="Headers\CommonsLibrary\StdHelpers\StringHelpers.h" />
     <ClInclude Include="Headers\CommonsLibrary\StdHelpers\UnorderedMapHelpers.h" />
     <ClInclude Include="Headers\CommonsLibrary\StdHelpers\VectorHelpers.h" />
     <ClInclude Include="Headers\CommonsLibrary\Windows\Client.h" />
-    <ClInclude Include="Headers\CommonsLibrary\Windows\~Header.h" />
+    <ClInclude Include="Headers\CommonsLibrary\Windows.h" />
     <ClInclude Include="Headers\CommonsLibrary\Windows\WindowsHelper.h" />
   </ItemGroup>
   <ItemGroup>

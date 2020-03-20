@@ -42,6 +42,8 @@ namespace CommonsLibrary
         Vertical_Scroll = WS_VSCROLL,
     };
 
+    DEFINE_ENUM_FLAG_OPERATORS(Window_Style)
+
     //https://docs.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
     enum class Window_Style_Extended : long long
     {
@@ -75,6 +77,8 @@ namespace CommonsLibrary
         Window_Edge = WS_EX_WINDOWEDGE
     };
 
+    DEFINE_ENUM_FLAG_OPERATORS(Window_Style_Extended)
+
     //https://docs.microsoft.com/en-us/windows/win32/winmsg/window-class-styles
     enum class Window_Class_Style : long long
     {
@@ -91,6 +95,8 @@ namespace CommonsLibrary
         Save_Bits = CS_SAVEBITS,
         Vertical_Redraw = CS_VREDRAW
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(Window_Class_Style)
 
     enum class Window_Long_Ptr_Index
     {

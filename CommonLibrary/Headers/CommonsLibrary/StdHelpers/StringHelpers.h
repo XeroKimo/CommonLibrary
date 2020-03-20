@@ -3,7 +3,7 @@
 
 namespace CommonsLibrary
 {
-    std::string ToLower(const std::string& inputString)
+    inline std::string ToLower(const std::string& inputString)
     {
         std::string outputString;
         outputString.resize(inputString.length());
@@ -14,7 +14,7 @@ namespace CommonsLibrary
         return outputString;
     }
 
-    std::string ToLower(const std::string& inputString, const size_t& startIndex, size_t lengthToCopy)
+    inline std::string ToLower(const std::string& inputString, const size_t& startIndex, size_t lengthToCopy)
     {
         size_t maxIndex = startIndex + lengthToCopy;
         size_t maxLength = inputString.length();

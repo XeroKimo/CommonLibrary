@@ -14,7 +14,7 @@ namespace CommonsLibrary
         std::chrono::high_resolution_clock::time_point m_initialValue;
     public:
         ScopedTimer() :
-            m_onDestroy(onDestroy), 
+            m_onDestroy(nullptr), 
             m_initialValue(std::chrono::high_resolution_clock::now()) { }
 
         ScopedTimer(OnDestroy onDestroy) :
