@@ -10,6 +10,19 @@ namespace CommonsLibrary
     {
         m_sceneName = std::move(sceneName);
     }
+    Scene::Scene(Scene& other)
+    {
+        m_activeGameObjects.swap(other.m_activeGameObjects);
+        m_inactiveGameObjects.swap(other.m_inactiveGameObjects);
+        m_gameObjectsToDestroy.swap(other.m_gameObjectsToDestroy);
+        m_gameObjectsToStart.swap(other.m_gameObjectsToStart);
+        m_sceneName = other.m_sceneName;
+        m_world = other.m_world;
+    }
+    Scene::~Scene()
+    {
+        UnloadScene();
+    }
     ReferencePointer<GameObject> Scene::FindObject(const std::string& name) const
     {
         ReferencePointer<GameObject> objectToFind = FindObject(m_activeGameObjects, name);
@@ -22,13 +35,20 @@ namespace CommonsLibrary
         ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
         createdObject->InitTransform();
         m_activeGameObjects.push_back(std::move(createdObject));
-        return createdObject;
+        return m_activeGameObjects.back();
+    }
+    void Scene::UnloadScene()
+    {
+        m_activeGameObjects.clear();
+        m_inactiveGameObjects.clear();
+        m_gameObjectsToDestroy.clear();
+        m_gameObjectsToStart.clear();
     }
     void Scene::StartGameObjects()
     {
         if (!m_gameObjectsToStart.empty())
         {
-            for (const auto gameObjects : m_gameObjectsToStart)
+            for (const auto& gameObjects : m_gameObjectsToStart)
             {
                 gameObjects->Start();
             }
@@ -44,20 +64,13 @@ namespace CommonsLibrary
     {
         if (!m_gameObjectsToDestroy.empty())
         {
-            for (const auto gameObjects : m_gameObjectsToStart)
+            for (const auto& gameObjects : m_gameObjectsToStart)
             {
                 gameObjects->OnDestroy();
             }
             m_gameObjectsToDestroy.clear();
         }
     }
-    //void Scene::AddGameObject(ReferencePointer<GameObject> gameObject)
-    //{
-    //    if (gameObject->IsActiveInWorld())
-    //        m_activeGameObjects.push_back(std::move(gameObject));
-    //    else
-    //        m_inactiveGameObjects.push_back(std::move(gameObject));
-    //}
     void Scene::DestroyGameObject(const ReferencePointer<GameObject>& gameObject)
     {
         if (!FindObjectToDelete(m_activeGameObjects, gameObject))

@@ -26,15 +26,15 @@ namespace CommonsLibrary
 		}
 	}
 
-	void CommonsLibrary::GameObject::Update(float deltaTime)
+	void GameObject::Update(float deltaTime)
 	{
-		for (const ReferencePointer<Component>& component : m_activeComponents)
+		for (const auto component : m_activeComponents)
 			component->Update(deltaTime);
 	}
 
 	void GameObject::OnDestroy()
 	{
-		for (auto component : m_activeComponents)
+		for (const auto component : m_activeComponents)
 			component->OnDestroy();
 	}
 
@@ -80,7 +80,7 @@ namespace CommonsLibrary
 
 	void GameObject::SetGameObjectToStart()
 	{
-		if (!m_isStart)
+		if (m_isStart)
 			return;
 
 		m_scene->SetGameObjectToStart(GetReferencePointer());

@@ -14,7 +14,7 @@ namespace CommonsLibrary
         friend class GameObject;
     private:
         std::unordered_map<std::type_index, ECSSystem*> m_systems;
-        SceneManager m_sceneManager;
+        std::unique_ptr<SceneManager> m_sceneManager;
 
     public:
         World(std::vector<std::unique_ptr<Scene>> scenes);

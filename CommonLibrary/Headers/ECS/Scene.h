@@ -19,7 +19,10 @@ namespace CommonsLibrary
         World* m_world;
     public:
         Scene(std::string sceneName);
+        Scene(Scene& other);
+        ~Scene();
 
+    public:
         ReferencePointer<GameObject> CreateGameObject();
         ReferencePointer<GameObject> FindObject(const std::string& name) const;
 
@@ -45,6 +48,10 @@ namespace CommonsLibrary
 
     protected:
         virtual void LoadScene(World* world) { m_world = world; }
+
+    private:
+        void UnloadScene();
+
     private:
         void StartGameObjects();
         void UpdateGameObjects(float deltaTime);

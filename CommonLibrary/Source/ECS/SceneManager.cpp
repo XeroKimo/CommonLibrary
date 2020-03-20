@@ -17,7 +17,6 @@ namespace CommonsLibrary
             assertError(!KeyExists(m_buildSceneIndices, key), "Scene name already exists");
             m_buildSceneIndices[key] = i;
         }
-        LoadScene(0);
     }
 
     Scene* CommonsLibrary::SceneManager::CreateScene(std::string name)
@@ -38,13 +37,15 @@ namespace CommonsLibrary
         if (index > m_buildScenes.size())
             return;
 
+        m_buildScenes[index]->LoadScene(m_world);
         std::unique_ptr<Scene> scene = std::make_unique<Scene>(*m_buildScenes[index]);
+        m_buildScenes[index]->UnloadScene();
         int duplicateCount = FindDuplicateSceneName(scene->GetSceneName());
         if (duplicateCount > 0)
             scene->m_sceneName += std::to_string(duplicateCount);
         m_activeScene = scene.get();
+
         m_loadedScenes.push_back(std::move(scene));
-        scene->LoadScene(m_world);
     }
 
     void SceneManager::UnloadScene(std::string name)
