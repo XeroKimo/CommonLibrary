@@ -20,6 +20,7 @@ namespace CommonsLibrary
         if (!m_world)
             return nullptr;
         ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
+        createdObject->InitTransform();
         m_activeGameObjects.push_back(std::move(createdObject));
         return createdObject;
     }
