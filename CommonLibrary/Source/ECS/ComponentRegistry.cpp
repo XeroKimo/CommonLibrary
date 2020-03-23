@@ -7,6 +7,8 @@
 #include <codecvt>
 #include <string>
 
+#include <Windows.h>
+
 namespace CommonsLibrary
 {
     namespace ComponentRegistry
@@ -28,9 +30,11 @@ namespace CommonsLibrary
             }
             else
             {
-                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+                std::unique_ptr<wchar_t[]> m_componentName = std::make_unique<wchar_t[]>(type.size());
 
-                std::wstring errorMessage = converter.from_bytes(type);
+                MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, type.c_str(), type.size() - 1, m_componentName.get(), type.size() - 1);
+
+                std::wstring errorMessage = m_componentName.get();
                 errorMessage += L" is not reigstered";
                 _wassert(errorMessage.c_str(), _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
                 return nullptr;

@@ -4,12 +4,13 @@
 namespace CommonsLibrary
 {
     class GameObject;
+    struct UpdateableComponents;
     class World;
     class Scene;
     class Component : public ReferenceFromThis<Component>
     {
+        friend struct UpdateableComponents;
         friend class GameObject;
-
     private:
         bool m_active = true;
         bool m_hasStarted = false;
@@ -29,7 +30,7 @@ namespace CommonsLibrary
         Scene* GetScene();
         World* GetWorld();
 
-    protected:
+    public:
         virtual void Start() {};
         virtual void Update(float deltaTime) {};
         virtual void OnDestroy() {};

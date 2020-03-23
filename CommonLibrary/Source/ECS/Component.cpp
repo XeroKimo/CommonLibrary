@@ -24,10 +24,10 @@ namespace CommonsLibrary
     }
     Scene* Component::GetScene()
     {
-        return GetGameObject()->GetScene();
+        return nullptr;
     }
     World* Component::GetWorld()
     {
-        return GetGameObject()->GetScene()->GetWorld();
+        return nullptr;
     }
 }

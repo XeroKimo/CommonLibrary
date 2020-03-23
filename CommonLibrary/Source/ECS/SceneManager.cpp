@@ -11,7 +11,7 @@ namespace CommonsLibrary
         assertError(!m_buildScenes.empty(), "There are 0 scenes in the build");
 
         std::string key;
-        for (int i = 0; i < m_buildScenes.size(); i++)
+        for (size_t i = 0; i < m_buildScenes.size(); i++)
         {
             key = m_buildScenes[i]->GetSceneName();
             assertError(!KeyExists(m_buildSceneIndices, key), "Scene name already exists");
@@ -81,6 +81,7 @@ namespace CommonsLibrary
             if (scene->GetSceneName() == name)
                 return scene.get();
         }
+        return nullptr;
     }
 
     Scene* SceneManager::GetLoadedScene(size_t index)

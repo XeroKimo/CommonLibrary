@@ -180,7 +180,7 @@ namespace CommonsLibrary
             other.m_owner = false;
         }
 
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, VariableType*>>>
         ReferencePointer(const ReferencePointer<DerivedType>& other)
         {
             if (m_owner)

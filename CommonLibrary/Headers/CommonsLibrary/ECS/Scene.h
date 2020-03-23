@@ -9,10 +9,10 @@ namespace CommonsLibrary
         friend class SceneManager;
         friend class GameObject;
     private:
-        std::vector<ReferencePointer<GameObject>> m_activeGameObjects;
-        std::vector<ReferencePointer<GameObject>> m_inactiveGameObjects;
-        std::vector<ReferencePointer<GameObject>> m_gameObjectsToDestroy;
-        std::vector<ReferencePointer<GameObject>> m_gameObjectsToStart;
+        std::vector<ReferencePointer<UpdateableGameObject>> m_activeGameObjects;
+        std::vector<ReferencePointer<UpdateableGameObject>> m_inactiveGameObjects;
+        std::vector<ReferencePointer<UpdateableGameObject>> m_gameObjectsToDestroy;
+        std::vector<ReferencePointer<UpdateableGameObject>> m_gameObjectsToStart;
 
         std::string m_sceneName;
 
@@ -63,8 +63,8 @@ namespace CommonsLibrary
         void SetGameObjectToStart(const ReferencePointer<GameObject>& gameObject);
 
     private:
-        bool FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject);
-        ReferencePointer<GameObject> FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name) const;
+        bool FindObjectToDelete(std::vector<ReferencePointer<UpdateableGameObject>>& objectVector, const ReferencePointer<UpdateableGameObject>& gameObject);
+        ReferencePointer<GameObject> FindObject(const std::vector<ReferencePointer<UpdateableGameObject>>& objectVector, const std::string& name) const;
 
         template <class Type>
         ReferencePointer<Type> FindObjectType(const std::vector<ReferencePointer<GameObject>>& objectVector) const

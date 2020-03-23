@@ -3,138 +3,89 @@
 #include "ComponentRegistry.h"
 #include "CommonsLibrary/StdHelpers/UnorderedMapHelpers.h"
 #include "Transform.h"
+#include "ComponentMap.h"
+#include "UpdateableComponents.h"
 #include <typeindex>
 
 namespace CommonsLibrary
 {
 	class Transform;
 	class Scene;
-	class GameObject final : public ReferenceFromThis<GameObject>
+	class GameObject : public ReferenceFromThis<GameObject>
 	{
 		friend class Component;
-		friend class Scene;
 		friend class Transform;
-	private:
-		std::vector<Component*> m_componentsToStart;
-		std::vector<Component*> m_activeComponents;
-		std::vector<Component*> m_inactiveComponents;
-
-		std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_componentMap;
-
-		ReferencePointer<Transform> m_transform;
+	protected:
 		Scene* m_scene;
+		ReferencePointer<Transform> m_transform;
+		ComponentMap m_componentMap;
+		UpdateableComponents m_updateableComponents;	
 
 		bool m_activeInWorld;
 		bool m_activeInHeirarchy;
 
-		bool m_isStart;
-		bool m_isDead;
+		bool m_hasComponentToStart;
+		bool m_hasComponentToRemove;
+		bool m_isDestroyed;
 	public:
 		std::string name;
+
 	public:
 		GameObject(Scene* const scene);
 
-	private:
-		void Start();
-		void Update(float deltaTime);
-		void OnDestroy();
-
-	public:
-		template<class Type, class = std::enable_if_t<std::is_base_of_v<Component, Type>>>
-		ReferencePointer<Type> AddComponent()
-		{
-            static_assert(std::is_convertible<std::remove_cv_t<Type>*, typename Component::RefThis*>::value, "Multiple inheritance of type Component is not allowed");
-			std::type_index key(typeid(Type));
-			auto& components = m_componentMap[key];
-
-			ReferencePointer<Component> createdComponent = ComponentRegistry::Create(key, GetReferencePointer());
-			if (createdComponent->IsActive())
-			{
-				m_activeComponents.push_back(createdComponent.Get());
-				m_componentsToStart.push_back(createdComponent.Get());
-				SetGameObjectToStart();
-			}
-			else
-			{
-				m_inactiveComponents.push_back(createdComponent.Get());
-			}
-			components.push_back(std::move(createdComponent));
-
-			return ReferencePointerStaticCast<Type>(components.back());
-		}
-
-		void RemoveComponent(ReferencePointer<Component> component);
-
-		template<class Type>
-		ReferencePointer<Type> GetComponent() 
-		{
-			std::type_index key(typeid(Type));
-			if (KeyExists(m_componentMap, key))
-			{
-				return ReferencePointerStaticCast<Type>(m_componentMap[key][0]);
-			}
-			else
-			{
-				ReferencePointer<Type> type;
-				for (const auto& componentPair : m_componentMap)
-				{
-					type = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
-					if (type)
-						return type;
-				}
-				return nullptr;
-			}
-		}
-
-		template<class Type>
-		std::vector<Type> GetComponents() 
-		{
-			std::type_index key(typeid(Type));
-			std::vector<Type> components;
-
-			for (const auto& componentPair : m_componentMap)
-			{
-				if (componentPair.first == key)
-				{
-					for (ReferencePointer<Component> component : componentPair.second)
-					{
-						components.push_back(ReferencePointerStaticCast<Type>(component));
-					}
-				}
-				else
-				{
-					ReferencePointer<Type> castComponent = ReferencePointerDynamicCast<Type>(componentPair.second[0]);
-					if (castComponent)
-					{
-						components.push_back(castComponent);
-						for (int i = 1; i < componentPair.second.size(); i++)
-						{
-							components.push_back(ReferencePointerStaticCast<Type>(componentPair.second[i]));
-						}
-					}
-				}
-			}
-
-			return components;
-		}
-
-		ReferencePointer<Transform> GetTransform();
-
 	public:
 		void SetIsActive(bool active);
-		bool IsActiveInHeirarchy() { return m_activeInHeirarchy; }
-		bool IsActiveInWorld() { return m_activeInWorld; }
+		bool GetActiveWorld() { return m_activeInWorld; }
+		bool GetActiveHeirarchy() { return m_activeInHeirarchy; }
 
 	public:
-		Scene* GetScene() { return m_scene; } 
+		void Destroy();
+
+	public:
+		template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
+		ReferencePointer<Type> AddComponent()
+		{
+			ReferencePointer<Type> component = m_componentMap.AddComponent<Type>(GetReferencePointer());
+			m_updateableComponents.AddComponent(component.Get());
+			return component;
+		}
+
+		template <class Type>
+		ReferencePointer<Type> GetComponent()
+		{
+			return m_componentMap.GetComponent<Type>();
+		}
+
+		template <class Type>
+		std::vector<ReferencePointer<Type>> GetComponents()
+		{
+			return m_componentMap.GetComponents<Type>();
+		}
+
+		void RemoveComponent(const ReferencePointer<Component>& component);
+
+		ReferencePointer<Transform> GetTransform();
+	private:
+		void SetComponentActive(const ReferencePointer<Component>& component);
 
 	private:
-        void InitTransform();
-		void SetGameObjectToStart();
-		void SetComponentActive(const ReferencePointer<Component>& component);
+		void AddGameObjectToStart();
+		void AddGameObjectToCleanUp();
 
 		void SetChildrenActiveInWorld();
 		bool IsParentActiveInWorld();
-		void SetIsActiveInWorld();
+		void SetActiveInWorld(bool active);
+	};
+
+	class UpdateableGameObject final : public GameObject
+	{
+	public:
+		UpdateableGameObject(Scene* const scene);
+		~UpdateableGameObject() = default;
+	public:
+		void Start();
+		void Update(float deltaTime);
+		void CleanUpComponents();
+		void OnDestroy();
 	};
 }

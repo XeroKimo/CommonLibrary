@@ -6,139 +6,134 @@
 
 namespace CommonsLibrary
 {
-	GameObject::GameObject(Scene* const scene) :
-		m_scene(scene),
-		m_activeInHeirarchy(true),
-		m_activeInWorld(true),
-		name("GameObject"),
-		m_isStart(false)
-	{
-	}
-
-	void GameObject::Start()
-	{
-		if (!m_componentsToStart.empty())
-		{
-			for (const auto components : m_componentsToStart)
-				components->Start();
-			m_componentsToStart.clear();
-			m_isStart = false;
-		}
-	}
-
-	void GameObject::Update(float deltaTime)
-	{
-		for (const auto component : m_activeComponents)
-			component->Update(deltaTime);
-	}
-
-	void GameObject::OnDestroy()
-	{
-		for (const auto component : m_activeComponents)
-			component->OnDestroy();
-	}
-
-	void CommonsLibrary::GameObject::RemoveComponent(ReferencePointer<Component> component)
-	{
-		if (!component)
-			return;
-		if (component->GetGameObject() != GetReferencePointer())
-			return;
-
-		std::type_index key(typeid(*component));
-
-		std::vector<Component*>& componentVector = (component->IsActive()) ? m_activeComponents : m_inactiveComponents;
-
-		RemoveFromVector(componentVector, component.Get());
-		if (KeyExists(m_componentMap, key))
-		{
-			RemoveFromVector(m_componentMap[key], component);
-		}
-		else
-		{
-			for (auto componentPair : m_componentMap)
-			{
-				std::vector<ReferencePointer<Component>>* searchComponents = &componentPair.second;
-				RemoveFromVector(*searchComponents, component);
-			}
-		}
-	}
-
-	ReferencePointer<Transform> GameObject::GetTransform()
-	{
-		if (!m_transform)
-		{
-			ReferencePointer<Transform> transform = GetComponent<Transform>();
-			if (transform)
-				m_transform = transform;
-			else
-				m_transform = AddComponent<Transform>();
-		}
-		return m_transform;
-	}
-
-	void GameObject::SetIsActive(bool active)
-	{
-		if (active == m_activeInHeirarchy)
-			return;
-
-		m_activeInHeirarchy = active;
-		SetIsActiveInWorld();
-	}
-
-    void GameObject::InitTransform()
+    GameObject::GameObject(Scene* const scene) :
+        m_scene(scene),
+        name("GameObject"),
+        m_hasComponentToStart(false),
+        m_hasComponentToRemove(false),
+        m_isDestroyed(false),
+        m_transform(nullptr)
     {
-        m_transform = AddComponent<Transform>();
     }
 
-	void GameObject::SetGameObjectToStart()
-	{
-		if (m_isStart)
-			return;
+    void GameObject::SetIsActive(bool active)
+    {
+        if (m_activeInHeirarchy == active)
+            return;
 
-		m_scene->SetGameObjectToStart(GetReferencePointer());
-	}
+        m_activeInHeirarchy = active;
+        SetActiveInWorld(IsParentActiveInWorld());
+        SetChildrenActiveInWorld();
+    }
 
-    void CommonsLibrary::GameObject::SetComponentActive(const ReferencePointer<Component>& component)
-	{
-		std::vector<Component*>& arrayToSearchIn = (component->IsActive()) ? m_activeComponents : m_inactiveComponents; 
-		std::vector<Component*>& arrayToMoveIn = (component->IsActive()) ? m_inactiveComponents : m_activeComponents;
+    void GameObject::Destroy()
+    {
+        if (m_isDestroyed)
+            return;
+        m_scene->DestroyGameObject(GetReferencePointer());
+        m_isDestroyed = true;
+    }
 
-		RemoveFromVector(arrayToSearchIn, component.Get());
-		arrayToMoveIn.push_back(component.Get());
-		if (!component->m_hasStarted)
-			m_componentsToStart.push_back(component.Get());
-	}
-	void GameObject::SetChildrenActiveInWorld()
-	{
-		for (const ReferencePointer<Transform>& child : m_transform->GetChildren())
-		{
-			child->GetGameObject()->SetChildrenActiveInWorld();
-			child->GetGameObject()->SetIsActiveInWorld();
-		}
-	}
-	bool GameObject::IsParentActiveInWorld()
-	{
-		ReferencePointer<Transform> parent = GetTransform()->GetParent();
-		if (parent)
-		{
-			if (!parent->GetGameObject()->m_activeInHeirarchy)
-				return false;
-			else
-				return parent->GetGameObject()->IsParentActiveInWorld();
-		}
-		else
-		{
-			return m_activeInHeirarchy;
-		}
-	}
-	void GameObject::SetIsActiveInWorld()
-	{
-		bool active = IsParentActiveInWorld() & m_activeInHeirarchy;
-		if (active == m_activeInWorld)
-			return;
-		m_activeInWorld = active;
-		//m_world->SetObjectActive(GetReferencePointer());
 
-	}
+    void GameObject::RemoveComponent(const ReferencePointer<Component>& component)
+    {
+        if (!component)
+            return;
+        //if component has been flagged for destroy
+        //return ;
+
+        if (component->GetGameObject().Get() != this)
+            component->GetGameObject()->RemoveComponent(component);
+        else
+        {
+            m_updateableComponents.RemoveComponent(std::move(m_componentMap.RemoveComponent(component)));
+        }
+    }
+    ReferencePointer<Transform> GameObject::GetTransform()
+    {
+        if (!m_transform)
+        {
+            ReferencePointer<Transform> transform = GetComponent<Transform>();
+            if (transform)
+                m_transform = transform;
+            else
+                m_transform = AddComponent<Transform>();
+        }
+        return m_transform;
+    }
+    void GameObject::AddGameObjectToStart()
+    {
+        if (m_hasComponentToStart)
+            return;
+        m_scene->SetGameObjectToStart(GetReferencePointer());
+        m_hasComponentToStart = true;
+    }
+    void GameObject::AddGameObjectToCleanUp()
+    {
+        m_hasComponentToRemove = true;
+        //m_scene->AddGameObject(GetReferencePointer());
+    }
+    void GameObject::SetComponentActive(const ReferencePointer<Component>& component)
+    {
+        m_updateableComponents.SetComponentActive(component.Get());
+
+        bool wasInactive = !component->IsActive();
+        if (wasInactive)
+        {
+            if (component->m_hasStarted)
+            {
+                AddGameObjectToStart();
+            }
+        }
+    }
+
+    void GameObject::SetChildrenActiveInWorld()
+    {
+        for (const auto& child : GetTransform()->GetChildren())
+        {
+            ReferencePointer<GameObject> gameObject = child->GetGameObject();
+            if (gameObject->GetActiveHeirarchy())
+            {
+                SetChildrenActiveInWorld();
+            }
+            gameObject->SetActiveInWorld(m_activeInWorld);
+        }
+    }
+
+    bool GameObject::IsParentActiveInWorld()
+    {
+        ReferencePointer<Transform> parent = GetTransform()->GetParent();
+        if (!parent)
+            return m_activeInWorld;
+        else
+            return parent->GetGameObject()->IsParentActiveInWorld();
+    }
+
+    void GameObject::SetActiveInWorld(bool active)
+    {
+        m_activeInWorld = active;
+        m_scene->SetObjectActive(GetReferencePointer());
+    }
+    UpdateableGameObject::UpdateableGameObject(Scene* const scene) :
+        GameObject(scene)
+    {
+    }
+    void UpdateableGameObject::Start()
+    {
+        m_updateableComponents.Start();
+        m_hasComponentToStart = false;
+    }
+    void UpdateableGameObject::Update(float deltaTime)
+    {
+        m_updateableComponents.Update(deltaTime);
+    }
+    void UpdateableGameObject::CleanUpComponents()
+    {
+        m_updateableComponents.CleanUp();
+        m_hasComponentToRemove = false;
+    }
+    void UpdateableGameObject::OnDestroy()
+    {
+        m_updateableComponents.OnGameObjectDestroyed();
+    }
 }
