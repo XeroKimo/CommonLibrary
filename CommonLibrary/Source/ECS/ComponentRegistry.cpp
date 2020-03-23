@@ -15,13 +15,13 @@ namespace CommonsLibrary
     {
         namespace Internal
         {
-            std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&)>> g_registry;
+            std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<IGameObject>&)>> g_registry;
         }
-        ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject)
+        ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<IGameObject>& gameObject)
         {
             return Create(type.name(), gameObject);
         }
-        ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject)
+        ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<IGameObject>& gameObject)
         {
 #if _DEBUG
             if (KeyExists(Internal::g_registry, type))

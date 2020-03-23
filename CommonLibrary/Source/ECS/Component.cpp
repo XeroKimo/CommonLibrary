@@ -4,7 +4,7 @@
 
 namespace CommonsLibrary
 {
-    Component::Component(const ReferencePointer<GameObject>& gameObject) :
+    Component::Component(const ReferencePointer<IGameObject>& gameObject) :
         m_gameObject(gameObject),
         m_active(true),
         m_hasStarted(false)
@@ -15,10 +15,10 @@ namespace CommonsLibrary
         if (m_active == active)
             return;
 
-        GetGameObject()->SetComponentActive(GetReferencePointer());
+        //static_cast<GameObject*>(GetGameObject().Get())->SetComponentActive(GetReferencePointer());
 		m_active = active;
     }
-    ReferencePointer<GameObject> Component::GetGameObject()
+    ReferencePointer<IGameObject> Component::GetGameObject()
     {
         return m_gameObject;
     }

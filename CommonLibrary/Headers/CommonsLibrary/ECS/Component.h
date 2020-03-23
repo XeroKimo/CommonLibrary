@@ -1,12 +1,17 @@
 #pragma once
 #include "CommonsLibrary/Miscellaneous/ReferencePointer.h"
+#include "CommonsLibrary/Delegates/Delegate.h"
 
 namespace CommonsLibrary
 {
     class GameObject;
+    __interface IGameObject;
     struct UpdateableComponents;
+
     class World;
     class Scene;
+
+
     class Component : public ReferenceFromThis<Component>
     {
         friend struct UpdateableComponents;
@@ -16,17 +21,17 @@ namespace CommonsLibrary
         bool m_hasStarted = false;
 
     private:
-        ReferencePointer<GameObject> m_gameObject;
+        ReferencePointer<IGameObject> m_gameObject;
 
     public:
         Component() = delete;
-        Component(const ReferencePointer<GameObject>& _gameObject);
+        Component(const ReferencePointer<IGameObject>& _gameObject);
 
 
         bool IsActive() { return m_active; }
         void SetActive(bool active);
 
-        ReferencePointer<GameObject> GetGameObject();
+        ReferencePointer<IGameObject> GetGameObject();
         Scene* GetScene();
         World* GetWorld();
 

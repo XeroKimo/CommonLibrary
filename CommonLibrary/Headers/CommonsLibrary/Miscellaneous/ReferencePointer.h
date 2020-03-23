@@ -281,7 +281,7 @@ namespace CommonsLibrary
         {
             BaseClass::ConstructFromDerived(other);
         }
-        void operator=(ReferencePointer&& other)
+        void operator=(ReferencePointer&& other) noexcept
         {
             BaseClass::ConstructFromMove(other);
             m_owner = other.m_owner;

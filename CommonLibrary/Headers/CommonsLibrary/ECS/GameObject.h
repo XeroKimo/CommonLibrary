@@ -1,91 +1,102 @@
 #pragma once
 #include "Component.h"
-#include "ComponentRegistry.h"
 #include "CommonsLibrary/StdHelpers/UnorderedMapHelpers.h"
 #include "Transform.h"
 #include "ComponentMap.h"
 #include "UpdateableComponents.h"
 #include <typeindex>
+#include "IGameObject.h"
 
 namespace CommonsLibrary
 {
-	class Transform;
-	class Scene;
-	class GameObject : public ReferenceFromThis<GameObject>
-	{
-		friend class Component;
-		friend class Transform;
-	protected:
-		Scene* m_scene;
-		ReferencePointer<Transform> m_transform;
-		ComponentMap m_componentMap;
-		UpdateableComponents m_updateableComponents;	
+    class Transform;
+    class Scene;
 
-		bool m_activeInWorld;
-		bool m_activeInHeirarchy;
+    class GameObject;
 
-		bool m_hasComponentToStart;
-		bool m_hasComponentToRemove;
-		bool m_isDestroyed;
-	public:
-		std::string name;
+    class GameObject final : public IGameObject, public ReferenceFromThis<GameObject>
+    {
+        friend class Component;
+        friend class Transform;
+        
+    protected:
+        Scene* m_scene;
+        ReferencePointer<Transform> m_transform;
+        ComponentMap m_componentMap;
+        UpdateableComponents m_updateableComponents;
 
-	public:
-		GameObject(Scene* const scene);
+        bool m_activeInWorld;
+        bool m_activeInHeirarchy;
 
-	public:
-		void SetIsActive(bool active);
-		bool GetActiveWorld() { return m_activeInWorld; }
-		bool GetActiveHeirarchy() { return m_activeInHeirarchy; }
+        bool m_hasComponentToStart;
+        bool m_hasComponentToRemove;
+        bool m_isDestroyed;
+    public:
+        std::string name;
 
-	public:
-		void Destroy();
+    public:
+        GameObject(Scene* const scene);
 
-	public:
-		template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
-		ReferencePointer<Type> AddComponent()
-		{
-			ReferencePointer<Type> component = m_componentMap.AddComponent<Type>(GetReferencePointer());
-			m_updateableComponents.AddComponent(component.Get());
-			return component;
-		}
+    public:
+        void Start();
+        void Update(float deltaTime);
+        void CleanUpComponents();
+        void OnDestroy();
 
-		template <class Type>
-		ReferencePointer<Type> GetComponent()
-		{
-			return m_componentMap.GetComponent<Type>();
-		}
+    public:
+        template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
+        ReferencePointer<Type> AddComponent()
+        {
+            ReferencePointer<Type> component = m_componentMap.AddComponent<Type>(GetReferencePointer());
+            m_updateableComponents.AddComponent(component.Get());
+            return component;
+        }
 
-		template <class Type>
-		std::vector<ReferencePointer<Type>> GetComponents()
-		{
-			return m_componentMap.GetComponents<Type>();
-		}
+        template <class Type>
+        ReferencePointer<Type> GetComponent()
+        {
+            return m_componentMap.GetComponent<Type>();
+        }
 
-		void RemoveComponent(const ReferencePointer<Component>& component);
+        template <class Type>
+        std::vector<ReferencePointer<Type>> GetComponents()
+        {
+            return m_componentMap.GetComponents<Type>();
+        }
 
-		ReferencePointer<Transform> GetTransform();
-	private:
-		void SetComponentActive(const ReferencePointer<Component>& component);
+    public:
+        // Inherited via IGameObject
+        virtual ReferencePointer<Component> AddComponent(const std::type_index& key) override;
 
-	private:
-		void AddGameObjectToStart();
-		void AddGameObjectToCleanUp();
+        virtual void RemoveComponent(const ReferencePointer<Component>& component) override;
 
-		void SetChildrenActiveInWorld();
-		bool IsParentActiveInWorld();
-		void SetActiveInWorld(bool active);
-	};
+        virtual ReferencePointer<Component> GetComponent(const std::type_index& key) override;
 
-	class UpdateableGameObject final : public GameObject
-	{
-	public:
-		UpdateableGameObject(Scene* const scene);
-		~UpdateableGameObject() = default;
-	public:
-		void Start();
-		void Update(float deltaTime);
-		void CleanUpComponents();
-		void OnDestroy();
-	};
+        virtual std::vector<ReferencePointer<Component>> GetComponents(const std::type_index& key) override;
+
+        virtual ReferencePointer<Transform> GetTransform() override;
+
+        virtual void SetName(std::string_view name) override;
+
+        virtual std::string GetName() const override;
+
+        virtual void SetActive(bool active) override;
+
+        virtual bool GetActiveHeirarchy() const override;
+
+        virtual bool GetActiveWorld() const override;
+
+        virtual void Destroy() override;
+
+    private:
+        void SetComponentActive(const ReferencePointer<Component>& component);
+
+    private:
+        void AddGameObjectToStart();
+        void AddGameObjectToCleanUp();
+
+        void SetChildrenActiveInWorld();
+        bool IsParentActiveInWorld();
+        void SetActiveInWorld(bool active);
+    };
 }

@@ -21,7 +21,7 @@ namespace CommonsLibrary
         if (m_parent)
         {
             m_parent->AddChild(ReferencePointerStaticCast<Transform>(GetReferencePointer()));
-            GetGameObject()->SetActiveInWorld(GetGameObject()->IsParentActiveInWorld());
+            static_cast<GameObject*>(GetGameObject().Get())->SetActiveInWorld(static_cast<GameObject*>(GetGameObject().Get())->IsParentActiveInWorld());
         }
     }
 

@@ -9,12 +9,10 @@ namespace CommonsLibrary
         std::vector<Component*> activeComponents;
         std::vector<Component*> inactiveComponents;
         std::vector<Component*> componentsToStart;
-        std::vector<ReferencePointer<Component>> componentsToDestroy;
 
     public:
         void Start();
         void Update(float deltaTime);
-        void CleanUp();
         void OnGameObjectDestroyed();
 
     public:

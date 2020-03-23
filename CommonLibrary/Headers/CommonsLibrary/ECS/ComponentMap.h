@@ -8,6 +8,7 @@ namespace CommonsLibrary
     class GameObject;
     class ComponentMap
     {
+        std::vector<ReferencePointer<Component>> componentsToDestroy;
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_componentMap;
     public:
         ComponentMap() = default;
@@ -18,24 +19,30 @@ namespace CommonsLibrary
         void operator=(ComponentMap&& other) = delete;
 
     public:
+        void CleanUp();
+
+    public:
+        ReferencePointer<Component> AddComponent(const ReferencePointer<GameObject>& gameObject, const std::type_index& key);
+        ReferencePointer<Component> GetComponent(const std::type_index& key);
+        std::vector<ReferencePointer<Component>> GetComponents(const std::type_index& key);
+
+    public:
+
         template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
         ReferencePointer<Type> AddComponent(const ReferencePointer<GameObject>& gameObject)
         {
             static_assert(std::is_convertible<std::remove_cv_t<Type>*, typename Component::RefThis*>::value, "Multiple inheritance of type Component is not allowed");
-            std::type_index key(typeid(Type));
-
-            auto& componentVector = m_componentMap[key];
-            //componentVector.push_back(ReferencePointerStaticCast<Type>(ComponentRegistry::Create(key, gameObject)));
-            return nullptr;//componentVector.back();
+            return ReferencePointerStaticCast<Type>(AddComponent(gameObject, typeid(Type)));
         }
 
         template <class Type>
         ReferencePointer<Type> GetComponent()
         {
             std::type_index key(typeid(Type));
-            if (KeyExists(m_componentMap, key))
+            ReferencePointer<Component> component = GetComponent(key);
+            if (component)
             {
-                return ReferencePointerStaticCast<Type>(m_componentMap[key][0]);
+                return ReferencePointerStaticCast<Type>(component);
             }
             else
             {

@@ -18,17 +18,7 @@ namespace CommonsLibrary
             component->Update(deltaTime);
         }
     }
-    void UpdateableComponents::CleanUp()
-    {
-        if (!componentsToDestroy.empty())
-        {
-            for (const auto& component : componentsToDestroy)
-            {
-                component->OnDestroy();
-            }
-            componentsToDestroy.clear();
-        }
-    }
+
     void UpdateableComponents::OnGameObjectDestroyed()
     {
         CallOnDestroy(activeComponents);
@@ -54,7 +44,6 @@ namespace CommonsLibrary
         {
             inactiveComponents.erase(std::find(inactiveComponents.begin(), inactiveComponents.end(), component.Get()));
         }
-        componentsToDestroy.push_back(std::move(component));
     }
     void UpdateableComponents::SetComponentActive(Component* component)
     {

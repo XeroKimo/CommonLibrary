@@ -165,6 +165,8 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentMap.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\IGameObject.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\IGameObjectHelpers.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\UpdateableComponents.h" />
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous.h" />
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\ApplicationClock.h" />

@@ -30,7 +30,7 @@ namespace CommonsLibrary
     {
         if (!m_world)
             return nullptr;
-        ReferencePointer<UpdateableGameObject> createdObject = MakeReference<UpdateableGameObject>(this);
+        ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
         m_activeGameObjects.push_back(std::move(createdObject));
         return m_activeGameObjects.back();
     }
@@ -70,8 +70,8 @@ namespace CommonsLibrary
     }
     void Scene::DestroyGameObject(const ReferencePointer<GameObject>& gameObject)
     {
-        if (!FindObjectToDelete(m_activeGameObjects, ReferencePointerStaticCast<UpdateableGameObject>(gameObject)))
-            FindObjectToDelete(m_inactiveGameObjects, ReferencePointerStaticCast<UpdateableGameObject>(gameObject));
+        if (!FindObjectToDelete(m_activeGameObjects, gameObject))
+            FindObjectToDelete(m_inactiveGameObjects, gameObject);
     }
     void Scene::SetObjectActive(const ReferencePointer<GameObject>& gameObject)
     {
@@ -85,9 +85,9 @@ namespace CommonsLibrary
     }
     void Scene::SetGameObjectToStart(const ReferencePointer<GameObject>& gameObject)
     {
-        m_gameObjectsToStart.push_back(ReferencePointerStaticCast<UpdateableGameObject>(gameObject));
+        m_gameObjectsToStart.push_back(gameObject);
     }
-    bool Scene::FindObjectToDelete(std::vector<ReferencePointer<UpdateableGameObject>>& objectVector, const ReferencePointer<UpdateableGameObject>& gameObject)
+    bool Scene::FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject)
     {
         auto it = std::find(objectVector.begin(), objectVector.end(), gameObject);
         if (it != objectVector.end())
@@ -98,7 +98,7 @@ namespace CommonsLibrary
         }
         return false;
     }
-    ReferencePointer<GameObject> Scene::FindObject(const std::vector<ReferencePointer<UpdateableGameObject>>& objectVector, const std::string& name) const
+    ReferencePointer<GameObject> Scene::FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name) const
     {
         for (const auto& gameObject : objectVector)
         {
