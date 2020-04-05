@@ -3,26 +3,29 @@
 
 namespace CommonsLibrary
 {
-    inline std::string ToLower(const std::string& inputString)
+    std::string ToLower(const std::string& inputString);
+
+    std::string ToLower(const std::string& inputString, const size_t& startIndex, size_t lengthToCopy);
+
+    namespace Int
     {
-        std::string outputString;
-        outputString.resize(inputString.length());
-        for (size_t i = 0; i < inputString.length(); i++)
-        {
-            outputString[i] = tolower(inputString[i]);
-        }
-        return outputString;
+        std::string ToString(int value);
+        int FromString(std::string value);
+    }
+    namespace LongLong
+    {
+        std::string ToString(long long value);
+        long long FromString(std::string value);
+    }
+    namespace Float
+    {
+        std::string ToString(float value);
+        float FromString(std::string value);
     }
 
-    inline std::string ToLower(const std::string& inputString, const size_t& startIndex, size_t lengthToCopy)
+    namespace Double
     {
-        size_t maxIndex = startIndex + lengthToCopy;
-        size_t maxLength = inputString.length();
-        if (maxIndex > maxLength)
-        {
-            lengthToCopy = maxLength - startIndex;
-        }
-
-        return ToLower(inputString.substr(startIndex, lengthToCopy));
+        std::string ToString(double value);
+        double FromString(std::string value);
     }
 }

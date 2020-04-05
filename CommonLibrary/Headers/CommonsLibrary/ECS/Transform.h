@@ -16,7 +16,7 @@ namespace CommonsLibrary
         Vector3 m_scale;
         Quaternion m_rotation;
     public:
-        Transform(const ReferencePointer<IGameObject>& gameObject) : Component(gameObject) {}
+        Transform(const ReferencePointer<GameObject>& gameObject) : Component(gameObject) {}
 
     public:
         // Inherited via Component

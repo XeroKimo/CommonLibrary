@@ -1,349 +1,243 @@
 #pragma once
-#pragma once
+
 #include <atomic>
-#include <stdexcept>
 #include <type_traits>
 
 namespace CommonsLibrary
 {
-    class NullPointerException : public std::runtime_error
-    {
-    public:
-        NullPointerException() : runtime_error("Pointer is nullptr") {}
-    };
-
-    class __ReferenceBlock
-    {
-    private:
-        std::atomic<unsigned long int> m_counter;
-        bool m_exists;
-    public:
-        __ReferenceBlock()
-        {
-            m_counter = 1;
-            m_exists = true;
-        }
-
-        void Increment() { m_counter++; }
-        void Decrement() { m_counter--; }
-        unsigned long int GetCount() { return m_counter; }
-        bool PointerExists() { return m_exists; }
-        void DeletePointer() { m_exists = false; }
-    };
-
     template <class VariableType>
-    class __ReferencePointerBase
-    {
-        template <class DerivedType>
-        friend class __ReferencePointerBase;
-
-    protected:
-        VariableType* m_pointer = nullptr;
-        __ReferenceBlock* m_reference_block = nullptr;
-
-    public:
-        __ReferencePointerBase() = default;
-        __ReferencePointerBase(VariableType* pointer)
-        {
-            DecrementReferenceBlock();
-            m_pointer = pointer;
-            m_reference_block = new __ReferenceBlock();
-        }
-
-    protected:
-        void ConstructFromOther(const __ReferencePointerBase& other)
-        {
-            DecrementReferenceBlock();
-            if (other.m_reference_block == nullptr)
-                return;
-
-            m_pointer = other.m_pointer;
-            m_reference_block = other.m_reference_block;
-            m_reference_block->Increment();
-        }
-
-        template <class DerivedType>
-        void ConstructFromDerived(const __ReferencePointerBase<DerivedType>& other)
-        {
-            DecrementReferenceBlock();
-            if (other.m_reference_block == nullptr)
-                return;
-
-            m_pointer = other.m_pointer;
-            m_reference_block = other.m_reference_block;
-            m_reference_block->Increment();
-        }
-
-        template <class DerivedType>
-        void ConstructFromCast(const __ReferencePointerBase<DerivedType>& other, VariableType* pointer)
-        {
-            DecrementReferenceBlock();
-            if (other.m_reference_block == nullptr)
-                return;
-            m_pointer = pointer;
-            m_reference_block = other.m_reference_block;
-            m_reference_block->Increment();
-        }
-
-        void ConstructFromMove(__ReferencePointerBase& other)
-        {
-            DecrementReferenceBlock();
-            m_pointer = other.m_pointer;
-            m_reference_block = other.m_reference_block;
-
-            other.m_pointer = nullptr;
-            other.m_reference_block = nullptr;
-        }
-
-    protected:
-        void DeletePointer()
-        {
-            DeletePointerInternal();
-            DecrementReferenceBlock();
-        }
-
-        void DecrementReferenceBlock()
-        {
-            if (!m_reference_block)
-                return;
-
-            m_reference_block->Decrement();
-            if (m_reference_block->GetCount() == 0)
-            {
-                DeletePointerInternal();
-
-                delete m_reference_block;
-            }
-            m_reference_block = nullptr;
-        }
-
-    protected:
-        void DeletePointerInternal()
-        {
-            if (!m_reference_block)
-                return;
-
-            if (!m_reference_block->PointerExists())
-                return;
-
-            m_reference_block->DeletePointer();
-
-            delete m_pointer;
-            m_pointer = nullptr;
-        }
-    };
-
-    template <class VariableType>
-    class ReferenceFromThis;
+    class ReferencePointerEnableThis;
 
 
     template <class VariableType, class = void>
-    struct __ReferenceEnabledFromThis : std::false_type {};
+    struct IsReferenceThisEnabled : std::false_type {};
 
     template <class VariableType>
-    struct __ReferenceEnabledFromThis<VariableType, std::void_t<typename VariableType::RefThis>> : 
-        std::is_convertible<std::remove_cv_t<VariableType>*, typename VariableType::RefThis*>::type {};
-
-    template <class VariableType>
-    class ReferencePointer : private __ReferencePointerBase<VariableType>
+    struct IsReferenceThisEnabled<VariableType, std::void_t<typename VariableType::RefThis>> :
+        std::is_convertible<std::remove_cv_t<VariableType>*, typename VariableType::RefThis*>::type
     {
-        template <class DerivedType>
+    };
+
+    class ControlBlock
+    {
+        std::atomic<unsigned long int> m_counter;
+        bool m_exists;
+
+    public:
+        ControlBlock() :
+            m_counter(1),
+            m_exists(true)
+        {
+        }
+
+
+    public:
+
+        unsigned long int GetCount() { return m_counter; }
+        bool PointerExists() { return m_exists; }
+        void DeletePointer() { m_exists = false; }
+
+        static void Equal(ControlBlock** lh, ControlBlock* rh)
+        {
+            if (*lh != nullptr)
+            {
+                (*lh)->m_counter--;
+                if ((*lh)->m_counter == 0)
+                {
+                    delete (*lh);
+                }
+            }
+            *lh = rh;
+            if (*lh != nullptr)
+                (*lh)->m_counter++;
+        }
+    };
+
+
+    template <class Type>
+    class ReferencePointer
+    {
+        template <class Derived>
         friend class ReferencePointer;
 
-        template <class VariableType, class... types>
-        friend ReferencePointer<VariableType> MakeReference(types&& ...variables);
-        using BaseClass = __ReferencePointerBase<VariableType>;
+        template <class Type, class... Params>
+        friend ReferencePointer<Type> MakeReference(Params ...variables);
 
     private:
-        bool m_owner = false;
+        Type* m_pointer;
+        ControlBlock* m_controlBlock;
+        bool m_owner;
+
     public:
-        constexpr ReferencePointer() noexcept = default;
-        constexpr ReferencePointer(std::nullptr_t) noexcept {};
-
-        ReferencePointer(VariableType* pointer)
+        ReferencePointer() :
+            m_pointer(nullptr),
+            m_controlBlock(nullptr),
+            m_owner(false)
         {
-            TakeOwnership(pointer, new __ReferenceBlock());
         }
-        ReferencePointer(const ReferencePointer& other)
+        ReferencePointer(std::nullptr_t) :
+            m_pointer(nullptr),
+            m_controlBlock(nullptr),
+            m_owner(false)
         {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::ConstructFromOther(other);
-            m_owner = false;
         }
-        ReferencePointer(ReferencePointer&& other) noexcept
+        ReferencePointer(Type* pointer) :
+            m_pointer(pointer),
+            m_controlBlock(new ControlBlock()),
+            m_owner(true)
         {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::ConstructFromMove(other);
-            m_owner = other.m_owner;
-            other.m_owner = false;
+            if constexpr (std::conjunction_v<IsReferenceThisEnabled<Type>>)
+            {
+                m_pointer->m_refPointer = *this;
+            }
         }
-
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, VariableType*>>>
-        ReferencePointer(const ReferencePointer<DerivedType>& other)
+        ReferencePointer(const ReferencePointer& other) :
+            m_pointer(other.m_pointer),
+            m_controlBlock(nullptr),
+            m_owner(false)
         {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::ConstructFromDerived(other);
-            m_owner = false;
+            ControlBlock::Equal(&m_controlBlock, other.m_controlBlock);
         }
-        template<class DerivedType>
-        ReferencePointer(const ReferencePointer<DerivedType>& other, VariableType* pointer)
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>>>
+        ReferencePointer(const ReferencePointer<DerivedType>& other) :
+            m_pointer(other.m_pointer),
+            m_controlBlock(nullptr),
+            m_owner(false)
         {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::ConstructFromCast(other, pointer);
-            m_owner = false;
+            ControlBlock::Equal(&m_controlBlock, other.m_controlBlock);
         }
         template<class DerivedType>
-        ReferencePointer(ReferencePointer<DerivedType>&& other) noexcept
+        ReferencePointer(const ReferencePointer<DerivedType>& other, Type* pointer) :
+            m_pointer(pointer),
+            m_controlBlock(nullptr),
+            m_owner(false)
         {
-            if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::DecrementReferenceBlock();
-            BaseClass::m_pointer = other.m_pointer;
-            BaseClass::m_reference_block = other.m_reference_block;
-
+            ControlBlock::Equal(&m_controlBlock, other.m_controlBlock);
+        }
+        ReferencePointer(ReferencePointer&& other) noexcept :
+            m_pointer(other.m_pointer),
+            m_controlBlock(other.m_controlBlock),
+            m_owner(other.m_owner)
+        {
             other.m_pointer = nullptr;
-            other.m_reference_block = nullptr;
-
-            m_owner = other.m_owner;
+            other.m_controlBlock = nullptr;
             other.m_owner = false;
         }
-
 
         ~ReferencePointer()
         {
             if (m_owner)
-                BaseClass::DeletePointer();
-            else
-                BaseClass::DecrementReferenceBlock();
-        }
-
-    public:
-        VariableType* operator->() const
-        {
-#if _DEBUG
-            try
             {
-                if (BaseClass::m_reference_block == nullptr)
-                    throw NullPointerException();
-                if (!BaseClass::m_reference_block->PointerExists())
-                    throw NullPointerException();
-                return Get();
+                m_controlBlock->DeletePointer();
+                delete m_pointer;
             }
-            catch (NullPointerException e)
-            {
-                throw;
-            }
-#else
-            return Get();
-#endif
-        }
-
-        VariableType& operator*() const {
-#if _DEBUG
-            try
-            {
-                if (BaseClass::m_reference_block == nullptr)
-                    throw NullPointerException();
-                if (!BaseClass::m_reference_block->PointerExists())
-                    throw NullPointerException();
-                return *Get();
-            }
-            catch (NullPointerException e)
-            {
-                throw;
-            }
-#else
-            return *Get();
-#endif
-        }
-        void operator=(std::nullptr_t)
-        {
-            if (m_owner)
-                BaseClass::DeletePointer();
-            else
-            {
-                BaseClass::DecrementReferenceBlock();
-                BaseClass::m_pointer = nullptr;
-            }
-        }
-        void operator=(const ReferencePointer& other)
-        {
-            BaseClass::ConstructFromOther(other);
+            m_pointer = nullptr;
+            ControlBlock::Equal(&m_controlBlock, nullptr);
             m_owner = false;
         }
 
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
-        void operator=(const ReferencePointer<DerivedType>& other)
+    public:
+        ReferencePointer operator=(std::nullptr_t)
         {
-            BaseClass::ConstructFromDerived(other);
+            ResetPointer(nullptr);
+            ControlBlock::Equal(&m_controlBlock, nullptr);
+            m_owner = false;
+
+            return *this;
         }
-        void operator=(ReferencePointer&& other) noexcept
+        ReferencePointer operator=(const ReferencePointer& other)
         {
-            BaseClass::ConstructFromMove(other);
+            ResetPointer(other.m_pointer);
+            ControlBlock::Equal(&m_controlBlock, other.m_controlBlock);
+            m_owner = false;
+
+            return *this;
+        }
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, Type>>>
+        ReferencePointer<DerivedType> operator=(const ReferencePointer<DerivedType>& other)
+        {
+            ResetPointer(other.m_pointer);
+            ControlBlock::Equal(&m_controlBlock, other.m_controlBlock);
+            m_owner = false;
+
+            return other;
+        }
+        ReferencePointer& operator=(ReferencePointer&& other) noexcept
+        {
+            ResetPointer(other.m_pointer);
+            m_controlBlock = other.m_controlBlock;
             m_owner = other.m_owner;
-            other.m_owner = false;
+
+            m_pointer = nullptr;
+            m_controlBlock = nullptr;
+            m_owner = false;
+
+            return *this;
         }
 
+    public:
         bool operator==(std::nullptr_t) const
         {
-            return (BaseClass::m_reference_block) ? BaseClass::m_reference_block->PointerExists() : true;
+            if (m_controlBlock)
+                return m_controlBlock->PointerExists() == false;
+            return true;
         }
         bool operator!=(std::nullptr_t) const
         {
-            return (BaseClass::m_reference_block) ? BaseClass::m_reference_block->PointerExists() : false;
+            if (m_controlBlock)
+                return m_controlBlock->PointerExists() == true;
+            return false;
         }
 
         bool operator==(const ReferencePointer& other) const
         {
-            return (BaseClass::m_reference_block && other.m_reference_block) ? BaseClass::m_reference_block == other.m_reference_block : false;
+            return m_controlBlock == other.m_controlBlock;
         }
         bool operator!=(const ReferencePointer& other) const
         {
-            return (BaseClass::m_reference_block && other.m_reference_block) ? BaseClass::m_reference_block != other.m_reference_block : true;
+            return m_controlBlock != other.m_controlBlock;
         }
 
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, Type>>>
         bool operator==(const ReferencePointer<DerivedType>& other) const
         {
-            return (BaseClass::m_reference_block && other.m_reference_block) ? BaseClass::m_reference_block == other.m_reference_block : false;
+            return m_controlBlock == other.m_controlBlock;
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, VariableType>>>
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, Type>>>
         bool operator!=(const ReferencePointer<DerivedType>& other) const
         {
-            return (BaseClass::m_reference_block && other.m_reference_block) ? BaseClass::m_reference_block != other.m_reference_block : true;
+            return m_controlBlock != other.m_controlBlock;
         }
 
         operator bool() const
         {
-            return *this != nullptr;
+            if (m_controlBlock)
+                return m_controlBlock->PointerExists();
+            return false;
         }
 
     public:
+        Type* operator->() const { return Get(); }
+        Type& operator*() const { return (*Get()); }
 
-        VariableType* Get() const { return BaseClass::m_pointer; }
+    public:
+        Type* Get() const { return m_pointer; }
 
     private:
-        template <class Derived>
-        void TakeOwnership(Derived* const pointer, __ReferenceBlock* const block)
+        void ResetPointer(Type* pointer)
         {
             if (m_owner)
-                BaseClass::DeletePointerInternal();
-            BaseClass::m_pointer = pointer;
-            BaseClass::m_reference_block = block;
-            if constexpr (std::conjunction_v<__ReferenceEnabledFromThis<Derived>>)
             {
-                pointer->m_refPointer = ReferencePointer<VariableType>(*this);
+                m_controlBlock->DeletePointer();
+                delete m_pointer;
             }
-            m_owner = true;
+            m_pointer = pointer;
         }
+
     };
 
     template <class VariableType>
-    class ReferenceFromThis
+    class ReferencePointerEnableThis
     {
         template <class Derived>
         friend class ReferencePointer;
@@ -351,31 +245,28 @@ namespace CommonsLibrary
         mutable ReferencePointer<VariableType> m_refPointer;
 
     public:
-        using RefThis = ReferenceFromThis;
+        using RefThis = ReferencePointerEnableThis;
         ReferencePointer<VariableType> GetReferencePointer() { return m_refPointer; }
     };
 
-    template <class DerivedType, class base_type>
-    [[nodiscard]] ReferencePointer<DerivedType> ReferencePointerStaticCast(ReferencePointer<base_type> other)
+    template <class To, class From>
+    [[nodiscard]] ReferencePointer<To> ReferencePointerStaticCast(ReferencePointer<From> other)
     {
-        DerivedType* pointer = static_cast<DerivedType*>(other.Get());
-        return ReferencePointer<DerivedType>(other, pointer);
+        return ReferencePointer<To>(other, static_cast<To*>(other.Get()));
     }
 
-    template <class DerivedType, class base_type>
-    [[nodiscard]] ReferencePointer<DerivedType> ReferencePointerDynamicCast(ReferencePointer<base_type> other)
+    template <class To, class From>
+    [[nodiscard]] ReferencePointer<To> ReferencePointerDynamicCast(ReferencePointer<From> other)
     {
-        DerivedType* pointer = dynamic_cast<DerivedType*>(other.Get());
-        return ReferencePointer<DerivedType>(other, pointer);
+        To* pointer = dynamic_cast<To*>(other.Get());
+        if (pointer)
+            return ReferencePointer<To>(other, pointer);
+        return nullptr;
     }
 
-    template <class VariableType, class... types>
-    ReferencePointer<VariableType> MakeReference(types&& ...variables)
+    template <class Type, class... Params>
+    ReferencePointer<Type> MakeReference(Params ...variables)
     {
-        VariableType* ptr = new VariableType(std::forward<types>(variables)...);
-        __ReferenceBlock* block = new __ReferenceBlock();
-        ReferencePointer<VariableType> ref;
-        ref.TakeOwnership(ptr, block);
-        return ref;
+        return ReferencePointer<Type>(new Type(variables...));
     }
 }

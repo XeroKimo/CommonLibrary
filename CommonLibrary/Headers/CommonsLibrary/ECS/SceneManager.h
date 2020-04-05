@@ -9,6 +9,7 @@ namespace CommonsLibrary
     class SceneManager : public ECSSystem
     {
         friend class World;
+        friend class GameObject;
     private:
         std::vector<std::unique_ptr<Scene>> m_buildScenes;
         std::unordered_map<std::string, size_t> m_buildSceneIndices;
@@ -34,11 +35,18 @@ namespace CommonsLibrary
         void SetActiveScene(size_t index);
 
         Scene* GetActiveScene() const { return m_activeScene; }
+
+    public:
+        bool TransferGameObject(const ReferencePointer<GameObject>& gameObject);
+
     private:
         void StartGameObjects();
         void UpdateGameObjects(float deltaTime);
         void DestroyGameObjects();
 
         int FindDuplicateSceneName(std::string name);
+
+    private:
+        ReferencePointer<GameObject> CreateGameObject();
     };
 }

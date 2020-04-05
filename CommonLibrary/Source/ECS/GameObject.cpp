@@ -3,7 +3,6 @@
 #include "CommonsLibrary/ECS/Scene.h"
 #include "CommonsLibrary/DebugTools/Logger.h"
 #include "CommonsLibrary/StdHelpers/VectorHelpers.h"
-#include "CommonsLibrary/ECS/IGameObject.h"
 
 namespace CommonsLibrary
 {
@@ -21,60 +20,31 @@ namespace CommonsLibrary
 
     void GameObject::Start()
     {
-        m_updateableComponents.Start();
-        m_hasComponentToStart = false;
+        if (m_activeInWorld)
+            m_componentMap.Start();
     }
     void GameObject::Update(float deltaTime)
     {
-        m_updateableComponents.Update(deltaTime);
-    }
-    void GameObject::CleanUpComponents()
-    {
-        m_componentMap.CleanUp();
-        m_hasComponentToRemove = false;
+        if (m_activeInWorld)
+            m_componentMap.Update(deltaTime);
     }
     void GameObject::OnDestroy()
     {
-        m_updateableComponents.OnGameObjectDestroyed();
-    }
-
-    ReferencePointer<Component> GameObject::AddComponent(const std::type_index& key)
-    {
-        ReferencePointer<Component> component = m_componentMap.AddComponent(GetReferencePointer(), key);
-        m_updateableComponents.AddComponent(component.Get());
-
-        bool wasInactive = !component->IsActive();
-        if (wasInactive)
-        {
-            /*if (!component->m_hasStarted)
-                componentsToStart.push_back(component);*/
-        }
-        return component;
+        if (m_activeInWorld)
+            m_componentMap.OnDestroy();
     }
 
     void GameObject::RemoveComponent(const ReferencePointer<Component>& component)
     {
         if (!component)
             return;
-        //if component has been flagged for destroy
-        //return ;
 
         if (component->GetGameObject().Get() != this)
             component->GetGameObject()->RemoveComponent(component);
         else
         {
-            m_updateableComponents.RemoveComponent(std::move(m_componentMap.RemoveComponent(component)));
+            m_componentMap.RemoveComponent(component);
         }
-    }
-
-    ReferencePointer<Component> GameObject::GetComponent(const std::type_index& key)
-    {
-        return m_componentMap.GetComponent(key);
-    }
-
-    std::vector<ReferencePointer<Component>> GameObject::GetComponents(const std::type_index& key)
-    {
-        return std::vector<ReferencePointer<Component>>();
     }
 
     ReferencePointer<Transform> GameObject::GetTransform()
@@ -88,16 +58,6 @@ namespace CommonsLibrary
                 m_transform = AddComponent<Transform>();
         }
         return m_transform;
-    }
-
-    void GameObject::SetName(std::string_view name)
-    {
-        this->name = name;
-    }
-
-    std::string GameObject::GetName() const
-    {
-        return name;
     }
 
     void GameObject::SetActive(bool active)
@@ -124,45 +84,19 @@ namespace CommonsLibrary
     {
         if (m_isDestroyed)
             return;
+        m_componentMap.DestroyAllComponents();
         m_scene->DestroyGameObject(GetReferencePointer());
         m_isDestroyed = true;
-    }
-
-    void GameObject::SetComponentActive(const ReferencePointer<Component>& component)
-    {
-        m_updateableComponents.SetComponentActive(component.Get());
-
-        bool wasInactive = !component->IsActive();
-        if (wasInactive)
-        {
-            if (component->m_hasStarted)
-            {
-                AddGameObjectToStart();
-            }
-        }
-    }
-
-    void GameObject::AddGameObjectToStart()
-    {
-        if (m_hasComponentToStart)
-            return;
-        m_scene->SetGameObjectToStart(GetReferencePointer());
-        m_hasComponentToStart = true;
-    }
-    void GameObject::AddGameObjectToCleanUp()
-    {
-        m_hasComponentToRemove = true;
-        //m_scene->AddGameObject(GetReferencePointer());
     }
 
     void GameObject::SetChildrenActiveInWorld()
     {
         for (const auto& child : GetTransform()->GetChildren())
         {
-            ReferencePointer<GameObject> gameObject = ReferencePointerStaticCast<GameObject>(child->GetGameObject());
+            ReferencePointer<GameObject> gameObject = child->GetGameObject();
             if (gameObject->GetActiveHeirarchy())
             {
-                SetChildrenActiveInWorld();
+                gameObject->SetChildrenActiveInWorld();
             }
             gameObject->SetActiveInWorld(m_activeInWorld);
         }
@@ -174,12 +108,18 @@ namespace CommonsLibrary
         if (!parent)
             return m_activeInWorld;
         else
-            return static_cast<GameObject*>(parent->GetGameObject().Get())->IsParentActiveInWorld();
+            return parent->GetGameObject()->IsParentActiveInWorld();
     }
 
     void GameObject::SetActiveInWorld(bool active)
     {
+        active = active && m_activeInHeirarchy;
+        if (m_activeInWorld == active)
+            return;
         m_activeInWorld = active;
-        m_scene->SetObjectActive(GetReferencePointer());
+    }
+    ReferencePointer<GameObject> GameObject::CreateGameObject()
+    {
+        return m_scene->GetWorld()->GetSystem<SceneManager>()->CreateGameObject();
     }
 }

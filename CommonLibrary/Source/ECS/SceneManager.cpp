@@ -112,6 +112,16 @@ namespace CommonsLibrary
             m_activeScene = sceneToBeActive;
     }
 
+    bool SceneManager::TransferGameObject(const ReferencePointer<GameObject>& gameObject)
+    {
+        if (gameObject->m_scene == m_activeScene)
+            return false;
+
+        m_activeScene->PlaceGameObject(std::move(gameObject->m_scene->ExtractGameObject(gameObject)));
+
+        return true;
+    }
+
     void SceneManager::StartGameObjects()
     {
         for (const auto& scene : m_loadedScenes)
@@ -141,5 +151,9 @@ namespace CommonsLibrary
                 duplicateCount++;
         }
         return duplicateCount;
+    }
+    ReferencePointer<GameObject> SceneManager::CreateGameObject()
+    {
+        return m_activeScene->CreateGameObject();
     }
 }

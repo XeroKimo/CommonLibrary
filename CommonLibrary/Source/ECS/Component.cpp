@@ -4,30 +4,42 @@
 
 namespace CommonsLibrary
 {
-    Component::Component(const ReferencePointer<IGameObject>& gameObject) :
-        m_gameObject(gameObject),
-        m_active(true),
+    Component::Component(ReferencePointer<GameObject> owningGameObject) :
+        m_gameObject(owningGameObject),
+        active(true),
         m_hasStarted(false)
     {
+
     }
-    void Component::SetActive(bool active)
+
+    void Component::StartComponent()
     {
-        if (m_active == active)
+        if (m_hasStarted)
+            return;
+        Start();
+    }
+
+    void Component::UpdateComponent(float deltaTime)
+    {
+        if (!active)
             return;
 
-        //static_cast<GameObject*>(GetGameObject().Get())->SetComponentActive(GetReferencePointer());
-		m_active = active;
+        Update(deltaTime);
     }
-    ReferencePointer<IGameObject> Component::GetGameObject()
+
+    void Component::DestroyComponent()
     {
-        return m_gameObject;
+        OnDestroy();
     }
-    Scene* Component::GetScene()
+
+    ReferencePointer<GameObject> Component::CreateGameObject()
     {
-        return nullptr;
+        return GetGameObject()->CreateGameObject();
     }
+
     World* Component::GetWorld()
     {
-        return nullptr;
+        return m_gameObject->m_scene->GetWorld();
     }
+
 }

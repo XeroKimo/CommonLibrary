@@ -7,30 +7,32 @@
 
 namespace CommonsLibrary
 {
-    __interface IGameObject;
+    class GameObject;
     class Scene;
 
-    namespace ComponentRegistry
+    class ComponentRegistry
     {
-        namespace Internal
+        ComponentRegistry() = delete;
+
+        inline static std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<GameObject>&)>> m_registry;
+
+    private:           
+        template <class T>
+        static ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject)
         {
-            extern std::unordered_map<std::string, Function<ReferencePointer<Component>(const ReferencePointer<IGameObject>&)>> g_registry;
-            template <class T>
-            inline ReferencePointer<Component> CreateComponent(const ReferencePointer<IGameObject>& gameObject)
-            {
-                return MakeReference<T>(gameObject);
-            }
+            return ReferencePointer<T>(new T(gameObject));
         }
+
+    public:
         template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
-        inline void Register()
+        static void Register()
         {
             std::string name = typeid(T).name();
-            if (!KeyExists(Internal::g_registry, name))
-                Internal::g_registry[name] = Internal::CreateComponent<T>;
+            if (!KeyExists(m_registry, name))
+                m_registry[name] = CreateComponent<T>;
         }
 
-
-        ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<IGameObject>& gameObject);
-        ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<IGameObject>& gameObject);
-    }
+        static ReferencePointer<Component> Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject);
+        static ReferencePointer<Component> Create(const std::string& type, const ReferencePointer<GameObject>& gameObject);
+    };
 }

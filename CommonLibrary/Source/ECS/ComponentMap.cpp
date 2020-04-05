@@ -5,13 +5,35 @@ namespace CommonsLibrary
 {
     void ComponentMap::CleanUp()
     {
-        if (!componentsToDestroy.empty())
+        if (!m_componentsToDestroy.empty())
         {
-            for (const auto& component : componentsToDestroy)
+            for (const auto& component : m_componentsToDestroy)
             {
                 component->OnDestroy();
             }
-            componentsToDestroy.clear();
+            m_componentsToDestroy.clear();
+        }
+    }
+
+    void ComponentMap::Start()
+    {
+        for (auto component : m_updateComponents)
+            component->StartComponent();
+    }
+
+    void ComponentMap::Update(float deltaTime)
+    {
+        for (auto component : m_updateComponents)
+            component->UpdateComponent(deltaTime);
+    }
+
+    void ComponentMap::OnDestroy()
+    {
+        if (!m_componentsToDestroy.empty())
+        {
+            for (auto component : m_componentsToDestroy)
+                component->DestroyComponent();
+            m_componentsToDestroy.clear();
         }
     }
 
@@ -19,6 +41,7 @@ namespace CommonsLibrary
     {
         auto& componentVector = m_componentMap[key];
         componentVector.push_back(ComponentRegistry::Create(key, gameObject));
+        m_updateComponents.push_back(componentVector.back().Get());
         return componentVector.back();
     }
 
@@ -36,17 +59,25 @@ namespace CommonsLibrary
         return {};
     }
 
-    ReferencePointer<Component> ComponentMap::RemoveComponent(const ReferencePointer<Component>& component)
+    void ComponentMap::RemoveComponent(const ReferencePointer<Component>& component)
     {
         std::type_index key(typeid(*component));
         auto& componentVector = m_componentMap[key];
         auto it = std::find(componentVector.begin(), componentVector.end(), component);
         if (it != componentVector.end())
         {
-            componentsToDestroy.push_back(std::move(*it));
+            m_componentsToDestroy.push_back(std::move(*it));
             componentVector.erase(it);
-            return component;
         }
-        return ReferencePointer<Component>();
+    }
+    void ComponentMap::DestroyAllComponents()
+    {
+        for (auto componentVector : m_componentMap)
+        {
+            for (auto component : componentVector.second)
+            {
+                RemoveComponent(component);
+            }
+        }
     }
 }

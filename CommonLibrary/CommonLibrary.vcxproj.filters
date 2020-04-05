@@ -135,13 +135,7 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\UpdateableComponents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\IGameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\IGameObjectHelpers.h">
+    <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -179,7 +173,7 @@
     <ClCompile Include="Source\ECS\ComponentMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ECS\UpdateableComponents.cpp">
+    <ClCompile Include="Source\StdHelpers\StringHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

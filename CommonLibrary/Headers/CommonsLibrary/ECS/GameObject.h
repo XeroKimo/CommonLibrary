@@ -3,27 +3,26 @@
 #include "CommonsLibrary/StdHelpers/UnorderedMapHelpers.h"
 #include "Transform.h"
 #include "ComponentMap.h"
-#include "UpdateableComponents.h"
 #include <typeindex>
-#include "IGameObject.h"
 
 namespace CommonsLibrary
 {
     class Transform;
-    class Scene;
+    class Scene; 
+    class SceneManager;
 
     class GameObject;
 
-    class GameObject final : public IGameObject, public ReferenceFromThis<GameObject>
+    class GameObject final : public ReferencePointerEnableThis<GameObject>
     {
         friend class Component;
         friend class Transform;
+        friend class SceneManager;
         
     protected:
         Scene* m_scene;
         ReferencePointer<Transform> m_transform;
         ComponentMap m_componentMap;
-        UpdateableComponents m_updateableComponents;
 
         bool m_activeInWorld;
         bool m_activeInHeirarchy;
@@ -40,16 +39,13 @@ namespace CommonsLibrary
     public:
         void Start();
         void Update(float deltaTime);
-        void CleanUpComponents();
         void OnDestroy();
 
     public:
         template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
         ReferencePointer<Type> AddComponent()
         {
-            ReferencePointer<Type> component = m_componentMap.AddComponent<Type>(GetReferencePointer());
-            m_updateableComponents.AddComponent(component.Get());
-            return component;
+            return m_componentMap.AddComponent<Type>(GetReferencePointer());
         }
 
         template <class Type>
@@ -65,38 +61,25 @@ namespace CommonsLibrary
         }
 
     public:
-        // Inherited via IGameObject
-        virtual ReferencePointer<Component> AddComponent(const std::type_index& key) override;
+        void RemoveComponent(const ReferencePointer<Component>& component);
 
-        virtual void RemoveComponent(const ReferencePointer<Component>& component) override;
+        ReferencePointer<Transform> GetTransform();
 
-        virtual ReferencePointer<Component> GetComponent(const std::type_index& key) override;
+        void SetActive(bool active);
 
-        virtual std::vector<ReferencePointer<Component>> GetComponents(const std::type_index& key) override;
+        bool GetActiveHeirarchy() const;
 
-        virtual ReferencePointer<Transform> GetTransform() override;
+        bool GetActiveWorld() const;
 
-        virtual void SetName(std::string_view name) override;
-
-        virtual std::string GetName() const override;
-
-        virtual void SetActive(bool active) override;
-
-        virtual bool GetActiveHeirarchy() const override;
-
-        virtual bool GetActiveWorld() const override;
-
-        virtual void Destroy() override;
+        void Destroy();
 
     private:
-        void SetComponentActive(const ReferencePointer<Component>& component);
-
-    private:
-        void AddGameObjectToStart();
-        void AddGameObjectToCleanUp();
-
         void SetChildrenActiveInWorld();
         bool IsParentActiveInWorld();
         void SetActiveInWorld(bool active);
+
+    private:
+        ReferencePointer<GameObject> CreateGameObject();
+        
     };
 }

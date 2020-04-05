@@ -9,10 +9,8 @@ namespace CommonsLibrary
         friend class SceneManager;
         friend class GameObject;
     private:
-        std::vector<ReferencePointer<GameObject>> m_activeGameObjects;
-        std::vector<ReferencePointer<GameObject>> m_inactiveGameObjects;
+        std::vector<ReferencePointer<GameObject>> m_updateGameObjects;
         std::vector<ReferencePointer<GameObject>> m_gameObjectsToDestroy;
-        std::vector<ReferencePointer<GameObject>> m_gameObjectsToStart;
 
         std::string m_sceneName;
 
@@ -23,21 +21,18 @@ namespace CommonsLibrary
         ~Scene();
 
     public:
-        ReferencePointer<GameObject> CreateGameObject();
         ReferencePointer<GameObject> FindObject(const std::string& name) const;
 
         template <class Type>
         ReferencePointer<Type> FindObjectType() const
         {
-            ReferencePointer<Type> component = FindObjectType<Type>(m_activeGameObjects);
-            return (component) ? component : FindObjectType<Type>(m_inactiveGameObjects);
+            return FindObjectType<Type>(m_updateGameObjects);
         }
         template <class Type>
         std::vector<ReferencePointer<Type>> FindObjectsType() const
         {
             std::vector<ReferencePointer<Type>> components;
-            FindObjectsType<Type>(m_activeGameObjects, components);
-            FindObjectsType<Type>(m_inactiveGameObjects, components);
+            FindObjectsType<Type>(m_updateGameObjects, components);
             return components;
         }
 
@@ -47,6 +42,7 @@ namespace CommonsLibrary
         World* GetWorld() { return m_world; }
 
     protected:
+        ReferencePointer<GameObject> CreateGameObject();
         virtual void LoadScene(World* world) { m_world = world; }
 
     private:
@@ -59,8 +55,9 @@ namespace CommonsLibrary
 
     private:
         void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
-        void SetObjectActive(const ReferencePointer<GameObject>& gameObject);
-        void SetGameObjectToStart(const ReferencePointer<GameObject>& gameObject);
+
+        void PlaceGameObject(ReferencePointer<GameObject> gameObject);
+        ReferencePointer<GameObject> ExtractGameObject(const ReferencePointer<GameObject>& gameObject);
 
     private:
         bool FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject);

@@ -8,7 +8,8 @@ namespace CommonsLibrary
     class GameObject;
     class ComponentMap
     {
-        std::vector<ReferencePointer<Component>> componentsToDestroy;
+        std::vector<Component*> m_updateComponents;
+        std::vector<ReferencePointer<Component>> m_componentsToDestroy;
         std::unordered_map<std::type_index, std::vector<ReferencePointer<Component>>> m_componentMap;
     public:
         ComponentMap() = default;
@@ -22,12 +23,16 @@ namespace CommonsLibrary
         void CleanUp();
 
     public:
+        void Start();
+        void Update(float deltaTime);
+        void OnDestroy();
+
+    public:
         ReferencePointer<Component> AddComponent(const ReferencePointer<GameObject>& gameObject, const std::type_index& key);
         ReferencePointer<Component> GetComponent(const std::type_index& key);
         std::vector<ReferencePointer<Component>> GetComponents(const std::type_index& key);
 
     public:
-
         template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
         ReferencePointer<Type> AddComponent(const ReferencePointer<GameObject>& gameObject)
         {
@@ -82,7 +87,10 @@ namespace CommonsLibrary
             return components;
         }
 
-        ReferencePointer<Component> RemoveComponent(const ReferencePointer<Component>& component);
+        void RemoveComponent(const ReferencePointer<Component>& component);
+
+    public:
+        void DestroyAllComponents();
 
     private:
         template <class Type>

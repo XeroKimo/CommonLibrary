@@ -5,40 +5,45 @@
 namespace CommonsLibrary
 {
     class GameObject;
-    __interface IGameObject;
-    struct UpdateableComponents;
-
+    class ComponentMap;
     class World;
-    class Scene;
 
+#define IsCalledBy(someValue)
 
-    class Component : public ReferenceFromThis<Component>
+    class Component : public ReferencePointerEnableThis<Component>
     {
-        friend struct UpdateableComponents;
-        friend class GameObject;
-    private:
-        bool m_active = true;
-        bool m_hasStarted = false;
-
-    private:
-        ReferencePointer<IGameObject> m_gameObject;
+        friend class ComponentMap;
 
     public:
-        Component() = delete;
-        Component(const ReferencePointer<IGameObject>& _gameObject);
+        bool active;
+
+    private:
+        ReferencePointer<GameObject> m_gameObject;
+        bool m_hasStarted;
+
+    public:
+        Component(ReferencePointer<GameObject> owningGameObject);
+        virtual ~Component() {};
 
 
-        bool IsActive() { return m_active; }
-        void SetActive(bool active);
+    private:
+        IsCalledBy(GameObject::Start())
+            void StartComponent();
+        IsCalledBy(GameObject::Update())
+            void UpdateComponent(float deltaTime);
+        IsCalledBy(GameObject::Destroy())
+            void DestroyComponent();
 
-        ReferencePointer<IGameObject> GetGameObject();
-        Scene* GetScene();
+    protected:
+        virtual void Start() {}
+        virtual void Update(float deltaTime) {}
+        virtual void OnDestroy() {}
+
+    public:
+        ReferencePointer<GameObject> GetGameObject() const { return m_gameObject; }
+
+    public:
+        ReferencePointer<GameObject> CreateGameObject();
         World* GetWorld();
-
-    public:
-        virtual void Start() {};
-        virtual void Update(float deltaTime) {};
-        virtual void OnDestroy() {};
-
     };
 }
