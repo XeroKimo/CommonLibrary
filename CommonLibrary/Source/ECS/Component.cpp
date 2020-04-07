@@ -13,9 +13,12 @@ namespace CommonsLibrary
 
     void Component::StartComponent()
     {
+        if (!active)
+            return;
         if (m_hasStarted)
             return;
         Start();
+        m_hasStarted = true;
     }
 
     void Component::UpdateComponent(float deltaTime)
@@ -40,11 +43,4 @@ namespace CommonsLibrary
     {
         return GetGameObject()->CreateGameObject();
     }
-
-    ECSSystemManager* Component::GetSystemManager()
-    {
-        return m_gameObject->m_scene->GetWorld()->GetSystemManager();
-    }
-
-
 }

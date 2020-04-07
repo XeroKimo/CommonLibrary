@@ -1,6 +1,7 @@
 #pragma once
 #include "CommonsLibrary/Miscellaneous/ReferencePointer.h"
 #include "CommonsLibrary/Delegates/Delegate.h"
+#include "ECSSystem.h"
 
 namespace CommonsLibrary
 {
@@ -45,6 +46,8 @@ namespace CommonsLibrary
 
     public:
         ReferencePointer<GameObject> CreateGameObject();
-        ECSSystemManager* GetSystemManager();
+
+        template <class T, std::enable_if_t<std::is_base_of_v<ECSSystem, T>, int> = 0>
+        T* GetSystem() const;
     };
 }

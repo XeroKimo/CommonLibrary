@@ -1,5 +1,5 @@
-#include "CommonsLibrary/ECS/Transform.h"
 #include "CommonsLibrary/ECS.h"
+#include "CommonsLibrary/ECS/Transform.h"
 #include "CommonsLibrary/ECS/GameObject.h"
 
 namespace CommonsLibrary

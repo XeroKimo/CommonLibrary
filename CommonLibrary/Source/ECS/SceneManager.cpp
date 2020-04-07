@@ -14,8 +14,14 @@ namespace CommonsLibrary
     Scene* CommonsLibrary::SceneManager::CreateScene(std::string name)
     {
         m_loadedScenes.push_back(std::make_unique<Scene>(name));
-        m_loadedScenes.back()->LoadScene(m_world);
-        return m_loadedScenes.back().get();
+        m_loadedScenes.back()->CallLoadScene(m_world);
+
+        if (m_activeScene)
+            m_activeScene->m_active = false;
+        m_activeScene = m_loadedScenes.back().get();
+        m_activeScene->m_active = true;
+
+        return m_activeScene;
     }
 
     void SceneManager::LoadScene(std::string name)
@@ -29,13 +35,17 @@ namespace CommonsLibrary
         if (index > m_buildScenes.size())
             return;
 
-        m_buildScenes[index]->LoadScene(m_world);
+        m_buildScenes[index]->CallLoadScene(m_world);
         std::unique_ptr<Scene> scene = std::make_unique<Scene>(*m_buildScenes[index]);
         m_buildScenes[index]->UnloadScene();
         int duplicateCount = FindDuplicateSceneName(scene->GetSceneName());
         if (duplicateCount > 0)
             scene->m_sceneName += std::to_string(duplicateCount);
+
+        if (m_activeScene)
+            m_activeScene->m_active = false;
         m_activeScene = scene.get();
+        m_activeScene->m_active = true;
 
         m_loadedScenes.push_back(std::move(scene));
     }
@@ -104,6 +114,18 @@ namespace CommonsLibrary
             m_activeScene = sceneToBeActive;
     }
 
+    void SceneManager::SetActiveScene(Scene* scene)
+    {
+        if (scene->IsActive())
+            return;
+        if (!scene->IsLoaded())
+            return;
+
+        m_activeScene->m_active = false;
+        m_activeScene = scene;
+        m_activeScene->m_active = true;
+    }
+
     bool SceneManager::TransferGameObject(const ReferencePointer<GameObject>& gameObject)
     {
         if (gameObject->m_scene == m_activeScene)
@@ -146,6 +168,8 @@ namespace CommonsLibrary
     }
     ReferencePointer<GameObject> SceneManager::CreateGameObject()
     {
+        if (!m_activeScene)
+            return nullptr;
         ReferencePointer<GameObject> spawnedObject = MakeReference<GameObject>(m_activeScene);
         ReferencePointer<GameObject> returnObject = spawnedObject;
         m_activeScene->PlaceGameObject(std::move(spawnedObject));

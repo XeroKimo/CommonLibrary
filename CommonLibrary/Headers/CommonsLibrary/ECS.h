@@ -9,3 +9,5 @@
 #include "ECS/ECSSystemManager.h"
 #include "ECS/SceneManager.h"
 #include "ECS/World.h"
+
+#include "ECS/TemplateFunctions.h"

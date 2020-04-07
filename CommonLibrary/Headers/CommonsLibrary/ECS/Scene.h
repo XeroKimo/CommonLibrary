@@ -8,6 +8,7 @@ namespace CommonsLibrary
     {
         friend class SceneManager;
         friend class GameObject;
+        friend class Component;
     private:
         std::vector<ReferencePointer<GameObject>> m_updateGameObjects;
         std::vector<ReferencePointer<GameObject>> m_gameObjectsToDestroy;
@@ -15,6 +16,9 @@ namespace CommonsLibrary
         std::string m_sceneName;
 
         World* m_world;
+
+        bool m_active;
+        bool m_loaded;
     public:
         Scene(std::string sceneName);
         Scene(Scene& other);
@@ -37,15 +41,18 @@ namespace CommonsLibrary
         }
 
     public:
-        std::string GetSceneName() { return m_sceneName; }
-
-        World* GetWorld() { return m_world; }
+        std::string GetSceneName() const { return m_sceneName; }
+        bool IsLoaded() const { return m_loaded; }
+        bool IsActive() const { return m_active; }
 
     protected:
         ReferencePointer<GameObject> CreateGameObject();
-        virtual void LoadScene(World* world) { m_world = world; }
+        
+        virtual void LoadScene() { }
 
     private:
+        void CallLoadScene(World* world);
+
         void UnloadScene();
 
     private:

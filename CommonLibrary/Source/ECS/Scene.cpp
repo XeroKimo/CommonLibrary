@@ -28,13 +28,23 @@ namespace CommonsLibrary
     {
         if (!m_world)
             return nullptr;
-        return m_world->GetSystemManager()->GetSystem<SceneManager>()->CreateGameObject();
-        //ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
-        //m_updateGameObjects.push_back(std::move(createdObject));
-        //return m_updateGameObjects.back();
+        auto gameObject = m_world->GetSystemManager()->GetSystem<SceneManager>()->CreateGameObject();
+        if (!gameObject)
+        {
+            m_updateGameObjects.push_back((MakeReference<GameObject>(this)));
+            return m_updateGameObjects.back();
+        }
+        return gameObject;
+    }
+    void Scene::CallLoadScene(World* world)
+    {
+        m_world = world;
+        LoadScene();
+        m_loaded = true;
     }
     void Scene::UnloadScene()
     {
+        m_loaded = false;
         m_updateGameObjects.clear();
         m_gameObjectsToDestroy.clear();
     }

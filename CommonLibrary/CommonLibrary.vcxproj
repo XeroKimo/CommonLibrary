@@ -166,6 +166,7 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentMap.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystemManager.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\TemplateFunctions.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialInputFile.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialOutputFile.h" />
@@ -220,6 +221,9 @@
     <ClCompile Include="Source\ECS\Transform.cpp" />
     <ClCompile Include="Source\ECS\World.cpp" />
     <ClCompile Include="Source\StdHelpers\StringHelpers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Headers\CommonsLibrary\ECS\TemplateFunctions\Component.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

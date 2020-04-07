@@ -16,7 +16,7 @@ namespace CommonsLibrary
 
     class InstantiatedSingletons
     {
-        template <class T, std::enable_if_t<std::is_class_v<T>, int> = 0>
+        template <class T, std::enable_if_t<std::is_class_v<T>, int>>
         friend class Singleton;
 
         inline static std::vector<SingletonBase*> m_singletons;

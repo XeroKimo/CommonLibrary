@@ -33,6 +33,7 @@ namespace CommonsLibrary
 
         void SetActiveScene(std::string name);
         void SetActiveScene(size_t index);
+        void SetActiveScene(Scene* scene);
 
         Scene* GetActiveScene() const { return m_activeScene; }
 
