@@ -1,4 +1,5 @@
 #include "CommonsLibrary/ECS/Transform.h"
+#include "CommonsLibrary/ECS.h"
 #include "CommonsLibrary/ECS/GameObject.h"
 
 namespace CommonsLibrary
@@ -21,7 +22,11 @@ namespace CommonsLibrary
         if (m_parent)
         {
             m_parent->AddChild(ReferencePointerStaticCast<Transform>(GetReferencePointer()));
-            static_cast<GameObject*>(GetGameObject().Get())->SetActiveInWorld(static_cast<GameObject*>(GetGameObject().Get())->IsParentActiveInWorld());
+            GetGameObject()->SetActiveInWorld(GetGameObject()->IsParentActiveInWorld());
+        }
+        else
+        {
+            GetGameObject()->SetActiveInWorld(GetGameObject()->GetActiveHeirarchy());
         }
     }
 

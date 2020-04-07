@@ -1,6 +1,5 @@
+#include "CommonsLibrary/ECS.h"
 #include "CommonsLibrary/ECS/Component.h"
-#include "CommonsLibrary/ECS/GameObject.h"
-#include "CommonsLibrary/ECS/Scene.h"
 
 namespace CommonsLibrary
 {
@@ -32,14 +31,20 @@ namespace CommonsLibrary
         OnDestroy();
     }
 
+    ReferencePointer<Transform> Component::GetTransform() const
+    {
+        return m_gameObject->GetTransform();
+    }
+
     ReferencePointer<GameObject> Component::CreateGameObject()
     {
         return GetGameObject()->CreateGameObject();
     }
 
-    World* Component::GetWorld()
+    ECSSystemManager* Component::GetSystemManager()
     {
-        return m_gameObject->m_scene->GetWorld();
+        return m_gameObject->m_scene->GetWorld()->GetSystemManager();
     }
+
 
 }

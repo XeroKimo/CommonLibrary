@@ -1,22 +1,14 @@
 #include "CommonsLibrary/ECS/SceneManager.h"
+#include "CommonsLibrary/ECS.h"
 #include "CommonsLibrary/DebugTools/Assert.h"
 #include <string>
 
 namespace CommonsLibrary
 {
-    CommonsLibrary::SceneManager::SceneManager(std::vector<std::unique_ptr<Scene>> scenes, World* world) :
-        m_buildScenes(std::move(scenes)),
+    CommonsLibrary::SceneManager::SceneManager(World* world) :
+        m_buildScenes(),
         m_world(world)
     {
-        assertError(!m_buildScenes.empty(), "There are 0 scenes in the build");
-
-        std::string key;
-        for (size_t i = 0; i < m_buildScenes.size(); i++)
-        {
-            key = m_buildScenes[i]->GetSceneName();
-            assertError(!KeyExists(m_buildSceneIndices, key), "Scene name already exists");
-            m_buildSceneIndices[key] = i;
-        }
     }
 
     Scene* CommonsLibrary::SceneManager::CreateScene(std::string name)
@@ -154,6 +146,22 @@ namespace CommonsLibrary
     }
     ReferencePointer<GameObject> SceneManager::CreateGameObject()
     {
-        return m_activeScene->CreateGameObject();
+        ReferencePointer<GameObject> spawnedObject = MakeReference<GameObject>(m_activeScene);
+        ReferencePointer<GameObject> returnObject = spawnedObject;
+        m_activeScene->PlaceGameObject(std::move(spawnedObject));
+        return returnObject;
+    }
+    void SceneManager::AddBuildScene(std::unique_ptr<Scene>& scene)
+    {
+        assertError(!KeyExists(m_buildSceneIndices, scene->GetSceneName()), "Duplicate scene name found, loading a scene by name may cause issues");
+        m_buildSceneIndices[scene->GetSceneName()] = m_buildScenes.size();
+        m_buildScenes.push_back(std::move(scene));
+    }
+    void SceneManager::AddBuildScene(std::vector<std::unique_ptr<Scene>>& scenes)
+    {
+        for (auto& scene : scenes)
+        {
+            AddBuildScene(scene);
+        }
     }
 }

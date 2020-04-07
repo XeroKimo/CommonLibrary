@@ -7,10 +7,31 @@ namespace CommonsLibrary
 {
     class SingletonBase
     {
-        static std::vector<SingletonBase*> m_singletons;
-
+        friend class InstantiatedSingletons;
     protected:
         SingletonBase() = default;
+    protected:
+        virtual void CallShutdown() = 0;
+    };
+
+    class InstantiatedSingletons
+    {
+        template <class T, std::enable_if_t<std::is_class_v<T>, int> = 0>
+        friend class Singleton;
+
+        inline static std::vector<SingletonBase*> m_singletons;
+    private:
+        InstantiatedSingletons();
+
+        static void RegisterSingleton(SingletonBase* singleton)
+        {
+            m_singletons.push_back(singleton);
+        }
+        static void DeregisterSingleton(SingletonBase* singleton)
+        {
+            auto it = std::find(m_singletons.begin(), m_singletons.end(), singleton);
+            m_singletons.erase(it);
+        }
 
     public:
         static void ShutdownAll()
@@ -20,25 +41,12 @@ namespace CommonsLibrary
                 m_singletons.back()->CallShutdown();
             }
         }
-
-    protected:
-        virtual void CallShutdown() = 0;
-    protected:
-        void RegisterSingleton()
-        {
-            m_singletons.push_back(this);
-        }
-        void DeregisterSingleton()
-        {
-            auto it = std::find(m_singletons.begin(), m_singletons.end(), this);
-            m_singletons.erase(it);
-        }
     };
 
-    template <class T, class = std::enable_if_t<std::is_class_v<T>>>
+    template <class T, std::enable_if_t<std::is_class_v<T>, int> = 0>
     class Singleton : private SingletonBase
     {
-        friend class SingletonBase;
+
     private:
         static T* m_instance;
 
@@ -52,25 +60,26 @@ namespace CommonsLibrary
             if (!m_instance)
             {
                 m_instance = new T();
-                m_instance->RegisterSingleton();
+                InstantiatedSingletons::RegisterSingleton(m_instance);
             }
             return m_instance;
         }
 
-        void Shutdown()
+        static void Shutdown()
         {
             if (m_instance)
             {
-                m_instance->DeregisterSingleton();
+                InstantiatedSingletons::DeregisterSingleton(m_instance);
                 delete m_instance;
             }
             m_instance = nullptr;
         }
 
-    protected:
+    private:
         void CallShutdown() override final
         {
-            Shutdown();
+            T::Shutdown();
         }
     };
+
 }

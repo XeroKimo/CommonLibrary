@@ -24,7 +24,7 @@ namespace CommonsLibrary
         }
 
     public:
-        template <class T, class = std::enable_if_t<std::is_base_of_v<Component, T>>>
+        template <class T, std::enable_if_t<std::is_base_of_v<Component, T>, int> = 0>
         static void Register()
         {
             std::string name = typeid(T).name();

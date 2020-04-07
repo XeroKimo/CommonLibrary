@@ -8,12 +8,12 @@ namespace CommonsLibrary
     constexpr double RAD_TO_DEG = 180.0 / PI;
     constexpr double DEG_TO_RAD = PI / 180.0;
 
-    template <class Type, class = std::enable_if_t<std::is_fundamental_v<Type>>>
+    template <class Type, std::enable_if_t<std::is_fundamental_v<Type>, int> = 0>
     Type ToDegrees(Type radians)
     {
         return static_cast<Type>(static_cast<double>(radians) * RAD_TO_DEG);
     }
-    template <class Type, class = std::enable_if_t<std::is_fundamental_v<Type>>>
+    template <class Type, std::enable_if_t<std::is_fundamental_v<Type>, int> = 0>
     Type ToRadians(Type degrees)
     {
         return static_cast<Type>(static_cast<double>(degrees) * DEG_TO_RAD);

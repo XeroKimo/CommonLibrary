@@ -1,6 +1,5 @@
+#include "CommonsLibrary/ECS.h"
 #include "CommonsLibrary/ECS/GameObject.h"
-#include "CommonsLibrary/ECS/World.h"
-#include "CommonsLibrary/ECS/Scene.h"
 #include "CommonsLibrary/DebugTools/Logger.h"
 #include "CommonsLibrary/StdHelpers/VectorHelpers.h"
 
@@ -30,8 +29,7 @@ namespace CommonsLibrary
     }
     void GameObject::OnDestroy()
     {
-        if (m_activeInWorld)
-            m_componentMap.OnDestroy();
+        m_componentMap.OnDestroy();
     }
 
     void GameObject::RemoveComponent(const ReferencePointer<Component>& component)
@@ -120,6 +118,6 @@ namespace CommonsLibrary
     }
     ReferencePointer<GameObject> GameObject::CreateGameObject()
     {
-        return m_scene->GetWorld()->GetSystem<SceneManager>()->CreateGameObject();
+        return m_scene->CreateGameObject();
     }
 }

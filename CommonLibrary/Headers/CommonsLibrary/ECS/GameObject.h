@@ -42,7 +42,7 @@ namespace CommonsLibrary
         void OnDestroy();
 
     public:
-        template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
+        template <class Type, std::enable_if_t<std::is_base_of_v<Component, Type>, int> = 0>
         ReferencePointer<Type> AddComponent()
         {
             return m_componentMap.AddComponent<Type>(GetReferencePointer());

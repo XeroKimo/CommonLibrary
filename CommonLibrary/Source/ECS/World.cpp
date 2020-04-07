@@ -1,14 +1,22 @@
 #include "CommonsLibrary/ECS/World.h"
-#include "CommonsLibrary/ECS/ComponentRegistry.h"
-#include "CommonsLibrary/ECS/Transform.h"
+#include "CommonsLibrary/ECS.h"
 
 namespace CommonsLibrary
 {
-    World::World(std::vector<std::unique_ptr<Scene>> scenes)
+    World::World()
     {
         ComponentRegistry::Register<Transform>();
-        m_sceneManager = std::make_unique<SceneManager>(std::move(scenes), this);
+        m_sceneManager = std::make_unique<SceneManager>(this);
         AddSystem(m_sceneManager.get());
+    }
+
+    void World::AddBuildScene(std::unique_ptr<Scene>& scene)
+    {
+        m_sceneManager->AddBuildScene(scene);
+    }
+    void World::AddBuildScene(std::vector<std::unique_ptr<Scene>>& scene)
+    {
+        m_sceneManager->AddBuildScene(scene);
     }
     void World::Update(float deltaTime)
     {

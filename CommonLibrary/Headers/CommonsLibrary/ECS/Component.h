@@ -6,7 +6,8 @@ namespace CommonsLibrary
 {
     class GameObject;
     class ComponentMap;
-    class World;
+    class ECSSystemManager;
+    class Transform;
 
 #define IsCalledBy(someValue)
 
@@ -25,13 +26,12 @@ namespace CommonsLibrary
         Component(ReferencePointer<GameObject> owningGameObject);
         virtual ~Component() {};
 
-
     private:
-        IsCalledBy(GameObject::Start())
+        IsCalledBy(ComponentMap::Start())
             void StartComponent();
-        IsCalledBy(GameObject::Update())
+        IsCalledBy(ComponentMap::Update())
             void UpdateComponent(float deltaTime);
-        IsCalledBy(GameObject::Destroy())
+        IsCalledBy(ComponentMap::OnDestroy())
             void DestroyComponent();
 
     protected:
@@ -40,10 +40,11 @@ namespace CommonsLibrary
         virtual void OnDestroy() {}
 
     public:
-        ReferencePointer<GameObject> GetGameObject() const { return m_gameObject; }
+        inline ReferencePointer<GameObject> GetGameObject() const { return m_gameObject; }
+        ReferencePointer<Transform> GetTransform() const;
 
     public:
         ReferencePointer<GameObject> CreateGameObject();
-        World* GetWorld();
+        ECSSystemManager* GetSystemManager();
     };
 }

@@ -9,7 +9,7 @@ namespace CommonsLibrary
     class SceneManager : public ECSSystem
     {
         friend class World;
-        friend class GameObject;
+        friend class Scene;
     private:
         std::vector<std::unique_ptr<Scene>> m_buildScenes;
         std::unordered_map<std::string, size_t> m_buildSceneIndices;
@@ -17,7 +17,7 @@ namespace CommonsLibrary
         Scene* m_activeScene = nullptr;
         World* m_world;
     public:
-        SceneManager(std::vector<std::unique_ptr<Scene>> scenes, World* world);
+        SceneManager(World* world);
 
     public:
         Scene* CreateScene(std::string name);
@@ -48,5 +48,9 @@ namespace CommonsLibrary
 
     private:
         ReferencePointer<GameObject> CreateGameObject();
+
+    private:
+        void AddBuildScene(std::unique_ptr<Scene>& scene);
+        void AddBuildScene(std::vector<std::unique_ptr<Scene>>& scenes);
     };
 }

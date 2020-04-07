@@ -4,7 +4,7 @@
 
 namespace CommonsLibrary
 {
-    template <class ChronoType = std::chrono::nanoseconds, class FundamentalType = double, class EnableChrono = std::enable_if_t<std::_Is_specialization_v<ChronoType, std::chrono::duration>>, class EnableFundamental = std::enable_if_t<std::is_fundamental_v<FundamentalType>>>
+    template <class ChronoType = std::chrono::nanoseconds, class FundamentalType = double, std::enable_if_t<std::_Is_specialization_v<ChronoType, std::chrono::duration>, int> = 0, std::enable_if_t<std::is_fundamental_v<FundamentalType>, int> = 0>
     class ScopedTimer
     {
     public:

@@ -1,3 +1,4 @@
+#include "CommonsLibrary/ECS.h"
 #include "CommonsLibrary/ECS/Scene.h"
 #include "CommonsLibrary/StdHelpers/VectorHelpers.h"
 
@@ -27,9 +28,10 @@ namespace CommonsLibrary
     {
         if (!m_world)
             return nullptr;
-        ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
-        m_updateGameObjects.push_back(std::move(createdObject));
-        return m_updateGameObjects.back();
+        return m_world->GetSystemManager()->GetSystem<SceneManager>()->CreateGameObject();
+        //ReferencePointer<GameObject> createdObject = MakeReference<GameObject>(this);
+        //m_updateGameObjects.push_back(std::move(createdObject));
+        //return m_updateGameObjects.back();
     }
     void Scene::UnloadScene()
     {

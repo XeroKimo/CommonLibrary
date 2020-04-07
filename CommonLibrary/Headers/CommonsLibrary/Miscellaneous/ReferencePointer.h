@@ -98,7 +98,7 @@ namespace CommonsLibrary
         {
             ControlBlock::Equal(&m_controlBlock, other.m_controlBlock);
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>>>
+        template<class DerivedType, std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>, int> = 0>
         ReferencePointer(const ReferencePointer<DerivedType>& other) :
             m_pointer(other.m_pointer),
             m_controlBlock(nullptr),
@@ -123,7 +123,7 @@ namespace CommonsLibrary
             other.m_controlBlock = nullptr;
             other.m_owner = false;
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>>>
+        template<class DerivedType, std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>, int> = 0>
         ReferencePointer(ReferencePointer<DerivedType>&& other) noexcept :
             m_pointer(other.m_pointer),
             m_controlBlock(other.m_controlBlock),
@@ -163,7 +163,7 @@ namespace CommonsLibrary
 
             return *this;
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, Type>>>
+        template<class DerivedType, std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>, int> = 0>
         ReferencePointer<DerivedType> operator=(const ReferencePointer<DerivedType>& other)
         {
             ResetPointer(other.m_pointer);
@@ -184,7 +184,7 @@ namespace CommonsLibrary
 
             return *this;
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>>>
+        template<class DerivedType, std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>, int> = 0>
         ReferencePointer& operator=(ReferencePointer<DerivedType>&& other) noexcept
         {
             ResetPointer(other.m_pointer);
@@ -221,12 +221,12 @@ namespace CommonsLibrary
             return m_controlBlock != other.m_controlBlock;
         }
 
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, Type>>>
+        template<class DerivedType, std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>, int> = 0>
         bool operator==(const ReferencePointer<DerivedType>& other) const
         {
             return m_controlBlock == other.m_controlBlock;
         }
-        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType, Type>>>
+        template<class DerivedType, std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>, int> = 0>
         bool operator!=(const ReferencePointer<DerivedType>& other) const
         {
             return m_controlBlock != other.m_controlBlock;

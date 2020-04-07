@@ -33,7 +33,7 @@ namespace CommonsLibrary
         std::vector<ReferencePointer<Component>> GetComponents(const std::type_index& key);
 
     public:
-        template <class Type, class Enable = std::enable_if_t<std::is_base_of_v<Component, Type>>>
+        template <class Type, std::enable_if_t<std::is_base_of_v<Component, Type>, int> = 0>
         ReferencePointer<Type> AddComponent(const ReferencePointer<GameObject>& gameObject)
         {
             static_assert(std::is_convertible<std::remove_cv_t<Type>*, typename Component::RefThis*>::value, "Multiple inheritance of type Component is not allowed");

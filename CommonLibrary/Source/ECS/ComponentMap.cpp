@@ -1,5 +1,5 @@
+#include "CommonsLibrary/ECS.h"
 #include "CommonsLibrary/ECS/ComponentMap.h"
-#include "CommonsLibrary/ECS/GameObject.h"
 
 namespace CommonsLibrary
 {
