@@ -123,6 +123,16 @@ namespace CommonsLibrary
             other.m_controlBlock = nullptr;
             other.m_owner = false;
         }
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>>>
+        ReferencePointer(ReferencePointer<DerivedType>&& other) noexcept :
+            m_pointer(other.m_pointer),
+            m_controlBlock(other.m_controlBlock),
+            m_owner(other.m_owner)
+        {
+            other.m_pointer = nullptr;
+            other.m_controlBlock = nullptr;
+            other.m_owner = false;
+        }
 
         ~ReferencePointer()
         {
@@ -163,6 +173,19 @@ namespace CommonsLibrary
             return other;
         }
         ReferencePointer& operator=(ReferencePointer&& other) noexcept
+        {
+            ResetPointer(other.m_pointer);
+            m_controlBlock = other.m_controlBlock;
+            m_owner = other.m_owner;
+
+            m_pointer = nullptr;
+            m_controlBlock = nullptr;
+            m_owner = false;
+
+            return *this;
+        }
+        template<class DerivedType, class = std::enable_if_t<std::is_convertible_v<DerivedType*, Type*>>>
+        ReferencePointer& operator=(ReferencePointer<DerivedType>&& other) noexcept
         {
             ResetPointer(other.m_pointer);
             m_controlBlock = other.m_controlBlock;

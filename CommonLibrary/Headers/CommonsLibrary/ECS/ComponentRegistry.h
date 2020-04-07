@@ -20,7 +20,7 @@ namespace CommonsLibrary
         template <class T>
         static ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject)
         {
-            return ReferencePointer<T>(new T(gameObject));
+            return MakeReference<T>(gameObject);
         }
 
     public:
