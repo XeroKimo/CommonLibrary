@@ -8,14 +8,15 @@ namespace CommonsLibrary
     {
         union
         {
+            //float data[4] = { 0 };
             struct { float x, y, z, w; };
             struct { float i, j, k, r; };
-        };
+        }; 
 
     public:
-        Quaternion() { Identity(); }
-        Quaternion(float w, float x, float y, float z) { this->w = w; this->x = x; this->y = y; this->z = z; }
-        void Identity() { w = 1; x = 0; y = 0; z = 0; }
+        constexpr Quaternion() : x(0), y(0), z(0), w(1) {}
+        constexpr Quaternion(float _w, float _x, float _y, float _z) : x(_x), y(_y), z(_z), w(_w) {}
+        constexpr void Identity() { w = 1; x = 0; y = 0; z = 0; }
 
         void Rotate(Vector3 axis, float angle)
         {
@@ -30,7 +31,7 @@ namespace CommonsLibrary
             *this = *this * temp;
         }
 
-        Quaternion operator+ (const Quaternion& other) const
+        constexpr Quaternion operator+ (const Quaternion& other) const
         {
             Quaternion result;
             result.w = w + other.w;
@@ -40,7 +41,7 @@ namespace CommonsLibrary
 
             return result;
         }
-        Quaternion operator- (const Quaternion& other) const
+        constexpr Quaternion operator- (const Quaternion& other) const
         {
             Quaternion result;
             result.w = w - other.w;
@@ -50,7 +51,7 @@ namespace CommonsLibrary
 
             return result;
         }
-        Quaternion operator* (const Quaternion& other) const
+        constexpr Quaternion operator* (const Quaternion& other) const
         {
             Quaternion result;
             Matrix4x4 mat
@@ -67,7 +68,7 @@ namespace CommonsLibrary
 
             return result;
         }
-        Quaternion operator/ (const Quaternion& other) const
+        constexpr Quaternion operator/ (const Quaternion& other) const
         {
             Quaternion result;
             float dividor = other.w * other.w + other.x * other.x + other.y * other.y + other.z * other.z;
@@ -80,19 +81,19 @@ namespace CommonsLibrary
             return result;
         }
 
-        void operator+= (const Quaternion& other)
+        constexpr void operator+= (const Quaternion& other)
         {
             *this = *this + other;
         }
-        void operator-= (const Quaternion& other)
+        constexpr void operator-= (const Quaternion& other)
         {
             *this = *this - other;
         }
-        void operator*= (const Quaternion& other)
+        constexpr void operator*= (const Quaternion& other)
         {
             *this = *this * other;
         }
-        void operator/= (const Quaternion& other)
+        constexpr void operator/= (const Quaternion& other)
         {
             *this = *this / other;
         }

@@ -23,10 +23,10 @@ namespace CommonsLibrary
 
     public:
 
-        Matrix4x4() { Identity(); }
-        Matrix4x4(Vector4 x, Vector4 y, Vector4 z, Vector4 w) { vx = x; vy = y; vz = z; vw = w; }
+        constexpr Matrix4x4() { Identity(); }
+        constexpr Matrix4x4(Vector4 x, Vector4 y, Vector4 z, Vector4 w) { vx = x; vy = y; vz = z; vw = w; }
 
-        Matrix4x4 operator+(const Matrix4x4& other) const
+        constexpr Matrix4x4 operator+(const Matrix4x4& other) const
         {
             Matrix4x4 mat;
             mat.vx = vx + other.vx;
@@ -36,7 +36,7 @@ namespace CommonsLibrary
 
             return mat;
         }
-        Matrix4x4 operator-(const Matrix4x4& other) const
+        constexpr Matrix4x4 operator-(const Matrix4x4& other) const
         {
             Matrix4x4 mat;
             mat.vx = vx - other.vx;
@@ -46,7 +46,7 @@ namespace CommonsLibrary
 
             return mat;
         }
-        Matrix4x4 operator*(const Matrix4x4& other) const
+        constexpr Matrix4x4 operator*(const Matrix4x4& other) const
         {
             Matrix4x4 mat = other;
             mat.Transpose();
@@ -75,7 +75,7 @@ namespace CommonsLibrary
             return output;
         }
 
-        Vector4 operator*(const Vector4& other) const
+        constexpr Vector4 operator*(const Vector4& other) const
         {
             float x = vx.Dot(other);
             float y = vy.Dot(other);
@@ -85,21 +85,21 @@ namespace CommonsLibrary
             return Vector4(x, y, z, w);
         }
 
-        void operator+=(const Matrix4x4& other)
+        constexpr void operator+=(const Matrix4x4& other)
         {
             vx += other.vx;
             vy += other.vy;
             vz += other.vz;
             vw += other.vw;
         }
-        void operator-=(const Matrix4x4& other)
+        constexpr void operator-=(const Matrix4x4& other)
         {
             vx -= other.vx;
             vy -= other.vy;
             vz -= other.vz;
             vw -= other.vw;
         }
-        void operator*=(const Matrix4x4& other)
+        constexpr void operator*=(const Matrix4x4& other)
         {
             Matrix4x4 mat = other;
             mat.Transpose();
@@ -126,14 +126,14 @@ namespace CommonsLibrary
             vw.data[3] = copy.vw.Dot(mat.vw);
         }
 
-        void Identity()
+        constexpr void Identity()
         {
             vx = { 1.0f, 0.0f, 0.0f, 0.0f };
             vy = { 0.0f, 1.0f, 0.0f, 0.0f };
             vz = { 0.0f, 0.0f, 1.0f, 0.0f };
             vw = { 0.0f, 0.0f, 0.0f, 1.0f };
         }
-        void Transpose()
+        constexpr void Transpose()
         {
             Matrix4x4 temp = *this;
             vx = { temp.vx.data[0], temp.vy.data[0], temp.vz.data[0], temp.vw.data[0] };

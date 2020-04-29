@@ -16,78 +16,78 @@ namespace CommonsLibrary
         };
 
     public:
-        Vector3() = default;
+        constexpr Vector3() = default;
 
         constexpr Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
         {
         }
 
-        Vector3 operator+(const Vector3& other) const
+        constexpr Vector3 operator+(const Vector3& other) const
         {
             return Vector3(x + other.x, y + other.y, z + other.z);
         }
-        Vector3 operator-(const Vector3& other) const
+        constexpr Vector3 operator-(const Vector3& other) const
         {
             return Vector3(x - other.x, y - other.y, z - other.z);
         }
-        Vector3 operator*(const Vector3& other) const
+        constexpr Vector3 operator*(const Vector3& other) const
         {
             return Vector3(x * other.x, y * other.y, z * other.z);
         }
-        Vector3 operator/(const Vector3& other) const
+        constexpr Vector3 operator/(const Vector3& other) const
         {
             return Vector3(x / other.x, y / other.y, z / other.z);
         }
-        Vector3 operator*(const float& other) const
+        constexpr Vector3 operator*(const float& other) const
         {
             return Vector3(x * other, y * other, z * other);
         }
-        Vector3 operator/(const float& other) const
+        constexpr Vector3 operator/(const float& other) const
         {
             return Vector3(x / other, y / other, z / other);
         }
 
-        Vector3 operator-()
+        constexpr Vector3 operator-() const
         {
             return *this * -1;
         }
 
-        void operator+=(const Vector3& other)
+        constexpr void operator+=(const Vector3& other)
         {
             *this = *this + other;
         }
-        void operator-=(const Vector3& other)
+        constexpr void operator-=(const Vector3& other)
         {
             *this = *this - other;
         }
-        void operator*=(const Vector3& other)
+        constexpr  void operator*=(const Vector3& other)
         {
             *this = *this * other;
         }
-        void operator/=(const Vector3& other)
+        constexpr void operator/=(const Vector3& other)
         {
             *this = *this / other;
         }
-        void operator*=(const float& other)
+        constexpr void operator*=(const float& other)
         {
             *this = *this * other;
         }
-        void operator/=(const float& other)
+        constexpr void operator/=(const float& other)
         {
             *this = *this / other;
         }
 
-        bool operator==(const Vector3& other) const
+        constexpr bool operator==(const Vector3& other) const
         {
             return (x == other.x && y == other.y && z == other.z);
         }
 
     public:
-        float Dot(const Vector3& other) const
+        constexpr float Dot(const Vector3& other) const
         {
             return (x * other.x) + (y * other.y) + (z * other.z);
         }
-        Vector3 Cross(const Vector3& other) const
+        constexpr Vector3 Cross(const Vector3& other) const
         {
             Vector3 output;
             output.x = (y * other.z) - (z * other.y);
@@ -99,7 +99,7 @@ namespace CommonsLibrary
         {
             return sqrtf(MagnitudeSquared());
         }
-        float MagnitudeSquared() const
+        constexpr float MagnitudeSquared() const
         {
             return (x * x) + (y * y) + (z * z);
         }
@@ -112,9 +112,9 @@ namespace CommonsLibrary
         }
         void Absolute()
         {
-            x = abs(x);
-            y = abs(y);
-            z = abs(z);
+            x = std::abs(x);
+            y = std::abs(y);
+            z = std::abs(z);
         }
         Vector3 GetNormalized() const
         {

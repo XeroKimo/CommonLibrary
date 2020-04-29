@@ -15,74 +15,74 @@ namespace CommonsLibrary
         };
 
     public:
-        Vector2() = default;
+        constexpr Vector2() = default;
 
-        Vector2(float _x, float _y) : x(_x), y(_y)
+        constexpr Vector2(float _x, float _y) : x(_x), y(_y)
         {
         }
 
-        Vector2 operator+(const Vector2& other) const
+        constexpr Vector2 operator+(const Vector2& other) const
         {
             return Vector2(x + other.x, y + other.y);
         }
-        Vector2 operator-(const Vector2& other) const
+        constexpr Vector2 operator-(const Vector2& other) const
         {
             return Vector2(x - other.x, y - other.y);
         }
-        Vector2 operator*(const Vector2& other) const
+        constexpr Vector2 operator*(const Vector2& other) const
         {
             return Vector2(x * other.x, y * other.y);
         }
-        Vector2 operator/(const Vector2& other) const
+        constexpr Vector2 operator/(const Vector2& other) const
         {
             return Vector2(x / other.x, y / other.y);
         }
-        Vector2 operator*(const float& other) const
+        constexpr Vector2 operator*(const float& other) const
         {
             return Vector2(x * other, y * other);
         }
-        Vector2 operator/(const float& other) const
+        constexpr Vector2 operator/(const float& other) const
         {
             return Vector2(x / other, y / other);
         }
 
-        Vector2 operator-()
+        constexpr Vector2 operator-()
         {
             return *this * -1;
         }
 
-        void operator+=(const Vector2& other)
+        constexpr void operator+=(const Vector2& other)
         {
             *this = *this + other;
         }
-        void operator-=(const Vector2& other)
+        constexpr void operator-=(const Vector2& other)
         {
             *this = *this - other;
         }
-        void operator*=(const Vector2& other)
+        constexpr void operator*=(const Vector2& other)
         {
             *this = *this * other;
         }
-        void operator/=(const Vector2& other)
+        constexpr void operator/=(const Vector2& other)
         {
             *this = *this / other;
         }
-        void operator*=(const float& other)
+        constexpr void operator*=(const float& other)
         {
             *this = *this * other;
         }
-        void operator/=(const float& other)
+        constexpr void operator/=(const float& other)
         {
             *this = *this / other;
         }
 
-        bool operator==(const Vector2& other) const
+        constexpr bool operator==(const Vector2& other) const
         {
             return (x == other.x && y == other.y);
         }
 
     public:
-        float Dot(const Vector2& other) const
+        constexpr float Dot(const Vector2& other) const
         {
             return (x * other.x) + (y * other.y);
         }
@@ -90,7 +90,7 @@ namespace CommonsLibrary
         {
             return sqrtf(MagnitudeSquared());
         }
-        float MagnitudeSquared() const
+        constexpr float MagnitudeSquared() const
         {
             return (x * x) + (y * y);
         }
