@@ -39,25 +39,13 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentRegistry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\ECS\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\SceneManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\ECS\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Math\MathConstants.h">
@@ -132,9 +120,6 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\CommonsLibrary\Miscellaneous\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -150,7 +135,7 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystemManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\TemplateFunctions.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -170,19 +155,7 @@
     <ClCompile Include="Source\ECS\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ECS\World.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ECS\Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ECS\SceneManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Miscellaneous\ApplicationClock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ECS\ComponentMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\StdHelpers\StringHelpers.cpp">
@@ -194,8 +167,8 @@
     <ClCompile Include="Source\FileIO\SerialOutputFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Headers\CommonsLibrary\ECS\TemplateFunctions\Component.h" />
+    <ClCompile Include="Source\ECS\ComponentManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

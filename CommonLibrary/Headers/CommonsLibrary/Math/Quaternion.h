@@ -6,10 +6,11 @@ namespace CommonsLibrary
 {
     struct Quaternion
     {
-        float w;
-        float x;
-        float y;
-        float z;
+        union
+        {
+            struct { float x, y, z, w; };
+            struct { float i, j, k, r; };
+        };
 
     public:
         Quaternion() { Identity(); }
@@ -18,7 +19,7 @@ namespace CommonsLibrary
 
         void Rotate(Vector3 axis, float angle)
         {
-            angle = angle / 180 * static_cast<float>(PI) / 2;
+            angle = angle / 180 * static_cast<float>(pi) / 2;
             Quaternion temp;
             float sinAngle = sin(angle);
             temp.w = cos(angle);
@@ -76,49 +77,24 @@ namespace CommonsLibrary
             result.y = (other.w * y + other.x * z - other.y * w - other.z * x) / dividor;
             result.z = (other.w * z - other.x * y + other.y * x - other.z * w) / dividor;
 
-
             return result;
         }
 
         void operator+= (const Quaternion& other)
         {
-            w += other.w;
-            x += other.x;
-            y += other.y;
-            z += other.z;
+            *this = *this + other;
         }
         void operator-= (const Quaternion& other)
         {
-            w -= other.w;
-            x -= other.x;
-            y -= other.y;
-            z -= other.z;
+            *this = *this - other;
         }
         void operator*= (const Quaternion& other)
         {
-            Matrix4x4 mat
-            (
-                Vector4(w, -x, -y, -z),
-                Vector4(x, w, -z, y),
-                Vector4(y, z, w, -x),
-                Vector4(z, -y, x, w)
-            );
-            Vector4 vec(other.w, other.x, other.y, other.z);
-            Vector4 res = mat * vec;
-
-            *this = Quaternion(res.x, res.y, res.z, res.w);
+            *this = *this * other;
         }
         void operator/= (const Quaternion& other)
         {
-            Quaternion result;
-            float dividor = other.w * other.w + other.x * other.x + other.y * other.y + other.z * other.z;
-
-            result.w = (other.w * w + other.x * x + other.y * y + other.z * z) / dividor;
-            result.x = (other.w * x - other.x * w - other.y * z + other.z * y) / dividor;
-            result.y = (other.w * y + other.x * z - other.y * w - other.z * x) / dividor;
-            result.z = (other.w * z - other.x * y + other.y * x - other.z * w) / dividor;
-
-            *this = result;
+            *this = *this / other;
         }
 
         void Normalize()
@@ -137,15 +113,15 @@ namespace CommonsLibrary
             //https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion-derived_rotation_matrix
             Matrix4x4 matrix;
             matrix.vx.data[0] = 1 - 2 * (y * y + z * z);
-            matrix.vx.data[1] = -2 * (w * z + x * y);
-            matrix.vx.data[2] = 2 * (w * y - x * z);
+            matrix.vx.data[1] = 2 * (x * y - w * z);
+            matrix.vx.data[2] = 2 * (w * y + x * z);
 
-            matrix.vy.data[0] = 2 * (w * z - x * y);
+            matrix.vy.data[0] = 2 * (w * z + x * y);
             matrix.vy.data[1] = 1 - 2 * (x * x + z * z);
-            matrix.vy.data[2] = 2 * (w * x + y * z);
+            matrix.vy.data[2] = 2 * (y * z - w * x);
 
-            matrix.vz.data[0] = -2 * (w * y + z * x);
-            matrix.vz.data[1] = 2 * (-w * x + y * z);
+            matrix.vz.data[0] = 2 * (z * x - w * y);
+            matrix.vz.data[1] = 2 * (w * x + y * z);
             matrix.vz.data[2] = 1 - 2 * (x * x + y * y);
 
             return matrix;

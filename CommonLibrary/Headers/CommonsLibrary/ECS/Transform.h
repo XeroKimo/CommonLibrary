@@ -8,6 +8,8 @@ namespace CommonsLibrary
 {
     class Transform : public Component
     {
+        ECS_COMPONENT_SETUP(Transform, Component)
+
     private:
         ReferencePointer<Transform> m_parent;
         std::vector<ReferencePointer<Transform>> m_children;
@@ -15,13 +17,10 @@ namespace CommonsLibrary
         Vector3 m_position;
         Vector3 m_scale;
         Quaternion m_rotation;
-    public:
-        Transform(const ReferencePointer<GameObject>& gameObject) : Component(gameObject) {}
 
     public:
-        // Inherited via Component
-        virtual void Start() override;
-        virtual void Update(float deltaTime) override;
+        void Awake() override;
+        void CopyComponent(const Component* const other) override;
 
     public:
         void SetParent(ReferencePointer<Transform> parent);
@@ -40,8 +39,21 @@ namespace CommonsLibrary
         ReferencePointer<Transform> GetParent() const { return m_parent; }
         ReferencePointer<Transform> GetChild(unsigned int index) const { return m_children[index]; }
         std::vector<ReferencePointer<Transform>> GetChildren() const { return m_children; }
+
+        Vector3 Forward() { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Forward())).GetPosition(); }
+        Vector3 Up() { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Up())).GetPosition(); }
+        Vector3 Right() { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Right())).GetPosition(); }
+
+        Vector3 Backward() { return -Forward(); }
+        Vector3 Down() { return -Up(); }
+        Vector3 Left() { return -Right(); }
+
+
     private:
         void AddChild(ReferencePointer<Transform> child);
         void RemoveChild(ReferencePointer<Transform> child);
+
+    private:
+        bool IsHeirarchyActive();
     };
 }

@@ -46,35 +46,34 @@ namespace CommonsLibrary
             return Vector2(x / other, y / other);
         }
 
+        Vector2 operator-()
+        {
+            return *this * -1;
+        }
+
         void operator+=(const Vector2& other)
         {
-            x += other.x;
-            y += other.y;
+            *this = *this + other;
         }
         void operator-=(const Vector2& other)
         {
-            x -= other.x;
-            y -= other.y;
+            *this = *this - other;
         }
         void operator*=(const Vector2& other)
         {
-            x *= other.x;
-            y *= other.y;
+            *this = *this * other;
         }
         void operator/=(const Vector2& other)
         {
-            x /= other.x;
-            y /= other.y;
+            *this = *this / other;
         }
         void operator*=(const float& other)
         {
-            x *= other;
-            y *= other;
+            *this = *this * other;
         }
         void operator/=(const float& other)
         {
-            x /= other;
-            y /= other;
+            *this = *this / other;
         }
 
         bool operator==(const Vector2& other) const

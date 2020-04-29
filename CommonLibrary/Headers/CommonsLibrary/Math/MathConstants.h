@@ -4,20 +4,20 @@
 
 namespace CommonsLibrary
 {
-    constexpr double PI = 3.14159265358979323846264338327950;
-    constexpr double RAD_TO_DEG = 180.0 / PI;
-    constexpr double DEG_TO_RAD = PI / 180.0;
+    constexpr double pi = 3.14159265358979323846264338327950;
+    constexpr double rad_To_Deg = 180.0 / pi;
+    constexpr double deg_To_Rad = pi / 180.0;
 
-    template <class Type, std::enable_if_t<std::is_fundamental_v<Type>, int> = 0>
+    template <class Type, std::enable_if_t<std::is_floating_point_v<Type>, int> = 0>
     Type ToDegrees(Type radians)
     {
-        return static_cast<Type>(static_cast<double>(radians) * RAD_TO_DEG);
+        return static_cast<Type>(static_cast<double>(radians) * rad_To_Deg);
     }
-    template <class Type, std::enable_if_t<std::is_fundamental_v<Type>, int> = 0>
+    template <class Type, std::enable_if_t<std::is_floating_point_v<Type>, int> = 0>
     Type ToRadians(Type degrees)
     {
-        return static_cast<Type>(static_cast<double>(degrees) * DEG_TO_RAD);
+        return static_cast<Type>(static_cast<double>(degrees) * deg_To_Rad);
     }
 
-    constexpr bool USE_LEFT_HANDED_MATRICES = false;
+    constexpr bool use_Left_Handed_Matrices = true;
 }

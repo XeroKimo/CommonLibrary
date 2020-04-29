@@ -46,47 +46,34 @@ namespace CommonsLibrary
             return Vector4(x / other, y / other, z / other, w / other);
         }
 
+        Vector4 operator-()
+        {
+            return *this * -1;
+        }
+
         void operator+=(const Vector4& other)
         {
-            x += other.x;
-            y += other.y;
-            z += other.z;
-            w += other.w;
+            *this = *this + other;
         }
         void operator-=(const Vector4& other)
         {
-            x -= other.x;
-            y -= other.y;
-            z -= other.z;
-            w -= other.w;
+            *this = *this - other;
         }
         void operator*=(const Vector4& other)
         {
-            x *= other.x;
-            y *= other.y;
-            z *= other.z;
-            w *= other.w;
+            *this = *this * other;
         }
         void operator/=(const Vector4& other)
         {
-            x /= other.x;
-            y /= other.y;
-            z /= other.z;
-            w /= other.w;
+            *this = *this / other;
         }
         void operator*=(const float& other)
         {
-            x *= other;
-            y *= other;
-            z *= other;
-            w *= other;
+            *this = *this * other;
         }
         void operator/=(const float& other)
         {
-            x /= other;
-            y /= other;
-            z /= other;
-            w /= other;
+            *this = *this / other;
         }
 
         bool operator==(const Vector4& other) const
@@ -128,5 +115,6 @@ namespace CommonsLibrary
             normalized.Normalize();
             return normalized;
         }
+
     };
 }

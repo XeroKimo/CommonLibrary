@@ -144,10 +144,10 @@ namespace CommonsLibrary
         void SetOrtho(float width, float height, float near, float far)
         {
             //The following docs are in row major, this matrix uses column major
-            //https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixortholh Left handed, USE_LEFT_HANDED_MATRICES = true
-            //https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixorthorh Right handed, USE_LEFT_HANDED_MATRICES = false
+            //https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixortholh Left handed, use_Left_Handed_Matrices = true
+            //https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixorthorh Right handed, use_Left_Handed_Matrices = false
             Identity();
-            if constexpr (USE_LEFT_HANDED_MATRICES)
+            if constexpr (use_Left_Handed_Matrices)
             {
                 vx.data[0] = 2 / width;
                 vy.data[1] = 2 / height;
@@ -171,7 +171,7 @@ namespace CommonsLibrary
             float xScale = yScale / aspectRatio;
 
             Identity();
-            if constexpr (USE_LEFT_HANDED_MATRICES)
+            if constexpr (use_Left_Handed_Matrices)
             {
                 vx.data[0] = xScale;
                 vy.data[1] = yScale;
@@ -206,7 +206,7 @@ namespace CommonsLibrary
         void RotateX(float degrees)
         {
             Matrix4x4 rotMatrix;
-            float radians = degrees / 180.f * static_cast<float>(PI);
+            float radians = degrees / 180.f * static_cast<float>(pi);
 
             float sinAngle = sinf(radians);
             float cosAngle = cosf(radians);
@@ -221,7 +221,7 @@ namespace CommonsLibrary
         void RotateY(float degrees)
         {
             Matrix4x4 rotMatrix;
-            float radians = degrees / 180.f * static_cast<float>(PI);
+            float radians = degrees / 180.f * static_cast<float>(pi);
 
             float sinAngle = sinf(radians);
             float cosAngle = cosf(radians);
@@ -236,7 +236,7 @@ namespace CommonsLibrary
         void RotateZ(float degrees)
         {
             Matrix4x4 rotMatrix;
-            float radians = degrees / 180.f * static_cast<float>(PI);
+            float radians = degrees / 180.f * static_cast<float>(pi);
 
             float sinAngle = sinf(radians);
             float cosAngle = cosf(radians);
@@ -265,17 +265,17 @@ namespace CommonsLibrary
         Vector3 GetScale() { return Vector3(vx.data[0], vy.data[1], vz.data[2]); }
         Vector3 GetEulerAngles()
         {
-            float radToDeg = 180 / static_cast<float>(PI);
+            float radToDeg = 180 / static_cast<float>(pi);
             if (vy.data[2] > 1.0f)
             {
-                float x = static_cast<float>(PI) / 2;
+                float x = static_cast<float>(pi) / 2;
                 float y = atan2f(vx.data[1], vx.data[0]);
                 float z = 0.0f;
                 return Vector3(x, y, z) * radToDeg;
             }
             else if (vy.data[2] < -1.0f)
             {
-                float x = static_cast<float>(PI) / 2;
+                float x = static_cast<float>(pi) / 2;
                 float y = -atan2f(vx.data[1], vx.data[0]);
                 float z = 0.0f;
                 return Vector3(x, y, z) * radToDeg;

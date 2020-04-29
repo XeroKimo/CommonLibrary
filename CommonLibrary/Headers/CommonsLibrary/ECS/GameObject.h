@@ -1,85 +1,68 @@
 #pragma once
 #include "Component.h"
-#include "CommonsLibrary/StdHelpers/UnorderedMapHelpers.h"
 #include "Transform.h"
-#include "ComponentMap.h"
+#include "ComponentManager.h"
+
+#include <string>
 #include <typeindex>
 
 namespace CommonsLibrary
 {
-    class Transform;
-    class Scene; 
-    class SceneManager;
 
-    class GameObject;
-
-    class GameObject final : public ReferencePointerEnableThis<GameObject>
+    class GameObject : public ReferencePointerEnableThis<GameObject>
     {
+        friend void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
+        friend void DestroyGameObject(const ReferencePointer<Component>& component);
+        friend void DestroyComponent(const ReferencePointer<Component>& component);
+
         friend class Component;
         friend class Transform;
-        friend class SceneManager;
-        
-    protected:
-        Scene* m_scene;
-        ReferencePointer<Transform> m_transform;
-        ComponentMap m_componentMap;
-
-        bool m_activeInWorld;
-        bool m_activeInHeirarchy;
-
-        bool m_hasComponentToStart;
-        bool m_hasComponentToRemove;
-        bool m_isDestroyed;
     public:
         std::string name;
 
-    public:
-        GameObject(Scene* const scene);
+    private:
+        ReferencePointer<Transform> m_transform;
 
-    public:
-        void Start();
+        ComponentManager m_componentManager;
+
+        bool m_active = true;
+        bool m_isConstructed = true;
+        bool m_isActiveWorld = true;
+        bool m_isActiveInHeirarchy = true;
+
+    private:
+        void Awake();
+        void PreUpdate();
         void Update(float deltaTime);
-        void OnDestroy();
+        void PostUpdate();
 
     public:
-        template <class Type, std::enable_if_t<std::is_base_of_v<Component, Type>, int> = 0>
-        ReferencePointer<Type> AddComponent()
-        {
-            return m_componentMap.AddComponent<Type>(GetReferencePointer());
-        }
+        template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
+        ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), m_isConstructed, SceneLoaded()); }
 
-        template <class Type>
-        ReferencePointer<Type> GetComponent()
-        {
-            return m_componentMap.GetComponent<Type>();
-        }
-
-        template <class Type>
-        std::vector<ReferencePointer<Type>> GetComponents()
-        {
-            return m_componentMap.GetComponents<Type>();
-        }
-
+        ReferencePointer<Transform> GetTransform() const { return m_transform; }
+        bool IsActiveWorld() const { return m_isActiveWorld; }
+        bool IsActiveInHeirarchy() const { return m_isActiveInHeirarchy; }
     public:
-        void RemoveComponent(const ReferencePointer<Component>& component);
-
-        ReferencePointer<Transform> GetTransform();
-
         void SetActive(bool active);
 
-        bool GetActiveHeirarchy() const;
-
-        bool GetActiveWorld() const;
-
-        void Destroy();
+    private:
+        void SetActiveWorld(bool active);
 
     private:
-        void SetChildrenActiveInWorld();
-        bool IsParentActiveInWorld();
-        void SetActiveInWorld(bool active);
+        void SetComponentActive(const ReferencePointer<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }
+        void DestroyComponent(const ReferencePointer<Component>& component) { m_componentManager.DestroyComponent(component); }
+
+        //TODO: Proper check on scene loaded
+        bool SceneLoaded() { return true; }
+        void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), m_isConstructed, SceneLoaded(), other); }
 
     private:
-        ReferencePointer<GameObject> CreateGameObject();
-        
+        static ReferencePointer<GameObject> Construct();
+        static ReferencePointer<GameObject> CopyConstruct(const ReferencePointer<GameObject>& other);
     };
+
+    extern void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
+    extern void DestroyGameObject(const ReferencePointer<Component>& component);
+    extern void DestroyComponent(const ReferencePointer<Component>& component);
 }

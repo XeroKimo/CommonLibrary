@@ -1,0 +1,2 @@
+F:\Renzy\Documents\Practice Code\0 - Current stuff\CommonLibrary\Output\CommonLibrary\Debug_x86\CommonLibrary.pdb
+F:\Renzy\Documents\Practice Code\0 - Current stuff\CommonLibrary\Intermediate\CommonLibrary\Debug_x86\CommonLibrary.pdb

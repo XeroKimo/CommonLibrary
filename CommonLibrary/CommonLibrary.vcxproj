@@ -164,9 +164,8 @@
     <ClInclude Include="Headers\CommonsLibrary\DebugTools.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentMap.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentManager.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystemManager.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\TemplateFunctions.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialInputFile.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialOutputFile.h" />
@@ -182,13 +181,9 @@
     <ClInclude Include="Headers\CommonsLibrary\Delegates\MethodPointer.h" />
     <ClInclude Include="Headers\CommonsLibrary\Delegates.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\Component.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentRegistry.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\GameObject.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\Scene.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\SceneManager.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystem.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\Transform.h" />
-    <ClInclude Include="Headers\CommonsLibrary\ECS\World.h" />
     <ClInclude Include="Headers\CommonsLibrary\Math\MathConstants.h" />
     <ClInclude Include="Headers\CommonsLibrary\Math\Matrix4x4.h" />
     <ClInclude Include="Headers\CommonsLibrary\Math\Quaternion.h" />
@@ -208,7 +203,7 @@
     <ClInclude Include="Headers\CommonsLibrary\Windows\WindowsHelper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\ECS\ComponentMap.cpp" />
+    <ClCompile Include="Source\ECS\ComponentManager.cpp" />
     <ClCompile Include="Source\FileIO\SerialInputFile.cpp" />
     <ClCompile Include="Source\FileIO\SerialOutputFile.cpp" />
     <ClCompile Include="Source\Miscellaneous\ApplicationClock.cpp" />
@@ -216,14 +211,8 @@
     <ClCompile Include="Source\ECS\ComponentRegistry.cpp" />
     <ClCompile Include="Source\DebugTools\Logger.cpp" />
     <ClCompile Include="Source\ECS\GameObject.cpp" />
-    <ClCompile Include="Source\ECS\Scene.cpp" />
-    <ClCompile Include="Source\ECS\SceneManager.cpp" />
     <ClCompile Include="Source\ECS\Transform.cpp" />
-    <ClCompile Include="Source\ECS\World.cpp" />
     <ClCompile Include="Source\StdHelpers\StringHelpers.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Headers\CommonsLibrary\ECS\TemplateFunctions\Component.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

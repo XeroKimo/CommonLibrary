@@ -18,7 +18,7 @@ namespace CommonsLibrary
     public:
         Vector3() = default;
 
-        Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
+        constexpr Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
         {
         }
 
@@ -47,41 +47,34 @@ namespace CommonsLibrary
             return Vector3(x / other, y / other, z / other);
         }
 
+        Vector3 operator-()
+        {
+            return *this * -1;
+        }
+
         void operator+=(const Vector3& other)
         {
-            x += other.x;
-            y += other.y;
-            z += other.z;
+            *this = *this + other;
         }
         void operator-=(const Vector3& other)
         {
-            x -= other.x;
-            y -= other.y;
-            z -= other.z;
+            *this = *this - other;
         }
         void operator*=(const Vector3& other)
         {
-            x *= other.x;
-            y *= other.y;
-            z *= other.z;
+            *this = *this * other;
         }
         void operator/=(const Vector3& other)
         {
-            x /= other.x;
-            y /= other.y;
-            z /= other.z;
+            *this = *this / other;
         }
         void operator*=(const float& other)
         {
-            x *= other;
-            y *= other;
-            z *= other;
+            *this = *this * other;
         }
         void operator/=(const float& other)
         {
-            x /= other;
-            y /= other;
-            z /= other;
+            *this = *this / other;
         }
 
         bool operator==(const Vector3& other) const
@@ -128,6 +121,35 @@ namespace CommonsLibrary
             Vector3 normalized = *this;
             normalized.Normalize();
             return normalized;
+        }
+
+        constexpr static Vector3 Forward()
+        {
+            if(use_Left_Handed_Matrices)
+                return Vector3(0, 0, 1);
+            else
+                return Vector3(0, 0, -1);
+        }
+        constexpr static Vector3 Up()
+        {
+            return Vector3(0, 1, 0);
+        }
+        constexpr static Vector3 Right()
+        {
+            return Vector3(1, 0, 0);
+        }
+
+        constexpr static Vector3 Backward()
+        {
+            return -Forward();
+        }
+        constexpr static Vector3 Down()
+        {
+            return -Up();
+        }
+        constexpr static Vector3 Left()
+        {
+            return -Right();
         }
     };
 }

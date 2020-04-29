@@ -1,39 +1,51 @@
-#include "CommonsLibrary/ECS.h"
-#include "CommonsLibrary/ECS/ComponentRegistry.h"
-#include <assert.h>
+#include "CommonsLibrary/ECS/Component.h"
 
-#include <locale>
-#include <codecvt>
-#include <string>
-
-#include <Windows.h>
 
 namespace CommonsLibrary
 {
-    ReferencePointer<Component> ComponentRegistry::Create(const std::type_index& type, const ReferencePointer<GameObject>& gameObject)
+    ReferencePointer<Component> ComponentRegistry::CreateComponent(std::type_index type, const ReferencePointer<GameObject>& gameObject)
     {
-        return Create(type.name(), gameObject);
+        std::string name = type.name();
+        return CreateComponent(name.substr(name.find(' ') + 1), gameObject);
     }
-    ReferencePointer<Component> ComponentRegistry::Create(const std::string& type, const ReferencePointer<GameObject>& gameObject)
+
+    ReferencePointer<Component> ComponentRegistry::CreateComponent(std::string name, const ReferencePointer<GameObject>& gameObject)
     {
-#if _DEBUG
-        if (KeyExists(m_registry, type))
-        {
-            return m_registry[type](gameObject);
-        }
-        else
-        {
-            std::unique_ptr<wchar_t[]> m_componentName = std::make_unique<wchar_t[]>(type.size());
+        return GetRegisteredComponents()[name](gameObject);
+    }
 
-            MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, type.c_str(), type.size() - 1, m_componentName.get(), type.size() - 1);
+    void ComponentRegistry::RegisteredStaticComponent(Component* component, void** staticPointer)
+    {
+        GetStaticComponents().push_back({ component, staticPointer });
+    }
 
-            std::wstring errorMessage = m_componentName.get();
-            errorMessage += L" is not reigstered";
-            _wassert(errorMessage.c_str(), _CRT_WIDE(__FILE__), (unsigned)(__LINE__));
-            return nullptr;
+    void ComponentRegistry::ClearRegisteredStatics()
+    {
+        auto& s_components = GetStaticComponents();
+        for(auto component : s_components)
+        {
+            delete component.first;
+            (*component.second) = nullptr;
         }
-#else
-        return Internal::g_registry[type](gameObject);
-#endif
+        s_components.clear();
+    }
+
+    bool ComponentRegistry::IsComponentRegistered(std::type_index type)
+    {
+        std::string name = type.name();
+        name = name.substr(name.find(' ') + 1);
+        return GetRegisteredComponents().count(name) > 0;
+    }
+
+    std::unordered_map<std::string, ComponentRegistry::CreateCallback>& ComponentRegistry::GetRegisteredComponents()
+    {
+        static std::unordered_map<std::string, CreateCallback> s_registeredComponents;
+        return s_registeredComponents;
+    }
+
+    std::vector<std::pair<Component*, void**>>& ComponentRegistry::GetStaticComponents()
+    {
+        static std::vector<std::pair<Component*, void**>> s_components;
+        return s_components;
     }
 }
