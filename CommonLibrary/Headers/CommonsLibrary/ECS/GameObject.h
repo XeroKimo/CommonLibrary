@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "Transform.h"
 #include "ComponentManager.h"
+#include "ObjectHierarchy.h"
 
 #include <string>
 #include <typeindex>
@@ -17,24 +18,18 @@ namespace CommonsLibrary
         friend class Component;
         friend class Transform;
         friend class GameObjectManager;
+        friend class ObjectHierarchy;
     public:
         std::string name;
 
     private:
         ReferencePointer<Transform> m_transform;
-
+        ObjectHierarchy m_hierarchy{this};
         ComponentManager m_componentManager;
 
         bool m_isActiveWorld = true;
         bool m_isActiveInHeirarchy = true;
         bool m_isDestroyed = false;
-
-    private:
-        void Awake();
-        void PreUpdate();
-        void Update(float deltaTime);
-        void CheckFlags();
-        void PostUpdate();
 
     public:
         template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
@@ -43,8 +38,13 @@ namespace CommonsLibrary
         ReferencePointer<Transform> GetTransform() const { return m_transform; }
         bool IsActiveInWorld() const { return m_isActiveWorld; }
         bool IsActiveInHeirarchy() const { return m_isActiveInHeirarchy; }
-    public:
         void SetActive(bool active);
+
+    private:
+        void Awake();
+        void PreUpdate();
+        void Update(float deltaTime);
+        void PostUpdate();
 
     private:
         void SetActiveWorld(bool active);
@@ -52,10 +52,21 @@ namespace CommonsLibrary
     private:
         void SetComponentActive(const ReferencePointer<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }
         void DestroyComponent(const ReferencePointer<Component>& component) { m_componentManager.DestroyComponent(component); }
+        void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), other); }
+
+        bool HasPreUpdateFlagsSet() const { return m_componentManager.HasPreUpdateFlagsSet(); }
+        bool HasPostUpdateFlagsSet() const { return m_componentManager.HasPostUpdateFlagsSet(); }
 
         //TODO: Proper check on scene loaded
         bool SceneLoaded() { return true; }
-        void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), other); }
+
+    private:
+        void AddChild(ReferencePointer<GameObject> child) { m_hierarchy.AddChild(std::move(child)); }
+        ReferencePointer<GameObject> RemoveChild(const ReferencePointer<GameObject>& child) { return m_hierarchy.RemoveChild(child); }
+
+    public:
+        ReferencePointer<GameObject> GetParent() const { return m_hierarchy.GetParent(); }
+        std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
     private:
         static ReferencePointer<GameObject> Construct();

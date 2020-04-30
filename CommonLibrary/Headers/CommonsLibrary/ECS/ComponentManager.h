@@ -35,6 +35,7 @@ namespace CommonsLibrary
 
     public:
         ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type);
+
         template<class Type>
         ReferencePointer<Type> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake);
 

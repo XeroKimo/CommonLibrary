@@ -4,6 +4,7 @@ namespace CommonsLibrary
 {
     void GameObjectManager::Awake()
     {
+        TransferObjects();
         for(const auto& gameObject : m_activeGameObjects)
         {
             gameObject->Awake();
@@ -14,11 +15,16 @@ namespace CommonsLibrary
         }
     }
 
+    void GameObjectManager::TransferObjects()
+    {
+    }
+
     void GameObjectManager::PreUpdate()
     {
-        for(const auto& gameObject : m_bufferGameObjects)
+        for(const auto& gameObject : m_activeGameObjects)
         {
-            gameObject->PreUpdate();
+            if(gameObject->HasPreUpdateFlagsSet())
+                gameObject->PreUpdate();
         }
     }
 
@@ -32,23 +38,18 @@ namespace CommonsLibrary
 
     void GameObjectManager::PostUpdate()
     {
-        for(auto& gameObject : m_bufferGameObjects)
+        for(auto& gameObject : m_activeGameObjects)
         {
-            gameObject->PostUpdate();
+            if(gameObject->HasPostUpdateFlagsSet())
+                gameObject->PostUpdate();
+        }
+        for(auto& gameObject : m_inactiveGameObjects)
+        {
+            if(gameObject->HasPostUpdateFlagsSet())
+                gameObject->PostUpdate();
         }
     }
 
-    void GameObjectManager::ClearBuffer()
-    {
-        if(m_bufferGameObjects.empty())
-            return;
-
-        m_bufferGameObjects.erase
-        (
-            std::remove_if(m_bufferGameObjects.begin(), m_bufferGameObjects.end(), [](GameObjectVector::value_type it) { return it == nullptr; }),
-            m_bufferGameObjects.end()
-        );
-    }
     void GameObjectManager::SetActiveInHeirarchy(const ReferencePointer<GameObject>& gameObject, bool active)
     {
         if(gameObject->IsActiveInHeirarchy() == active)

@@ -12,22 +12,19 @@ namespace CommonsLibrary
         using GameObjectVector = std::vector<ReferencePointer<GameObject>>;
 
     private:
-        bool m_hasStartComponents = false;
-        bool m_hasDestroyComponents = false;
-        bool m_hasActiveChangedComponents = false;
         GameObjectVector m_activeGameObjects;
         GameObjectVector m_inactiveGameObjects;
-        GameObjectVector m_bufferGameObjects;
 
     public:
         void Awake();
+
+        void TransferObjects();
 
         void PreUpdate();
         void Update(float deltaTime);
         void PostUpdate();
 
-        void ClearBuffer();
-
+        void ClearDestroyedObjects();
     public:
         ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool objectConstructed, bool sceneLoaded, std::type_index type);
 

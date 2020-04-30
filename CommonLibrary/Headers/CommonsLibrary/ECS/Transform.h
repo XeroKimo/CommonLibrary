@@ -6,21 +6,21 @@
 
 namespace CommonsLibrary
 {
-    class Transform final : public Component
-    {
-        ECS_COMPONENT_SETUP(Transform, Component)
+    class GameObject;
 
+    class Transform final 
+    {
         friend class ComponentManager;
         friend class GameObjectManager;
     private:
-        ReferencePointer<Transform> m_parent;
-        std::vector<ReferencePointer<Transform>> m_children;
 
+        GameObject* m_owner;
         Vector3 m_position;
         Vector3 m_scale;
         Quaternion m_rotation;
 
     public:
+        Transform(GameObject* owner) : m_owner(owner) {}
         Transform(const Transform& other) = delete;
         Transform(Transform&& other) = delete;
 
@@ -33,41 +33,28 @@ namespace CommonsLibrary
         }
         Transform& operator=(Transform&& other) = delete;
 
-    public:
-        void Awake() final;
 
     public:
-        void SetParent(ReferencePointer<Transform> parent);
-
         void SetPosition(Vector3 position) { SetLocalPosition(position - GetPosition()); }
         void SetLocalPosition(Vector3 position) { m_position = position; }
         void SetLocalScale(Vector3 scale) { m_scale = scale; }
-        void SetLocalRotation(Quaternion rotation) { m_rotation = rotation; }
+        void SetRotation(Quaternion rotation) { m_rotation = rotation; }
 
-        Vector3 GetPosition() { return (m_parent) ? m_parent->GetPosition() : GetLocalPosition(); }
-        Vector3 GetLocalPosition() { return m_position; }
-        Vector3 GetLocalScale() { return m_scale; }
-        Quaternion GetLocalRotation() { return m_rotation; }
-        Matrix4x4 GetTransformMatrix();
+        Vector3 GetPosition() const { return AccumulateWorldPosition(Vector3()); }
+        Vector3 GetLocalPosition() const { return m_position; }
+        Vector3 GetLocalScale() const { return m_scale; }
+        Quaternion GetRotation() const { return m_rotation; }
+        Matrix4x4 GetTransformMatrix() const;
 
-        ReferencePointer<Transform> GetParent() const { return m_parent; }
-        ReferencePointer<Transform> GetChild(unsigned int index) const { return m_children[index]; }
-        std::vector<ReferencePointer<Transform>> GetChildren() const { return m_children; }
+        Vector3 Forward() const { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Forward())).GetPosition(); }
+        Vector3 Up() const { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Up())).GetPosition(); }
+        Vector3 Right() const { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Right())).GetPosition(); }
 
-        Vector3 Forward() { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Forward())).GetPosition(); }
-        Vector3 Up() { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Up())).GetPosition(); }
-        Vector3 Right() { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Right())).GetPosition(); }
-
-        Vector3 Backward() { return -Forward(); }
-        Vector3 Down() { return -Up(); }
-        Vector3 Left() { return -Right(); }
-
+        Vector3 Backward() const { return -Forward(); }
+        Vector3 Down() const { return -Up(); }
+        Vector3 Left() const { return -Right(); }
 
     private:
-        void AddChild(ReferencePointer<Transform> child);
-        void RemoveChild(ReferencePointer<Transform> child);
-
-    private:
-        bool IsHeirarchyActive();
+        Vector3 AccumulateWorldPosition(Vector3 position) const;
     };
 }

@@ -13,21 +13,20 @@ namespace CommonsLibrary
     {
         m_componentManager.TransferComponents();
         m_componentManager.Start();
+
+        m_hierarchy.PreUpdate();
     }
 
     void GameObject::Update(float deltaTime)
     {
         m_componentManager.Update(deltaTime);
-    }
-
-    void GameObject::CheckFlags()
-    {
-
+        m_hierarchy.Update(deltaTime);
     }
 
     void GameObject::PostUpdate()
     {
         m_componentManager.ClearDestroyedComponents();
+        m_hierarchy.PostUpdate();
     }
 
     void GameObject::SetActive(bool active)
@@ -42,7 +41,6 @@ namespace CommonsLibrary
     ReferencePointer<GameObject> GameObject::Construct()
     {
         ReferencePointer<GameObject> newObject = MakeReference<GameObject>();
-        newObject->m_transform = newObject->AddComponent<Transform>();
         return newObject;
     }
 
