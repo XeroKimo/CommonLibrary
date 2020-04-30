@@ -1,4 +1,5 @@
 #include "CommonsLibrary/ECS/ComponentManager.h"
+#include "CommonsLibrary/ECS/GameObject.h"
 #include <algorithm>
 
 namespace CommonsLibrary

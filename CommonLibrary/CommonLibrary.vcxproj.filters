@@ -138,10 +138,10 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\GameObjectManager.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ObjectHierarchy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\CommonsLibrary\ECS\ObjectHierarchy.h">
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentRegistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -176,10 +176,7 @@
     <ClCompile Include="Source\ECS\ComponentManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ECS\GameObjectManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Headers\CommonsLibrary\ECS\ObjectHierarchy.cpp">
+    <ClCompile Include="Source\ECS\ObjectHierarchy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -17,7 +17,7 @@ namespace CommonsLibrary
 
         friend class Component;
         friend class Transform;
-        friend class GameObjectManager;
+        //friend class ComponentManager;
         friend class ObjectHierarchy;
     public:
         std::string name;
@@ -27,18 +27,23 @@ namespace CommonsLibrary
         ObjectHierarchy m_hierarchy{this};
         ComponentManager m_componentManager;
 
-        bool m_isActiveWorld = true;
-        bool m_isActiveInHeirarchy = true;
+        bool m_active = true;
         bool m_isDestroyed = false;
+        bool m_activeChanged = true;
 
     public:
         template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
         ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
 
         ReferencePointer<Transform> GetTransform() const { return m_transform; }
-        bool IsActiveInWorld() const { return m_isActiveWorld; }
-        bool IsActiveInHeirarchy() const { return m_isActiveInHeirarchy; }
+        bool IsActiveInWorld() const { return (m_hierarchy.GetParent()) ? m_hierarchy.GetParent()->IsActiveInHeirarchy() && IsActiveInHeirarchy() : IsActiveInHeirarchy(); }
+        bool IsActiveInHeirarchy() const { return m_active; }
         void SetActive(bool active);
+
+    public:
+        void SetParent(const ReferencePointer<GameObject>& parent) { if(!parent) {} m_hierarchy.SetParent(parent); } //if null set parent to scene root object
+        ReferencePointer<GameObject> GetParent() const { return m_hierarchy.GetParent(); }  //Change to if parent == scene root object, return nullptr
+        std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
     private:
         void Awake();
@@ -54,9 +59,6 @@ namespace CommonsLibrary
         void DestroyComponent(const ReferencePointer<Component>& component) { m_componentManager.DestroyComponent(component); }
         void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), other); }
 
-        bool HasPreUpdateFlagsSet() const { return m_componentManager.HasPreUpdateFlagsSet(); }
-        bool HasPostUpdateFlagsSet() const { return m_componentManager.HasPostUpdateFlagsSet(); }
-
         //TODO: Proper check on scene loaded
         bool SceneLoaded() { return true; }
 
@@ -64,9 +66,6 @@ namespace CommonsLibrary
         void AddChild(ReferencePointer<GameObject> child) { m_hierarchy.AddChild(std::move(child)); }
         ReferencePointer<GameObject> RemoveChild(const ReferencePointer<GameObject>& child) { return m_hierarchy.RemoveChild(child); }
 
-    public:
-        ReferencePointer<GameObject> GetParent() const { return m_hierarchy.GetParent(); }
-        std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
     private:
         static ReferencePointer<GameObject> Construct();

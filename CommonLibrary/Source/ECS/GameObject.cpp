@@ -7,6 +7,7 @@ namespace CommonsLibrary
 {
     void GameObject::Awake()
     {
+        m_hierarchy.Awake();
         m_componentManager.Awake();
     }
     void GameObject::PreUpdate()
@@ -21,6 +22,11 @@ namespace CommonsLibrary
     {
         m_componentManager.Update(deltaTime);
         m_hierarchy.Update(deltaTime);
+
+        if(m_componentManager.HasPreUpdateFlagsSet() || m_hierarchy.HasPreUpdateFlagsSet())
+            m_hierarchy.SetPreUpdateFlag();
+        if(m_componentManager.HasPostUpdateFlagsSet() || m_hierarchy.HasPostUpdateFlagsSet())
+            m_hierarchy.SetPostUpdateFlag();
     }
 
     void GameObject::PostUpdate()
