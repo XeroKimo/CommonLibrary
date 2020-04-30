@@ -1,5 +1,6 @@
 #pragma once
-
+#pragma warning(push)
+#pragma warning(disable : 4150)
 #include <atomic>
 #include <type_traits>
 
@@ -7,7 +8,6 @@ namespace CommonsLibrary
 {
     template <class VariableType>
     class ReferencePointerEnableThis;
-
 
     template <class VariableType, class = void>
     struct IsReferenceThisEnabled : std::false_type {};
@@ -17,6 +17,15 @@ namespace CommonsLibrary
         std::is_convertible<std::remove_cv_t<VariableType>*, typename VariableType::RefThis*>::type
     {
     };
+
+    template <class Type>
+    class ReferencePointer;
+
+    template <class To, class From>
+    [[nodiscard]] ReferencePointer<To> ReferencePointerStaticCast(ReferencePointer<From> other);
+
+    template <class To, class From>
+    [[nodiscard]] ReferencePointer<To> ReferencePointerDynamicCast(ReferencePointer<From> other);
 
     class ControlBlock
     {
@@ -52,6 +61,9 @@ namespace CommonsLibrary
                 (*lh)->m_counter++;
         }
     };
+
+
+
 
 
     template <class Type>
@@ -189,19 +201,6 @@ namespace CommonsLibrary
         }
 
     public:
-        //bool operator==(std::nullptr_t) const
-        //{
-        //    if(m_controlBlock)
-        //        return m_controlBlock->PointerExists() == false;
-        //    return true;
-        //}
-        //bool operator!=(std::nullptr_t) const
-        //{
-        //    if(m_controlBlock)
-        //        return m_controlBlock->PointerExists() == true;
-        //    return false;
-        //}
-
         bool operator==(Type* other) const
         {
             if(m_controlBlock)
@@ -276,6 +275,12 @@ namespace CommonsLibrary
     public:
         Type* Get() const { return m_pointer; }
 
+        template<class DerivedType>
+        ReferencePointer<DerivedType> StaticCast() const { return ReferencePointerStaticCast<DerivedType>(*this); }
+
+        template<class DerivedType>
+        ReferencePointer<DerivedType> DynamicCast() const { return ReferencePointerDynamicCast<DerivedType>(*this); }
+
     private:
         void ResetPointer(Type* pointer)
         {
@@ -286,7 +291,6 @@ namespace CommonsLibrary
             }
             m_pointer = pointer;
         }
-
     };
 
     template <class VariableType>
@@ -299,8 +303,11 @@ namespace CommonsLibrary
 
     public:
         using RefThis = ReferencePointerEnableThis;
-        ReferencePointer<VariableType> GetReferencePointer() { return m_refPointer; }
+        ReferencePointer<VariableType> GetReferencePointer() const { return m_refPointer; }
     };
+
+
+
 
     template <class To, class From>
     [[nodiscard]] ReferencePointer<To> ReferencePointerStaticCast(ReferencePointer<From> other)
@@ -323,6 +330,9 @@ namespace CommonsLibrary
         return ReferencePointer<Type>(new Type(variables...));
     }
 
+
+
+
     template<class T>
     struct std::hash<ReferencePointer<T>>
     {
@@ -335,3 +345,4 @@ namespace CommonsLibrary
     };
 
 }
+#pragma warning(pop)

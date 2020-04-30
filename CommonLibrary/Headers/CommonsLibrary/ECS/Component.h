@@ -20,6 +20,7 @@ namespace CommonsLibrary
         bool m_active = true;
         bool m_isDestroyed = false;
         bool m_hasStarted = false;
+        bool m_activeChanged = true;
 
         ReferencePointer<GameObject> m_gameObject;
 
@@ -41,9 +42,6 @@ namespace CommonsLibrary
 
         bool GetActive() const { return m_active; }
         ReferencePointer<GameObject> GetGameObject() const { return m_gameObject; }
-
-    protected:
-        virtual void CopyComponent(const Component* const other) = 0;
     };
 
 
@@ -84,7 +82,7 @@ namespace CommonsLibrary
 
 
 
-
+    //inside .h
 #define ECS_COMPONENT_SETUP(ComponentType, BaseComponentType) \
 public: \
     ComponentType(const ReferencePointer<GameObject>& owningGameObject) : \
@@ -103,6 +101,7 @@ protected: \
 private: \
     void InternalReigsterComponent();   \
 
+    //Inside cpps
 #define ECS_COMPONENT_REGISTER_IN_NAMESPACE(ComponentType, NameSpace)   \
     NameSpace::ComponentType* NameSpace::ComponentType::s_internalComponent = new NameSpace::ComponentType();    \
     \

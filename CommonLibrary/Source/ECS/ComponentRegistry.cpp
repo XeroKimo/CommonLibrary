@@ -28,6 +28,7 @@ namespace CommonsLibrary
             (*component.second) = nullptr;
         }
         s_components.clear();
+        s_components.shrink_to_fit();
     }
 
     bool ComponentRegistry::IsComponentRegistered(std::type_index type)

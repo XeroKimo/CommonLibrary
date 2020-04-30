@@ -6,10 +6,12 @@
 
 namespace CommonsLibrary
 {
-    class Transform : public Component
+    class Transform final : public Component
     {
         ECS_COMPONENT_SETUP(Transform, Component)
 
+        friend class ComponentManager;
+        friend class GameObjectManager;
     private:
         ReferencePointer<Transform> m_parent;
         std::vector<ReferencePointer<Transform>> m_children;
@@ -19,8 +21,20 @@ namespace CommonsLibrary
         Quaternion m_rotation;
 
     public:
-        void Awake() override;
-        void CopyComponent(const Component* const other) override;
+        Transform(const Transform& other) = delete;
+        Transform(Transform&& other) = delete;
+
+    private:
+        Transform operator=(const Transform& other)
+        {
+            m_position = other.m_position;
+            m_scale = other.m_scale;
+            m_rotation = other.m_rotation;
+        }
+        Transform& operator=(Transform&& other) = delete;
+
+    public:
+        void Awake() final;
 
     public:
         void SetParent(ReferencePointer<Transform> parent);

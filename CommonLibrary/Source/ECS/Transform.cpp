@@ -11,14 +11,6 @@ namespace CommonsLibrary
         SetActive(false);
     }
 
-    void Transform::CopyComponent(const Component* const other)
-    {
-        const Transform* copy = static_cast<const Transform*>(other);
-        m_position = copy->m_position;
-        m_rotation = copy->m_rotation;
-        m_scale = copy->m_scale;
-    }
-
     void Transform::SetParent(ReferencePointer<Transform> parent)
     {
         if (m_parent)
@@ -50,7 +42,7 @@ namespace CommonsLibrary
     {
         if(!m_parent)
             return GetGameObject()->IsActiveInHeirarchy();
-        if(!m_parent->GetGameObject()->IsActiveWorld())
+        if(!m_parent->GetGameObject()->IsActiveInWorld())
             return false;
         return m_parent->IsHeirarchyActive();
     }

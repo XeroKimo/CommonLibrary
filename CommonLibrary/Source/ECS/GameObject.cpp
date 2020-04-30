@@ -7,6 +7,7 @@ namespace CommonsLibrary
 {
     void GameObject::Awake()
     {
+        m_componentManager.Awake();
     }
     void GameObject::PreUpdate()
     {
@@ -19,10 +20,14 @@ namespace CommonsLibrary
         m_componentManager.Update(deltaTime);
     }
 
+    void GameObject::CheckFlags()
+    {
+
+    }
+
     void GameObject::PostUpdate()
     {
         m_componentManager.ClearDestroyedComponents();
-        m_componentManager.ClearFlags();
     }
 
     void GameObject::SetActive(bool active)
@@ -31,6 +36,7 @@ namespace CommonsLibrary
 
     void GameObject::SetActiveWorld(bool active)
     {
+
     }
 
     ReferencePointer<GameObject> GameObject::Construct()
@@ -43,10 +49,10 @@ namespace CommonsLibrary
     ReferencePointer<GameObject> GameObject::CopyConstruct(const ReferencePointer<GameObject>& other)
     {
         ReferencePointer<GameObject> newObject = MakeReference<GameObject>();
+
         newObject->name = other->name;
-        newObject->m_isConstructed = false;
         newObject->CopyComponents(other->m_componentManager);
-        newObject->m_isConstructed = true;
+
         return newObject;
     }
 

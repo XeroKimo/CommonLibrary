@@ -10,18 +10,17 @@ namespace CommonsLibrary
     class ComponentManager
     {
         using ComponentVector = std::vector<ReferencePointer<Component>>;
-        struct TransferOutput
-        {
-            ComponentVector startIterators;
-        };
 
     private:
-        bool m_hasStartComponents = false;
-        bool m_hasDestroyComponents = false;
-        bool m_hasActiveChangedComponents = false;
+        size_t m_hasDestroyInInactive = 0;
+        size_t m_hasDestroyInActive = 0;
+        size_t m_hasActiveChangedToInactive = 0;
+        size_t m_hasActiveChangedToActive = 0;
+
         ComponentVector m_activeComponents;
         ComponentVector m_inactiveComponents;
-        ComponentVector m_bufferComponents;
+
+        bool m_hasStartComponents = false;
 
     public:
         ~ComponentManager();
@@ -33,13 +32,11 @@ namespace CommonsLibrary
         void Start();
         void Update(float deltaTime);
         void ClearDestroyedComponents();
-        void ClearFlags();
 
     public:
-        ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool objectConstructed, bool sceneLoaded, std::type_index type);
-
+        ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type);
         template<class Type>
-        ReferencePointer<Type> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool objectConstructed, bool sceneLoaded);
+        ReferencePointer<Type> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake);
 
         template<class Type>
         ReferencePointer<Type> GetComponent(bool includeInactive = false);
@@ -49,8 +46,10 @@ namespace CommonsLibrary
         bool DestroyComponent(const ReferencePointer<Component>& component);
         void SetComponentActive(const ReferencePointer<Component>& component, bool active);
 
+        bool HasPreUpdateFlagsSet() const { return (m_hasStartComponents || (m_hasActiveChangedToActive + m_hasActiveChangedToInactive) > 0); }
+        bool HasPostUpdateFlagsSet() const { return (m_hasDestroyInInactive + m_hasDestroyInActive) > 0; }
     public:
-        void CopyComponents(const ReferencePointer<GameObject>& gameObject, bool objectConstructed, bool sceneLoaded, const ComponentManager& other);
+        void CopyComponents(const ReferencePointer<GameObject>& gameObject, const ComponentManager& other);
 
     private:
         template<class Type>
@@ -62,11 +61,12 @@ namespace CommonsLibrary
     private:
         void CallDestroyAll(std::vector<ReferencePointer<Component>>& componentVector);
 
-        ComponentVector BeginTransferComponents();
-        void ClearTransferedComponents();
-        void MoveStartComponents(ComponentVector& startVector);
+        void TransferComponents(ComponentVector& from, ComponentVector& to);
+        void DestroyComponents(ComponentVector& components);
 
         void ClearNullComponents(ComponentVector& componentVector);
+
+        ReferencePointer<Component> Copy(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<Component>& component);
     };
 
 
@@ -74,19 +74,9 @@ namespace CommonsLibrary
 
 
     template<class Type>
-    inline ReferencePointer<Type> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool objectConstructed, bool sceneLoaded)
+    inline ReferencePointer<Type> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake)
     {
-        std::type_index key(typeid(Type));
-
-        m_hasStartComponents = true;
-        m_hasActiveChangedComponents = true;
-
-        m_inactiveComponents.push_back(ComponentRegistry::CreateComponent(typeid(Type), gameObject));
-        if(objectConstructed && sceneLoaded)
-            m_inactiveComponents.back()->Awake();
-        m_bufferComponents.push_back(m_inactiveComponents.back());
-
-        return ReferencePointerStaticCast<Type>(m_inactiveComponents.back());
+        return CreateComponent(gameObject, callAwake, typeid(Type)).StaticCast<Type>();
     }
 
     template<class Type>
@@ -96,8 +86,6 @@ namespace CommonsLibrary
         std::type_index currentKey(typeid(Component));
 
         ReferencePointer<Type> found = GetComponent<Type>(m_activeComponents);
-        if(!found)
-            found = GetComponent<Type>(m_bufferComponents);
         if(!found && includeInactive)
             found = GetComponent<Type>(m_inactiveComponents);
 
@@ -110,7 +98,6 @@ namespace CommonsLibrary
         std::vector<Type> output;
 
         GetComponents<Type>(m_activeComponents, output);
-        GetComponents<Type>(m_bufferComponents, output);
         if(includeInactive)
             GetComponents<Type>(m_inactiveComponents, output);
 

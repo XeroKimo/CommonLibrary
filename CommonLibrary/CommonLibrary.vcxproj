@@ -166,6 +166,7 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentManager.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECSSystemManager.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\GameObjectManager.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialInputFile.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialOutputFile.h" />
@@ -204,6 +205,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ECS\ComponentManager.cpp" />
+    <ClCompile Include="Source\ECS\GameObjectManager.cpp" />
     <ClCompile Include="Source\FileIO\SerialInputFile.cpp" />
     <ClCompile Include="Source\FileIO\SerialOutputFile.cpp" />
     <ClCompile Include="Source\Miscellaneous\ApplicationClock.cpp" />

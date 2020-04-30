@@ -8,7 +8,6 @@
 
 namespace CommonsLibrary
 {
-
     class GameObject : public ReferencePointerEnableThis<GameObject>
     {
         friend void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
@@ -17,6 +16,7 @@ namespace CommonsLibrary
 
         friend class Component;
         friend class Transform;
+        friend class GameObjectManager;
     public:
         std::string name;
 
@@ -25,23 +25,23 @@ namespace CommonsLibrary
 
         ComponentManager m_componentManager;
 
-        bool m_active = true;
-        bool m_isConstructed = true;
         bool m_isActiveWorld = true;
         bool m_isActiveInHeirarchy = true;
+        bool m_isDestroyed = false;
 
     private:
         void Awake();
         void PreUpdate();
         void Update(float deltaTime);
+        void CheckFlags();
         void PostUpdate();
 
     public:
         template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
-        ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), m_isConstructed, SceneLoaded()); }
+        ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
 
         ReferencePointer<Transform> GetTransform() const { return m_transform; }
-        bool IsActiveWorld() const { return m_isActiveWorld; }
+        bool IsActiveInWorld() const { return m_isActiveWorld; }
         bool IsActiveInHeirarchy() const { return m_isActiveInHeirarchy; }
     public:
         void SetActive(bool active);
@@ -55,7 +55,7 @@ namespace CommonsLibrary
 
         //TODO: Proper check on scene loaded
         bool SceneLoaded() { return true; }
-        void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), m_isConstructed, SceneLoaded(), other); }
+        void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), other); }
 
     private:
         static ReferencePointer<GameObject> Construct();

@@ -11,8 +11,6 @@ namespace CommonsLibrary
 
     void Component::SetActive(bool active)
     {
-        if(m_isDestroyed)
-            return;
         m_gameObject->SetComponentActive(GetReferencePointer(), active);
     }
 }
