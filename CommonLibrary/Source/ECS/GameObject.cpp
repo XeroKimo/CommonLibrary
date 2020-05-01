@@ -5,10 +5,14 @@
 
 namespace CommonsLibrary
 {
+    void GameObject::PreAwake()
+    {
+        m_hierarchy.PreAwake();
+    }
     void GameObject::Awake()
     {
-        m_hierarchy.Awake();
         m_componentManager.Awake();
+        m_hierarchy.Awake();
     }
     void GameObject::PreUpdate()
     {
@@ -37,6 +41,7 @@ namespace CommonsLibrary
 
     void GameObject::SetActive(bool active)
     {
+        m_hierarchy.GetParent()->m_hierarchy.SetActive(GetReferencePointer(), active);
     }
 
     void GameObject::SetActiveWorld(bool active)
@@ -62,13 +67,15 @@ namespace CommonsLibrary
 
 
 
-    void DestroyGameObject(const ReferencePointer<GameObject>& component)
+    void DestroyGameObject(const ReferencePointer<GameObject>& gameObject)
     {
+        gameObject->GetParent()->m_hierarchy.DestroyGameObject(gameObject);
     }
 
 
     void DestroyGameObject(const ReferencePointer<Component>& component)
     {
+        DestroyGameObject(component->GetGameObject());
     }
 
     void DestroyComponent(const ReferencePointer<Component>& component)

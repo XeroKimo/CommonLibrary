@@ -1,6 +1,6 @@
 #pragma once
 #include <chrono>
-#include "CommonsLibrary/Delegates/Delegate.h"
+#include "../Delegates/Delegate.h"
 
 namespace CommonsLibrary
 {
@@ -14,7 +14,6 @@ namespace CommonsLibrary
         std::chrono::high_resolution_clock::time_point m_initialValue;
     public:
         ScopedTimer() :
-            m_onDestroy(nullptr), 
             m_initialValue(std::chrono::high_resolution_clock::now()) { }
 
         ScopedTimer(OnDestroy onDestroy) :

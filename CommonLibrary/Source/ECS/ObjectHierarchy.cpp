@@ -1,11 +1,27 @@
 #include "CommonsLibrary/ECS/ObjectHierarchy.h"
 #include "CommonsLibrary/ECS/GameObject.h"
-
+#include <assert.h>
 namespace CommonsLibrary
 {
+    void ObjectHierarchy::PreAwake()
+    {
+        auto childrenCopy = m_children;
+        for(auto gameObject : childrenCopy)
+            gameObject->PreAwake();
+
+        if(m_nextParent)
+        {
+            m_gameObject->m_active = false;
+            SetParent(m_nextParent);
+            m_nextParent = nullptr;
+            m_gameObject->m_active = true;
+        }
+
+        TransferObjects(m_inactiveGameObjects, m_activeGameObjects);
+
+    }
     void ObjectHierarchy::Awake()
     {
-        TransferObjects(m_inactiveGameObjects, m_activeGameObjects);
         for(auto gameObject : m_children)
             gameObject->Awake();
     }
@@ -13,24 +29,24 @@ namespace CommonsLibrary
     void ObjectHierarchy::PreUpdate()
     {
         if(!m_hasPreUpdateFlagsSet)
+            return;
+
+        m_hasPreUpdateFlagsSet = false;
+
+        if(m_hasActiveChangedToActive > 0)
         {
-            ClearNullChildren();
-            ClearNullObjects(m_activeGameObjects);
-            ClearNullObjects(m_inactiveGameObjects);
+            m_hasActiveChangedToActive = 0;
+            TransferObjects(m_inactiveGameObjects, m_activeGameObjects);
         }
-        else
+        if(m_hasActiveChangedToInactive > 0)
         {
-            m_hasPreUpdateFlagsSet = false;
+            m_hasActiveChangedToInactive = 0;
+            TransferObjects(m_activeGameObjects, m_inactiveGameObjects);
+        }
 
-            if(m_hasActiveChangedToActive > 0)
-                TransferObjects(m_inactiveGameObjects, m_activeGameObjects);
-            if(m_hasActiveChangedToInactive > 0)
-                TransferObjects(m_activeGameObjects, m_inactiveGameObjects);
-
-            for(auto gameObject : m_children)
-            {
-                gameObject->PreUpdate();
-            }
+        for(auto gameObject : m_children)
+        {
+            gameObject->PreUpdate();
         }
     }
 
@@ -40,9 +56,6 @@ namespace CommonsLibrary
         {
             gameObject->Update(deltaTime);
         }
-
-        if((m_hasActiveChangedToActive + m_hasActiveChangedToInactive) > 0)
-            SetPreUpdateFlag();
     }
 
     void ObjectHierarchy::PostUpdate()
@@ -58,11 +71,6 @@ namespace CommonsLibrary
             m_nextParent = nullptr;
         }
 
-        for(auto gameObject : m_children)
-        {
-            gameObject->PostUpdate();
-        }
-
         if(m_hasDestroyedObjects > 0)
         {
             m_hasDestroyedObjects = 0;
@@ -72,8 +80,18 @@ namespace CommonsLibrary
                 if(!gameObject->m_isDestroyed)
                     continue;
 
+                auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
+                updateVec.erase(std::find(updateVec.begin(), updateVec.end(), gameObject.Get()));
                 gameObject = nullptr;
             }
+
+            ClearNullChildren();
+        }
+
+        auto childrenCopy = m_children;
+        for(auto gameObject : childrenCopy)
+        {
+            gameObject->PostUpdate();
         }
     }
 
@@ -93,7 +111,7 @@ namespace CommonsLibrary
     }
     void ObjectHierarchy::AddChild(ReferencePointer<GameObject> gameObject)
     {
-        auto updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
+        auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
         updateVec.push_back(gameObject.Get());
 
         m_children.push_back(std::move(gameObject));
@@ -102,6 +120,11 @@ namespace CommonsLibrary
     {
         auto it = std::find(m_children.begin(), m_children.end(), child);
         auto gameObject = std::move(*it);
+        m_children.erase(it);
+
+        auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
+        updateVec.erase(std::find(updateVec.begin(), updateVec.end(), gameObject.Get()));
+
 
         return gameObject;
     }
@@ -155,6 +178,7 @@ namespace CommonsLibrary
     {
         m_children.push_back(GameObject::Construct());
         m_inactiveGameObjects.push_back(m_children.back().Get());
+        m_inactiveGameObjects.back()->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
 
         m_hasActiveChangedToActive++;
         SetPreUpdateFlag();
@@ -163,11 +187,11 @@ namespace CommonsLibrary
     }
     void ObjectHierarchy::SetPreUpdateFlag()
     {
-        SetParentPreUpdateFlag(false);
+        SetParentPreUpdateFlag(true);
     }
     void ObjectHierarchy::SetPostUpdateFlag()
     {
-        SetParentPostUpdateFlag(false);
+        SetParentPostUpdateFlag(true);
     }
     void ObjectHierarchy::ClearNullChildren()
     {
@@ -189,7 +213,10 @@ namespace CommonsLibrary
 
             gameObject->m_activeChanged = false;
 
-            to.push_back(std::move(gameObject));
+            to.push_back(gameObject);
+
+            gameObject = nullptr;
+
         }
 
         ClearNullObjects(from);

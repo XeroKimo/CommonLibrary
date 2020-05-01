@@ -11,7 +11,7 @@ namespace CommonsLibrary
     Vector3 Transform::AccumulateWorldPosition(Vector3 position) const
     {
         if(m_owner->GetParent())
-            return m_owner->GetParent()->GetTransform()->AccumulateWorldPosition(position + GetLocalPosition());
+            return m_owner->GetParent()->GetTransform().AccumulateWorldPosition(position + GetLocalPosition());
         return position + GetLocalPosition();
     }
 }

@@ -23,7 +23,7 @@ namespace CommonsLibrary
         std::string name;
 
     private:
-        ReferencePointer<Transform> m_transform;
+        Transform m_transform{this};
         ObjectHierarchy m_hierarchy{this};
         ComponentManager m_componentManager;
 
@@ -35,17 +35,21 @@ namespace CommonsLibrary
         template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
         ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
 
-        ReferencePointer<Transform> GetTransform() const { return m_transform; }
+        Transform& GetTransform() { return m_transform; }
         bool IsActiveInWorld() const { return (m_hierarchy.GetParent()) ? m_hierarchy.GetParent()->IsActiveInHeirarchy() && IsActiveInHeirarchy() : IsActiveInHeirarchy(); }
         bool IsActiveInHeirarchy() const { return m_active; }
         void SetActive(bool active);
 
     public:
-        void SetParent(const ReferencePointer<GameObject>& parent) { if(!parent) {} m_hierarchy.SetParent(parent); } //if null set parent to scene root object
+        void SetParent(const ReferencePointer<GameObject>& parent) { if(!parent) {} m_hierarchy.RequestParentChange(parent); } //if null set parent to scene root object
         ReferencePointer<GameObject> GetParent() const { return m_hierarchy.GetParent(); }  //Change to if parent == scene root object, return nullptr
         std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
-    private:
+    public:
+        ReferencePointer<GameObject> CreateChild() { return m_hierarchy.CreateGameObject(); }
+
+    public:
+        void PreAwake();
         void Awake();
         void PreUpdate();
         void Update(float deltaTime);
@@ -66,8 +70,7 @@ namespace CommonsLibrary
         void AddChild(ReferencePointer<GameObject> child) { m_hierarchy.AddChild(std::move(child)); }
         ReferencePointer<GameObject> RemoveChild(const ReferencePointer<GameObject>& child) { return m_hierarchy.RemoveChild(child); }
 
-
-    private:
+    public:
         static ReferencePointer<GameObject> Construct();
         static ReferencePointer<GameObject> CopyConstruct(const ReferencePointer<GameObject>& other);
     };

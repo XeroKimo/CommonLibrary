@@ -26,6 +26,7 @@ namespace CommonsLibrary
         ObjectHierarchy(GameObject* gameObject) : m_gameObject(gameObject) {}
 
     public:
+        void PreAwake();
         void Awake();
 
         void PreUpdate();
@@ -51,7 +52,7 @@ namespace CommonsLibrary
 
     public:
         bool HasPreUpdateFlagsSet() const { return (m_hasActiveChangedToActive + m_hasActiveChangedToInactive) > 0; }
-        bool HasPostUpdateFlagsSet() const { return m_hasDestroyedObjects > 0; }
+        bool HasPostUpdateFlagsSet() const { return m_hasDestroyedObjects > 0 || m_nextParent; }
 
         void SetPreUpdateFlag();
         void SetPostUpdateFlag();
