@@ -75,17 +75,21 @@ namespace CommonsLibrary
         {
             m_hasDestroyedObjects = 0;
 
-            for(auto& gameObject : m_children)
+            ReferencePointer<GameObject> gameObject;
+
+            for(auto it = m_children.begin(); it != m_children.end();)
             {
+                gameObject = (*it);
+
                 if(!gameObject->m_isDestroyed)
-                    continue;
-
-                auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
-                updateVec.erase(std::find(updateVec.begin(), updateVec.end(), gameObject.Get()));
-                gameObject = nullptr;
+                    it++;
+                else
+                {
+                    auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
+                    updateVec.erase(std::find(updateVec.begin(), updateVec.end(), gameObject.Get()));
+                    it = m_children.erase(it);
+                }
             }
-
-            ClearNullChildren();
         }
 
         auto childrenCopy = m_children;
@@ -124,7 +128,6 @@ namespace CommonsLibrary
 
         auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
         updateVec.erase(std::find(updateVec.begin(), updateVec.end(), gameObject.Get()));
-
 
         return gameObject;
     }
@@ -193,33 +196,23 @@ namespace CommonsLibrary
     {
         SetParentPostUpdateFlag(true);
     }
-    void ObjectHierarchy::ClearNullChildren()
-    {
-        m_children.erase(std::remove(m_children.begin(), m_children.end(), nullptr), m_children.end());
-    }
-    void ObjectHierarchy::ClearNullObjects(std::vector<GameObject*>& objectVector)
-    {
-        objectVector.erase(std::remove(objectVector.begin(), objectVector.end(), nullptr), objectVector.end());
-    }
     void ObjectHierarchy::TransferObjects(std::vector<GameObject*>& from, std::vector<GameObject*>& to)
     {
-        for(auto& gameObject : from)
+        GameObject* gameObject;
+
+        for(auto it = from.begin(); it != from.end();)
         {
-            if(gameObject->m_isDestroyed)
-                continue;
+            gameObject = (*it);
 
-            if(!gameObject->m_activeChanged)
-                continue;
-
-            gameObject->m_activeChanged = false;
-
-            to.push_back(gameObject);
-
-            gameObject = nullptr;
-
+            if(gameObject->m_isDestroyed || !gameObject->m_activeChanged)
+                it++;
+            else
+            {
+                gameObject->m_activeChanged = false;
+                to.push_back(gameObject);
+                it = from.erase(it);
+            }
         }
-
-        ClearNullObjects(from);
     }
     void ObjectHierarchy::SetParentPreUpdateFlag(bool set)
     {

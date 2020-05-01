@@ -58,10 +58,6 @@ namespace CommonsLibrary
         void SetPostUpdateFlag();
 
     private:
-        void ClearNullChildren();
-        void ClearNullObjects(std::vector<GameObject*>& objectVector);
-
-    private:
         void TransferObjects(std::vector<GameObject*>& from, std::vector<GameObject*>& to);
 
     private:
