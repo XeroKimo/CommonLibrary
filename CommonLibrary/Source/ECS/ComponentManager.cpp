@@ -6,80 +6,37 @@ namespace CommonsLibrary
 {
     ComponentManager::~ComponentManager()
     {
-        CallDestroyAll(m_activeComponents);
-        CallDestroyAll(m_inactiveComponents);
+        for(auto& component : m_components)
+        {
+            component->OnDestroyed();
+        }
     }
 
     void ComponentManager::Awake()
     {
-        TransferComponents();
-
-        for(const auto& component : m_activeComponents)
+        for(const auto& component : m_components)
             component->Awake();
-        for(const auto& component : m_inactiveComponents)
-            component->Awake();
-    }
-
-    void ComponentManager::TransferComponents()
-    {
-        if(m_hasActiveChangedToInactive > 0)
-        {
-            m_hasActiveChangedToInactive = 0;
-            TransferComponents(m_activeComponents, m_inactiveComponents);
-        }
-        if(m_hasActiveChangedToActive > 0)
-        {
-            m_hasActiveChangedToActive = 0;
-            TransferComponents(m_inactiveComponents, m_activeComponents);
-        }
     }
     void ComponentManager::Start()
     {
-        if(!m_hasStartComponents)
-            return;
-
-        m_hasStartComponents = false;
-
-        for(auto& component : m_activeComponents)
-        {
-            if(component->m_hasStarted)
-                continue;
-
-            component->Start();
-            component->m_hasStarted = true;
-        }
+        ClearDestroyedComponents();
+        TransferComponents();
     }
     void ComponentManager::Update(float deltaTime)
     {
-        for(auto component : m_activeComponents)
+        for(size_t i = 0; i < m_lastActiveComponentIndex; i++)
         {
-            component->Update(deltaTime);
-        }
-    }
-    void ComponentManager::ClearDestroyedComponents()
-    {
-        if(m_hasDestroyInActive > 0)
-        {
-            m_hasDestroyInActive = 0;
-            DestroyComponents(m_activeComponents);
-        }
-        if(m_hasDestroyInInactive > 0)
-        {
-            m_hasDestroyInInactive = 0;
-            DestroyComponents(m_inactiveComponents);
+            m_components[i]->Update(deltaTime);
         }
     }
 
-    ReferencePointer<Component> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type)
+    void ComponentManager::CopyComponents(const ReferencePointer<GameObject>& gameObject, const ComponentManager& other)
     {
-        m_hasStartComponents = true;
-        m_hasActiveChangedToActive++;
-
-        m_inactiveComponents.push_back(ComponentRegistry::CreateComponent(type, gameObject));
-        if(callAwake)
-            m_inactiveComponents.back()->Awake();
-
-        return m_inactiveComponents.back();
+        for(const auto& component : other.m_components)
+        {
+            Copy(gameObject, component);
+        }
+        m_lastActiveComponentIndex = other.m_lastActiveComponentIndex;
     }
 
     bool ComponentManager::DestroyComponent(const ReferencePointer<Component>& component)
@@ -87,22 +44,7 @@ namespace CommonsLibrary
         if(component->m_isDestroyed)
             return false;
 
-        if(component->m_activeChanged)
-        {
-            if(component->m_active)
-                m_hasActiveChangedToActive--;
-            else
-                m_hasActiveChangedToInactive--;
-
-            component->m_active = !component->m_active;
-        }
-
-        if(component->m_active)
-            m_hasDestroyInActive++;
-        else
-            m_hasDestroyInInactive++;
-
-
+        m_destroyedComponentsIndices.push(component->m_componentIndex);
         component->m_isDestroyed = true;
 
         return true;
@@ -111,103 +53,117 @@ namespace CommonsLibrary
     {
         if(component->m_active == active)
             return;
-
         if(component->m_activeChanged)
         {
-            if(!active)
-                m_hasActiveChangedToActive--;
-            else
-                m_hasActiveChangedToInactive--;
-
+            m_activeChangedIndices.erase(std::find(m_activeChangedIndices.begin(), m_activeChangedIndices.end(), &component->m_componentIndex));
             component->m_activeChanged = false;
         }
         else
         {
-            if(active)
-                m_hasActiveChangedToActive++;
-            else
-                m_hasActiveChangedToInactive++;
-
+            m_activeChangedIndices.push_back(&component->m_componentIndex);
             component->m_activeChanged = true;
         }
 
         component->m_active = active;
     }
 
-    void ComponentManager::CopyComponents(const ReferencePointer<GameObject>& gameObject, const ComponentManager& other)
+    ReferencePointer<Component> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, std::type_index type)
     {
-        for(const auto& component : other.m_activeComponents)
+        size_t index = m_components.size();
+        m_components.push_back(ComponentRegistry::CreateComponent(type, gameObject));
+        m_components.back()->m_componentIndex = index;
+
+        return m_components.back();
+    }
+
+    void ComponentManager::ClearDestroyedComponents()
+    {
+        if(m_destroyedComponentsIndices.empty())
+            return;
+
+        size_t finalIndex = 0;
+        while(!m_destroyedComponentsIndices.empty())
         {
-            Copy(gameObject, component);
+            finalIndex = m_destroyedComponentsIndices.top();
+            m_components[finalIndex]->OnDestroyed();
+            m_components.erase(m_components.begin() + finalIndex);
+            m_destroyedComponentsIndices.pop();
         }
-        for(const auto& component : other.m_inactiveComponents)
+        RecountIndicesStarting(finalIndex);
+    }
+
+    void ComponentManager::TransferComponents()
+    {
+        if(m_activeChangedIndices.empty())
+            return;
+
+        for(auto componentIndex : m_activeChangedIndices)
         {
-            Copy(gameObject, component);
+            SwapComponentActive(*componentIndex);
+        }
+
+        m_activeChangedIndices.clear();
+    }
+
+    void ComponentManager::SwapComponentActive(size_t index)
+    {
+        if(m_components[index]->m_active)
+        {
+            ++m_lastActiveComponentIndex;
+
+            if(index != m_lastActiveComponentIndex)
+                SwapComponents(index, m_lastActiveComponentIndex);
+            if(!m_components[index]->m_hasStarted)
+                m_components[index]->Start();
+        }
+        else
+        {
+            if(index != m_lastActiveComponentIndex)
+                SwapComponents(index, m_lastActiveComponentIndex);
+            --m_lastActiveComponentIndex;
         }
     }
 
-    void ComponentManager::CallDestroyAll(std::vector<ReferencePointer<Component>>& componentVector)
+    void ComponentManager::SwapComponents(size_t lh, size_t rh)
     {
-        for(auto& component : componentVector)
-        {
-            component->OnDestroyed();
-        }
-    }
+        ReferencePointer<Component> temp = std::move(m_components[lh]);
+        m_components[lh] = std::move(m_components[rh]);
+        m_components[rh] = std::move(temp);
 
-    void ComponentManager::TransferComponents(ComponentVector& from, ComponentVector& to)
-    {
-        for(auto& component : from)
-        {
-            if(component->m_isDestroyed)
-                continue;
-
-            if(!component->m_activeChanged)
-                continue;
-
-            if(component->m_active)
-            {
-                if(!component->m_hasStarted)
-                {
-                    m_hasStartComponents = true;
-                }
-            }
-
-            component->m_activeChanged = false;
-
-            to.push_back(std::move(component));
-        }
-
-        ClearNullComponents(from);
-    }
-
-    void ComponentManager::DestroyComponents(ComponentVector& components)
-    {
-        for(auto& component : components)
-        {
-            if(!component->m_isDestroyed)
-                continue;
-
-            component->OnDestroyed();
-            component = nullptr;
-        }
-
-        ClearNullComponents(components);
-    }
-
-    void ComponentManager::ClearNullComponents(ComponentVector& componentVector)
-    {
-        auto it = std::remove(componentVector.begin(), componentVector.end(), nullptr);
-        if(it != componentVector.end())
-            componentVector.erase(it, componentVector.end());
+        m_components[rh]->m_componentIndex = rh;
+        m_components[lh]->m_componentIndex = lh;
     }
 
     ReferencePointer<Component> ComponentManager::Copy(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<Component>& component)
     {
-        ReferencePointer<Component> copy = CreateComponent(gameObject, false, typeid(*component));
+        auto copiedComponent = CreateComponent(gameObject, typeid(*component));
+        copiedComponent->CopyComponent(component.Get());
+        if(copiedComponent->m_active)
+            m_activeChangedIndices.push_back(&copiedComponent->m_componentIndex);
 
-        *m_inactiveComponents.back() = *component;
-        m_inactiveComponents.back()->m_gameObject = gameObject;
+        return copiedComponent;
+    }
 
-        return m_inactiveComponents.back();
+    void ComponentManager::RecountIndicesStarting(size_t startIndex)
+    {
+        if(startIndex <= m_lastActiveComponentIndex)
+        {
+            bool active = true;
+
+            while(active)
+            {
+                active = m_components[startIndex]->m_active;
+                m_components[startIndex]->m_componentIndex = startIndex;
+
+                ++startIndex;
+            }
+
+            m_lastActiveComponentIndex = startIndex - 1;
+        }
+
+        for(size_t i = startIndex; i < m_components.size(); ++i)
+        {
+            m_components[i]->m_componentIndex = i;
+        }
     }
 }

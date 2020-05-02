@@ -20,6 +20,8 @@ namespace CommonsLibrary
 
         ReferencePointer<GameObject> m_gameObject;
 
+        size_t m_componentIndex = 0;
+
     protected:
         Component() = default;
 
@@ -32,6 +34,8 @@ namespace CommonsLibrary
         virtual void Start() {}
         virtual void Update(float deltaTime) {}
         virtual void OnDestroyed() {}
+
+        virtual void CopyComponent(const Component* const other);
 
     public:
         void SetActive(bool active);

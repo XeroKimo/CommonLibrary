@@ -31,6 +31,8 @@ namespace CommonsLibrary
         bool m_isDestroyed = false;
         bool m_activeChanged = true;
 
+        size_t m_childIndex = 0;
+
     public:
         template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
         ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
@@ -51,12 +53,9 @@ namespace CommonsLibrary
     public:
         void PreAwake();
         void Awake();
-        void PreUpdate();
-        void Update(float deltaTime);
-        void PostUpdate();
 
-    private:
-        void SetActiveWorld(bool active);
+        void Start();
+        void Update(float deltaTime);
 
     private:
         void SetComponentActive(const ReferencePointer<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }

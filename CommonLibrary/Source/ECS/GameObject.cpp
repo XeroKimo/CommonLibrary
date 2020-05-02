@@ -14,12 +14,10 @@ namespace CommonsLibrary
         m_componentManager.Awake();
         m_hierarchy.Awake();
     }
-    void GameObject::PreUpdate()
-    {
-        m_componentManager.TransferComponents();
-        m_componentManager.Start();
 
-        m_hierarchy.PreUpdate();
+    void GameObject::Start()
+    {
+        m_componentManager.Start();
     }
 
     void GameObject::Update(float deltaTime)
@@ -27,26 +25,15 @@ namespace CommonsLibrary
         m_componentManager.Update(deltaTime);
         m_hierarchy.Update(deltaTime);
 
-        if(m_componentManager.HasPreUpdateFlagsSet() || m_hierarchy.HasPreUpdateFlagsSet())
+        if(m_hierarchy.HasPreUpdateFlagsSet())
             m_hierarchy.SetPreUpdateFlag();
-        if(m_componentManager.HasPostUpdateFlagsSet() || m_hierarchy.HasPostUpdateFlagsSet())
+        if(m_hierarchy.HasPostUpdateFlagsSet())
             m_hierarchy.SetPostUpdateFlag();
-    }
-
-    void GameObject::PostUpdate()
-    {
-        m_componentManager.ClearDestroyedComponents();
-        m_hierarchy.PostUpdate();
     }
 
     void GameObject::SetActive(bool active)
     {
         m_hierarchy.GetParent()->m_hierarchy.SetActive(GetReferencePointer(), active);
-    }
-
-    void GameObject::SetActiveWorld(bool active)
-    {
-
     }
 
     ReferencePointer<GameObject> GameObject::Construct()

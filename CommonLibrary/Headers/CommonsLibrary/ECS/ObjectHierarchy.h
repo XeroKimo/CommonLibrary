@@ -9,19 +9,21 @@ namespace CommonsLibrary
     {
         GameObject* m_gameObject;
 
-        size_t m_hasDestroyedObjects = 0;
-        size_t m_hasActiveChangedToInactive = 0;
-        size_t m_hasActiveChangedToActive = 0;
+        size_t m_countOfDestroyedObjects = 0;
+        size_t m_countOfChangedToInactive = 0;
+        size_t m_countOfChangedToActive = 0;
+
+        size_t m_lastActiveChildIndex = 0;
 
         ReferencePointer<GameObject> m_parent;
         ReferencePointer<GameObject> m_nextParent;
-        std::vector<ReferencePointer<GameObject>> m_children;
 
-        std::vector<GameObject*> m_activeGameObjects;
-        std::vector<GameObject*> m_inactiveGameObjects;
+        std::vector<ReferencePointer<GameObject>> m_children;
 
         bool m_hasPreUpdateFlagsSet = false;
         bool m_hasPostUpdateFlagsSet = false;
+        bool m_childHasPreFlagSet = false;
+        bool m_childHasPostFlagSet = false;
     public:
         ObjectHierarchy(GameObject* gameObject) : m_gameObject(gameObject) {}
 
@@ -30,6 +32,7 @@ namespace CommonsLibrary
         void Awake();
 
         void PreUpdate();
+        void Start();
         void Update(float deltaTime);
         void PostUpdate();
 
@@ -47,12 +50,12 @@ namespace CommonsLibrary
         ReferencePointer<GameObject> CreateGameObject();
 
     public:
-        ReferencePointer<GameObject> GetParent() const { return (m_nextParent) ? m_nextParent : m_parent; }
+        ReferencePointer<GameObject> GetParent() const { return m_parent; }
         std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_children; }
 
     public:
-        bool HasPreUpdateFlagsSet() const { return (m_hasActiveChangedToActive + m_hasActiveChangedToInactive) > 0; }
-        bool HasPostUpdateFlagsSet() const { return m_hasDestroyedObjects > 0 || m_nextParent; }
+        bool HasPreUpdateFlagsSet() const { return (m_countOfChangedToActive + m_countOfChangedToInactive) > 0; }
+        bool HasPostUpdateFlagsSet() const { return m_countOfDestroyedObjects > 0 || m_nextParent; }
 
         void SetPreUpdateFlag();
         void SetPostUpdateFlag();
@@ -63,5 +66,8 @@ namespace CommonsLibrary
     private:
         void SetParentPreUpdateFlag(bool set);
         void SetParentPostUpdateFlag(bool set);
+
+        void IncreaseIndicesAfter(size_t index, size_t amount);
+        void ReduceIndicesAfter(size_t index, size_t amount);
     };
 }
