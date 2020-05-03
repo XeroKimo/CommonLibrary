@@ -9,48 +9,74 @@ namespace CommonsLibrary
     {
         m_hierarchy.PreAwake();
     }
-    void GameObject::Awake()
-    {
-        m_componentManager.Awake();
-        m_hierarchy.Awake();
-    }
-
-    void GameObject::Start()
-    {
-        m_componentManager.Start();
-    }
-
-    void GameObject::Update(float deltaTime)
-    {
-        m_componentManager.Update(deltaTime);
-        m_hierarchy.Update(deltaTime);
-
-        if(m_hierarchy.HasPreUpdateFlagsSet())
-            m_hierarchy.SetPreUpdateFlag();
-        if(m_hierarchy.HasPostUpdateFlagsSet())
-            m_hierarchy.SetPostUpdateFlag();
-    }
 
     void GameObject::SetActive(bool active)
     {
         m_hierarchy.GetParent()->m_hierarchy.SetActive(GetReferencePointer(), active);
     }
 
-    ReferencePointer<GameObject> GameObject::Construct()
+    void GameObject::SetParent(const ReferencePointer<GameObject>& parent)
     {
-        ReferencePointer<GameObject> newObject = MakeReference<GameObject>();
-        return newObject;
+        if(!m_owningScene)
+            return;
+
+        if(!parent)
+            m_hierarchy.RequestParentChange(m_owningScene->GetRootGameObject());
+        else
+            m_hierarchy.RequestParentChange(parent);
     }
 
-    ReferencePointer<GameObject> GameObject::CopyConstruct(const ReferencePointer<GameObject>& other)
+    ReferencePointer<GameObject> GameObject::GetParent() const
     {
-        ReferencePointer<GameObject> newObject = MakeReference<GameObject>();
-
-        newObject->name = other->name;
-        newObject->CopyComponents(other->m_componentManager);
-
-        return newObject;
+        if(m_owningScene)
+        {
+            auto parent = m_hierarchy.GetParent();
+            if(parent == m_owningScene->GetRootGameObject())
+                return nullptr;
+        }
+        return m_hierarchy.GetParent();
     }
+
+    bool GameObject::SceneLoaded()
+    {
+        return m_owningScene->m_isLoaded;
+    }
+
+    ReferencePointer<GameObject> GameObject::GetRootObject()
+    {
+        return m_owningScene->GetRootGameObject();
+    }
+
+    void GameObject::AddCallStartOnComponents()
+    {
+        m_owningScene->m_componentStarts.push_back(GetReferencePointer());
+    }
+
+    void GameObject::AddCallStartOnHierarchy()
+    {
+        m_owningScene->m_hierarchyStarts.push_back(GetReferencePointer());
+    }
+
+    void GameObject::AddPostStartCall()
+    {
+        m_owningScene->m_postStartCalls.push_back(GetReferencePointer());
+    }
+
+    //ReferencePointer<GameObject> GameObject::Construct()
+    //{
+    //    ReferencePointer<GameObject> newObject = ReferencePointer<GameObject>(new GameObject());
+    //    return newObject;
+    //}
+
+    //ReferencePointer<GameObject> GameObject::CopyConstruct(const ReferencePointer<GameObject>& other)
+    //{
+    //    ReferencePointer<GameObject> newObject = ReferencePointer<GameObject>(new GameObject());
+
+    //    newObject->name = other->name;
+    //    newObject->CopyComponents(other->m_componentManager);
+
+    //    return newObject;
+    //}
 
 
 

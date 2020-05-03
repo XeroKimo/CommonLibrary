@@ -13,15 +13,17 @@ namespace CommonsLibrary
         using ComponentVector = std::vector<ReferencePointer<Component>>;
 
     private:
+        GameObject* m_owner;
         std::priority_queue<size_t> m_destroyedComponentsIndices;
         std::vector<size_t*> m_activeChangedIndices;
 
-        size_t m_lastActiveComponentIndex = -1;
-
+        size_t m_firstInactiveComponentIndex = 0;
         ComponentVector m_components;
 
+        bool m_toldSceneToCallStart = false;
 
     public:
+        ComponentManager(GameObject* owner) : m_owner(owner) {}
         ~ComponentManager();
 
     public:
@@ -31,7 +33,6 @@ namespace CommonsLibrary
         void Update(float deltaTime);
 
     public:
-
         template<class Type>
         ReferencePointer<Type> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake);
 
@@ -47,6 +48,7 @@ namespace CommonsLibrary
 
         bool HasStartFlagsSet() const { return !m_destroyedComponentsIndices.empty() || !m_activeChangedIndices.empty(); }
 
+        void AddToStartCall();
     private:
         ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, std::type_index type);
 

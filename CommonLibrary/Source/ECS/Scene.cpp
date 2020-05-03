@@ -1,115 +1,68 @@
 #include "CommonsLibrary/ECS.h"
-#include "CommonsLibrary/ECS/Scene.h"
-#include "CommonsLibrary/StdHelpers/VectorHelpers.h"
 
 namespace CommonsLibrary
 {
-    Scene::Scene(std::string sceneName) :
-        m_world(nullptr)
+    Scene::Scene(std::string name) :
+        m_sceneName(name),
+        m_rootGameObject(new GameObject())
     {
-        m_sceneName = std::move(sceneName);
+        m_rootGameObject->m_owningScene = this;
     }
-    Scene::Scene(Scene& other)
-    {
-        m_updateGameObjects.swap(other.m_updateGameObjects);
-        m_gameObjectsToDestroy.swap(other.m_gameObjectsToDestroy);
-        m_sceneName = other.m_sceneName;
-        m_world = other.m_world;
-    }
-    Scene::~Scene()
-    {
-        UnloadScene();
-    }
-    ReferencePointer<GameObject> Scene::FindObject(const std::string& name) const
-    {
-        return FindObject(m_updateGameObjects, name);
-    }
-    ReferencePointer<GameObject> Scene::CreateGameObject()
-    {
-        if (!m_world)
-            return nullptr;
-        auto gameObject = m_world->GetSystemManager()->GetSystem<SceneManager>()->CreateGameObject();
-        if (!gameObject)
-        {
-            m_updateGameObjects.push_back((MakeReference<GameObject>(this)));
-            return m_updateGameObjects.back();
-        }
-        return gameObject;
-    }
-    void Scene::CallLoadScene(World* world)
-    {
-        m_world = world;
-        LoadScene();
-        m_loaded = true;
-    }
-    void Scene::UnloadScene()
-    {
-        m_loaded = false;
-        m_updateGameObjects.clear();
-        m_gameObjectsToDestroy.clear();
-    }
-    void Scene::StartGameObjects()
-    {
-        for (const auto& gameObjects : m_updateGameObjects)
-        {
-            gameObjects->Start();
-        }
-    }
-    void Scene::UpdateGameObjects(float deltaTime)
-    {
-        for (const auto& gameObject : m_updateGameObjects)
-            gameObject->Update(deltaTime);
 
-        for (const auto& gameObject : m_updateGameObjects)
-            gameObject->OnDestroy();
-
-    }
-    void Scene::DestroyGameObjects()
+    void Scene::Awake()
     {
-        if (!m_gameObjectsToDestroy.empty())
+        m_rootGameObject->Awake();
+    }
+
+    void Scene::Start()
+    {
+        if(!m_hierarchyStarts.empty())
         {
-            for (const auto& gameObjects : m_gameObjectsToDestroy)
+            for(size_t i = 0; i < m_hierarchyStarts.size(); i++)
             {
-                gameObjects->OnDestroy();
+                m_hierarchyStarts[i]->StartHierarchy();
             }
-            m_gameObjectsToDestroy.clear();
-        }
-    }
-    void Scene::DestroyGameObject(const ReferencePointer<GameObject>& gameObject)
-    {
-        FindObjectToDelete(m_updateGameObjects, gameObject);
-    }
-    void Scene::PlaceGameObject(ReferencePointer<GameObject> gameObject)
-    {
-        m_updateGameObjects.push_back(std::move(gameObject));
-    }
-    ReferencePointer<GameObject> Scene::ExtractGameObject(const ReferencePointer<GameObject>& gameObject)
-    {
-        auto it = std::find(m_updateGameObjects.begin(), m_updateGameObjects.end(), gameObject);
 
-        ReferencePointer<GameObject> extractedObject = std::move(*it);
-        m_updateGameObjects.erase(it);
+            m_hierarchyStarts.clear();
 
-        return extractedObject;
-    }
-    bool Scene::FindObjectToDelete(std::vector<ReferencePointer<GameObject>>& objectVector, const ReferencePointer<GameObject>& gameObject)
-    {
-        auto it = std::find(objectVector.begin(), objectVector.end(), gameObject);
-        if (it != objectVector.end())
-        {
-            m_gameObjectsToDestroy.push_back(std::move(*it));
-            objectVector.erase(it);
-            return true;
         }
-        return false;
-    }
-    ReferencePointer<GameObject> Scene::FindObject(const std::vector<ReferencePointer<GameObject>>& objectVector, const std::string& name) const
-    {
-        for (const auto& gameObject : objectVector)
+        if(!m_postStartCalls.empty())
         {
-            if (gameObject->name == name)
-                return gameObject;
+            for(size_t i = 0; i < m_postStartCalls.size(); i++)
+            {
+                m_postStartCalls[i]->PostStart();
+            }
+
+            m_postStartCalls.clear();
         }
-        return nullptr;
+
+        if(!m_componentStarts.empty())
+        {
+            auto copy = m_componentStarts;
+            size_t startingSize = copy.size();
+
+            for(size_t i = 0; i < startingSize; i++)
+            {
+                m_componentStarts[i]->StartComponents();
+            }
+
+            m_componentStarts.erase(m_componentStarts.begin(), m_componentStarts.begin() + startingSize);
+        }
+    }
+
+    void Scene::Update(float deltaTime)
+    {
+        m_rootGameObject->Update(deltaTime);
+    }
+
+    ReferencePointer<GameObject> Scene::Instantiate(std::string name)
+    {
+        auto object = m_rootGameObject->CreateChild();
+        object->name = name;
+        object->m_owningScene = this;
+        if(m_isLoaded)
+            object->Awake();
+
+        return object;
     }
 }

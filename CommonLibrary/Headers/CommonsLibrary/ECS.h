@@ -2,7 +2,7 @@
 #include "ECS/Component.h"
 #include "ECS/Transform.h"
 #include "ECS/GameObject.h"
-//#include "ECS/Scene.h"
+#include "ECS/Scene.h"
 #include "ECS/SceneManager.h"
 #include "ECS/ECSSystem.h"
 #include "ECS/ECSSystemManager.h"

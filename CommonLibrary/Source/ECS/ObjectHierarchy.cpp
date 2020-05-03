@@ -12,7 +12,6 @@ namespace CommonsLibrary
         if(m_nextParent)
         {
             m_gameObject->m_active = false;
-            SetParent(m_nextParent);
             m_nextParent = nullptr;
             m_gameObject->m_active = true;
         }
@@ -22,98 +21,30 @@ namespace CommonsLibrary
     }
     void ObjectHierarchy::Awake()
     {
-        for(auto gameObject : m_children)
-            gameObject->Awake();
-    }
-
-    void ObjectHierarchy::PreUpdate()
-    {
-        //if(m_hasPreUpdateFlagsSet)
-        //{
-        //    m_hasPreUpdateFlagsSet = false;
-
-        //    if(m_countOfChangedToActive > 0)
-        //    {
-        //        m_countOfChangedToActive = 0;
-        //        TransferObjects(m_inactiveGameObjects, m_activeGameObjects);
-        //    }
-        //    if(m_countOfChangedToInactive > 0)
-        //    {
-        //        m_countOfChangedToInactive = 0;
-        //        TransferObjects(m_activeGameObjects, m_inactiveGameObjects);
-        //    }
-        //}
-
-        //if(m_childHasPreFlagSet)
-        //{
-        //    m_childHasPostFlagSet = false;
-        //    for(auto gameObject : m_children)
-        //    {
-        //        gameObject->PreUpdate();
-        //    }
-        //}
+        for(size_t i = 0; i < m_children.size(); i++)
+            m_children[i]->Awake();
     }
 
     void ObjectHierarchy::Start()
     {
-        for(size_t i = 0; i <= m_lastActiveChildIndex; i++)
-        {
-            m_children[i]->Start();
-        }
+        m_toldSceneToCallStart = false;
+        ChangeParent();
     }
+    void ObjectHierarchy::PostStart()
+    {
+        m_toldSceneToCallPostStart = false;
 
+        ClearDestroyedGameObjects();
+        TransferGameObjects();
+    }
     void ObjectHierarchy::Update(float deltaTime)
     {
-        for(size_t i = 0; i <= m_lastActiveChildIndex; i++)
+        for(size_t i = 0; i < m_firstInactiveObjectIndex; i++)
         {
             m_children[i]->Update(deltaTime);
         }
     }
 
-    void ObjectHierarchy::PostUpdate()
-    {
-        //if(m_hasPostUpdateFlagsSet)
-        //{
-        //    m_hasPostUpdateFlagsSet = false;
-
-        //    if(m_nextParent)
-        //    {
-        //        SetParent(m_nextParent);
-        //        m_nextParent = nullptr;
-        //    }
-
-        //    if(m_countOfDestroyedObjects > 0)
-        //    {
-        //        m_countOfDestroyedObjects = 0;
-
-        //        ReferencePointer<GameObject> gameObject;
-
-        //        for(auto it = m_children.begin(); it != m_children.end();)
-        //        {
-        //            gameObject = (*it);
-
-        //            if(!gameObject->m_isDestroyed)
-        //                it++;
-        //            else
-        //            {
-        //                auto& updateVec = (gameObject->IsActiveInHeirarchy()) ? m_activeGameObjects : m_inactiveGameObjects;
-        //                updateVec.erase(std::find(updateVec.begin(), updateVec.end(), gameObject.Get()));
-        //                it = m_children.erase(it);
-        //            }
-        //        }
-        //    }
-        //}
-
-        //if(m_childHasPostFlagSet)
-        //{
-        //    m_childHasPostFlagSet = false;
-        //    auto childrenCopy = m_children;
-        //    for(auto gameObject : childrenCopy)
-        //    {
-        //        gameObject->PostUpdate();
-        //    }
-        //}
-    }
 
     void ObjectHierarchy::RequestParentChange(const ReferencePointer<GameObject>& parent)
     {
@@ -121,38 +52,40 @@ namespace CommonsLibrary
             m_nextParent = nullptr;
         else
             m_nextParent = parent;
-    }
 
+        AddToStartCall();
+    }
     void ObjectHierarchy::SetParent(const ReferencePointer<GameObject>& parent)
     {
-        ReferencePointer<GameObject> owningSelf = m_parent->RemoveChild(m_gameObject->GetReferencePointer());
+        ReferencePointer<GameObject> owningSelf = m_parent->m_hierarchy.RemoveChild(m_gameObject->GetReferencePointer());
+        if(m_gameObject->m_isDestroyed)
+            return;
+
         m_parent = parent;
-        m_parent->AddChild(std::move(owningSelf));
+        m_parent->m_hierarchy.AddChild(std::move(owningSelf));
     }
-    void ObjectHierarchy::AddChild(ReferencePointer<GameObject> gameObject)
+    void ObjectHierarchy::AddChild(ReferencePointer<GameObject> child)
     {
-        if(gameObject->IsActiveInHeirarchy())
-        {
-            gameObject->m_childIndex = ++m_lastActiveChildIndex;
-            m_children.insert(m_children.begin() + m_lastActiveChildIndex, std::move(gameObject));
-            IncreaseIndicesAfter(m_lastActiveChildIndex, 1);
-        }
+        child->m_childIndex = m_children.size();
+        if(child->m_activeChanged && child->m_active)
+            m_activeChangedIndices.push_back(&child->m_childIndex);
         else
-        {
-            gameObject->m_childIndex = m_children.size();
-            m_children.push_back(std::move(gameObject));
-        }
+            child->m_activeChanged = false;
+
+        m_children.push_back(std::move(child));
     }
     ReferencePointer<GameObject> ObjectHierarchy::RemoveChild(const ReferencePointer<GameObject>& child)
     {
-        ReduceIndicesAfter(child->m_childIndex, 1);
-
         auto it = (m_children.begin() + child->m_childIndex);
         auto gameObject = std::move(*it);
-        m_children.erase(it);
+
+        m_destroyedObjectIndices.push(child->m_childIndex);
+
+        AddToPostStartCall();
 
         return gameObject;
     }
+
 
     void ObjectHierarchy::SetActive(const ReferencePointer<GameObject>& child, bool active)
     {
@@ -161,113 +94,167 @@ namespace CommonsLibrary
 
         if(child->m_activeChanged)
         {
-            if(!active)
-                m_countOfChangedToActive--;
-            else
-                m_countOfChangedToInactive--;
-
+            m_activeChangedIndices.erase(std::find(m_activeChangedIndices.begin(), m_activeChangedIndices.end(), &child->m_childIndex));
             child->m_activeChanged = false;
         }
         else
         {
-            if(active)
-                m_countOfChangedToActive++;
-            else
-                m_countOfChangedToInactive++;
-
+            m_activeChangedIndices.push_back(&child->m_childIndex);
             child->m_activeChanged = true;
         }
 
         child->m_active = active;
+
+        AddToPostStartCall();
     }
     void ObjectHierarchy::DestroyGameObject(const ReferencePointer<GameObject>& child)
     {
         if(child->m_isDestroyed)
             return;
 
-        if(child->m_activeChanged)
-        {
-            if(child->m_active)
-                m_countOfChangedToActive--;
-            else
-                m_countOfChangedToInactive--;
-        }
-
-        m_countOfDestroyedObjects++;
-
+        m_destroyedObjectIndices.push(child->m_childIndex);
         child->m_isDestroyed = true;
 
-        return;
+        AddToPostStartCall();
     }
-    ReferencePointer<GameObject> ObjectHierarchy::CreateGameObject()
+    ReferencePointer<GameObject> ObjectHierarchy::CreateGameObject(bool sceneLoading)
     {
-        m_childrenBuffer.push_back(GameObject::Construct());
-        m_childrenBuffer.back()->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
+        if(sceneLoading)
+        {
+            m_children.insert(m_children.begin() + m_firstInactiveObjectIndex, new GameObject());
+            m_children[m_firstInactiveObjectIndex]->m_childIndex = m_firstInactiveObjectIndex;
+            m_children[m_firstInactiveObjectIndex]->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
+            m_firstInactiveObjectIndex++;
+        }
+        else
+        {
+            size_t index = m_children.size();
+            m_children.push_back(new GameObject());
+            m_children.back()->m_childIndex = index;
+            m_children.back()->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
+            m_activeChangedIndices.push_back(&m_children.back()->m_childIndex);
 
-        m_countOfChangedToActive++;
-        SetPreUpdateFlag();
+            AddToStartCall();
+        }
 
         return m_children.back();
     }
-    void ObjectHierarchy::SetPreUpdateFlag()
-    {
-        m_hasPreUpdateFlagsSet = true;
 
-        if(m_parent)
-            m_parent->m_hierarchy.SetParentPreUpdateFlag(true);
-    }
-    void ObjectHierarchy::SetPostUpdateFlag()
+    void ObjectHierarchy::AddToStartCall()
     {
-        m_hasPostUpdateFlagsSet = true;
-        if(m_parent)
-            m_parent->m_hierarchy.SetParentPostUpdateFlag(true);
-    }
-    void ObjectHierarchy::TransferObjects(std::vector<GameObject*>& from, std::vector<GameObject*>& to)
-    {
-        GameObject* gameObject;
-
-        for(auto it = from.begin(); it != from.end();)
+        if(!m_toldSceneToCallStart)
         {
-            gameObject = (*it);
-
-            if(gameObject->m_isDestroyed || !gameObject->m_activeChanged)
-                it++;
-            else
-            {
-                gameObject->m_activeChanged = false;
-                to.push_back(gameObject);
-                it = from.erase(it);
-            }
+            m_toldSceneToCallStart = true;
+            m_gameObject->AddCallStartOnHierarchy();
         }
     }
-    void ObjectHierarchy::SetParentPreUpdateFlag(bool set)
+    void ObjectHierarchy::AddToPostStartCall()
     {
-        if(m_childHasPreFlagSet)
+        if(!m_toldSceneToCallPostStart)
+        {
+            m_toldSceneToCallPostStart = true;
+            m_gameObject->AddPostStartCall();
+        }
+    }
+
+    void ObjectHierarchy::ClearDestroyedGameObjects()
+    {
+        if(m_destroyedObjectIndices.empty())
             return;
 
-        if(m_parent)
-            m_parent->m_hierarchy.SetParentPreUpdateFlag(true);
-        m_childHasPreFlagSet = set;
+        size_t finalIndex = 0;
+        while(!m_destroyedObjectIndices.empty())
+        {
+            finalIndex = m_destroyedObjectIndices.top();
+            m_children.erase(m_children.begin() + finalIndex);
+            m_destroyedObjectIndices.pop();
+        }
+
+        RecountIndicesStarting(finalIndex);
     }
-    void ObjectHierarchy::SetParentPostUpdateFlag(bool set)
+    void ObjectHierarchy::TransferGameObjects()
     {
-        if(m_childHasPostFlagSet)
+        if(m_activeChangedIndices.empty())
             return;
 
-        if(m_parent)
-            m_parent->m_hierarchy.SetParentPostUpdateFlag(true);
-        m_childHasPostFlagSet = set;
+        for(auto componentIndex : m_activeChangedIndices)
+        {
+            SwapObjectActive(*componentIndex);
+        }
+
+        m_activeChangedIndices.clear();
     }
-    void ObjectHierarchy::IncreaseIndicesAfter(size_t index, size_t amount)
+    void ObjectHierarchy::ChangeParent()
     {
-        index++;
-        for(; index < m_children.size(); index++)
-            m_children[index]->m_childIndex += amount;
+        if(!m_nextParent)
+            return;
+
+        SetParent(m_nextParent);
+        m_nextParent = nullptr;
     }
-    void ObjectHierarchy::ReduceIndicesAfter(size_t index, size_t amount)
+
+    void ObjectHierarchy::SwapObjectActive(size_t objectIndex)
     {
-        index++;
-        for(; index < m_children.size(); index++)
-            m_children[index]->m_childIndex -= amount;
+        if(objectIndex > m_children.size())
+            return;
+
+        if(!m_children[objectIndex]->m_activeChanged)
+            return;
+
+        m_children[objectIndex]->m_activeChanged = false;
+        if(m_children[objectIndex]->m_active)
+        {
+            if(objectIndex != m_firstInactiveObjectIndex)
+                SwapObject(objectIndex, m_firstInactiveObjectIndex);
+
+            if(m_children[m_firstInactiveObjectIndex]->m_componentManager.HasStartFlagsSet())
+            {
+                m_children[m_firstInactiveObjectIndex]->m_componentManager.AddToStartCall();
+            }
+
+            ++m_firstInactiveObjectIndex;
+        }
+        else
+        {
+            --m_firstInactiveObjectIndex;
+            if(objectIndex != m_firstInactiveObjectIndex)
+                SwapObject(objectIndex, m_firstInactiveObjectIndex);
+        }
+
+    }
+    void ObjectHierarchy::SwapObject(size_t lh, size_t rh)
+    {
+        ReferencePointer<GameObject> temp = std::move(m_children[lh]);
+        m_children[lh] = std::move(m_children[rh]);
+        m_children[rh] = std::move(temp);
+
+        m_children[rh]->m_childIndex = rh;
+        m_children[lh]->m_childIndex = lh;
+    }
+
+    void ObjectHierarchy::RecountIndicesStarting(size_t startIndex)
+    {
+        if(startIndex == m_children.size())
+            return;
+
+        if(startIndex < m_firstInactiveObjectIndex)
+        {
+            bool active = true;
+
+            while(active && startIndex < m_children.size())
+            {
+                active = m_children[startIndex]->m_active;
+                m_children[startIndex]->m_childIndex = startIndex;
+
+                ++startIndex;
+            }
+
+            m_firstInactiveObjectIndex = startIndex - 1;
+        }
+
+        for(size_t i = startIndex; i < m_children.size(); ++i)
+        {
+            m_children[i]->m_childIndex = i;
+        }
     }
 }

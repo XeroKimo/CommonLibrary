@@ -14,17 +14,21 @@ namespace CommonsLibrary
 
     void ComponentManager::Awake()
     {
-        for(const auto& component : m_components)
-            component->Awake();
+        for(size_t i = 0; i < m_components.size(); i++)
+            m_components[i]->Awake();
     }
     void ComponentManager::Start()
     {
-        ClearDestroyedComponents();
-        TransferComponents();
+        m_toldSceneToCallStart = false;
+        if(m_owner->IsActiveInHeirarchy())
+        {
+            ClearDestroyedComponents();
+            TransferComponents();
+        }
     }
     void ComponentManager::Update(float deltaTime)
     {
-        for(size_t i = 0; i < m_lastActiveComponentIndex; i++)
+        for(size_t i = 0; i < m_firstInactiveComponentIndex; i++)
         {
             m_components[i]->Update(deltaTime);
         }
@@ -36,7 +40,7 @@ namespace CommonsLibrary
         {
             Copy(gameObject, component);
         }
-        m_lastActiveComponentIndex = other.m_lastActiveComponentIndex;
+        m_firstInactiveComponentIndex = other.m_firstInactiveComponentIndex;
     }
 
     bool ComponentManager::DestroyComponent(const ReferencePointer<Component>& component)
@@ -46,6 +50,8 @@ namespace CommonsLibrary
 
         m_destroyedComponentsIndices.push(component->m_componentIndex);
         component->m_isDestroyed = true;
+
+        AddToStartCall();
 
         return true;
     }
@@ -64,7 +70,24 @@ namespace CommonsLibrary
             component->m_activeChanged = true;
         }
 
+        if(!m_toldSceneToCallStart)
+        {
+            m_toldSceneToCallStart = true;
+            m_owner->AddCallStartOnComponents();
+        }
+
+        AddToStartCall();
+
         component->m_active = active;
+    }
+
+    void ComponentManager::AddToStartCall()
+    {
+        if(!m_toldSceneToCallStart)
+        {
+            m_toldSceneToCallStart = true;
+            m_owner->AddCallStartOnComponents();
+        }
     }
 
     ReferencePointer<Component> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, std::type_index type)
@@ -72,6 +95,8 @@ namespace CommonsLibrary
         size_t index = m_components.size();
         m_components.push_back(ComponentRegistry::CreateComponent(type, gameObject));
         m_components.back()->m_componentIndex = index;
+
+        AddToStartCall();
 
         return m_components.back();
     }
@@ -82,6 +107,7 @@ namespace CommonsLibrary
             return;
 
         size_t finalIndex = 0;
+
         while(!m_destroyedComponentsIndices.empty())
         {
             finalIndex = m_destroyedComponentsIndices.top();
@@ -89,6 +115,7 @@ namespace CommonsLibrary
             m_components.erase(m_components.begin() + finalIndex);
             m_destroyedComponentsIndices.pop();
         }
+
         RecountIndicesStarting(finalIndex);
     }
 
@@ -107,20 +134,22 @@ namespace CommonsLibrary
 
     void ComponentManager::SwapComponentActive(size_t index)
     {
+        m_components[index]->m_activeChanged = false;
         if(m_components[index]->m_active)
         {
-            ++m_lastActiveComponentIndex;
+            if(index > m_firstInactiveComponentIndex)
+                SwapComponents(index, m_firstInactiveComponentIndex);
 
-            if(index != m_lastActiveComponentIndex)
-                SwapComponents(index, m_lastActiveComponentIndex);
-            if(!m_components[index]->m_hasStarted)
-                m_components[index]->Start();
+            if(!m_components[m_firstInactiveComponentIndex]->m_hasStarted)
+                m_components[m_firstInactiveComponentIndex]->Start();
+
+            m_firstInactiveComponentIndex++;
         }
         else
         {
-            if(index != m_lastActiveComponentIndex)
-                SwapComponents(index, m_lastActiveComponentIndex);
-            --m_lastActiveComponentIndex;
+            --m_firstInactiveComponentIndex;
+            if(index > m_firstInactiveComponentIndex)
+                SwapComponents(index, m_firstInactiveComponentIndex);
         }
     }
 
@@ -146,7 +175,7 @@ namespace CommonsLibrary
 
     void ComponentManager::RecountIndicesStarting(size_t startIndex)
     {
-        if(startIndex <= m_lastActiveComponentIndex)
+        if(startIndex < m_firstInactiveComponentIndex)
         {
             bool active = true;
 
@@ -158,7 +187,7 @@ namespace CommonsLibrary
                 ++startIndex;
             }
 
-            m_lastActiveComponentIndex = startIndex - 1;
+            m_firstInactiveComponentIndex = startIndex - 1;
         }
 
         for(size_t i = startIndex; i < m_components.size(); ++i)
