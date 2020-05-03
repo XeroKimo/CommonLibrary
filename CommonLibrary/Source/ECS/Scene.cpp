@@ -18,9 +18,9 @@ namespace CommonsLibrary
     {
         if(!m_hierarchyStarts.empty())
         {
-            for(size_t i = 0; i < m_hierarchyStarts.size(); i++)
+            for(auto gameObject : m_hierarchyStarts)
             {
-                m_hierarchyStarts[i]->StartHierarchy();
+                gameObject->StartHierarchy();
             }
 
             m_hierarchyStarts.clear();
@@ -28,9 +28,9 @@ namespace CommonsLibrary
         }
         if(!m_postStartCalls.empty())
         {
-            for(size_t i = 0; i < m_postStartCalls.size(); i++)
+            for(auto gameObject : m_postStartCalls)
             {
-                m_postStartCalls[i]->PostStart();
+                gameObject->PostStart();
             }
 
             m_postStartCalls.clear();
@@ -59,7 +59,6 @@ namespace CommonsLibrary
     {
         auto object = m_rootGameObject->CreateChild();
         object->name = name;
-        object->m_owningScene = this;
         if(m_isLoaded)
             object->Awake();
 

@@ -21,8 +21,8 @@ namespace CommonsLibrary
     }
     void ObjectHierarchy::Awake()
     {
-        for(size_t i = 0; i < m_children.size(); i++)
-            m_children[i]->Awake();
+        for(auto child : m_children)
+            child->Awake();
     }
 
     void ObjectHierarchy::Start()
@@ -124,7 +124,10 @@ namespace CommonsLibrary
             m_children.insert(m_children.begin() + m_firstInactiveObjectIndex, new GameObject());
             m_children[m_firstInactiveObjectIndex]->m_childIndex = m_firstInactiveObjectIndex;
             m_children[m_firstInactiveObjectIndex]->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
+            m_children[m_firstInactiveObjectIndex]->m_owningScene = m_gameObject->m_owningScene;
             m_firstInactiveObjectIndex++;
+
+            return m_children[m_firstInactiveObjectIndex - 1];
         }
         else
         {
@@ -133,11 +136,14 @@ namespace CommonsLibrary
             m_children.back()->m_childIndex = index;
             m_children.back()->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
             m_activeChangedIndices.push_back(&m_children.back()->m_childIndex);
+            m_children.back()->m_owningScene = m_gameObject->m_owningScene;
 
             AddToStartCall();
-        }
 
-        return m_children.back();
+            return m_children.back();
+        }
+        
+
     }
 
     void ObjectHierarchy::AddToStartCall()
