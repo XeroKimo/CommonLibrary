@@ -15,7 +15,7 @@ namespace CommonsLibrary
         ReferencePointer<GameObject> m_nextParent;
 
         std::priority_queue<size_t> m_destroyedObjectIndices;
-        std::vector<size_t*> m_activeChangedIndices;
+        std::vector<ReferencePointer<GameObject>> m_activeChangedObjects;
 
         size_t m_firstInactiveObjectIndex = 0;
 
@@ -53,7 +53,7 @@ namespace CommonsLibrary
     private:
         void AddToStartCall();
         void AddToPostStartCall();
-        bool RequiresStartCall() { return !m_destroyedObjectIndices.empty() || !m_activeChangedIndices.empty(); }
+
     private:        
         void ClearDestroyedGameObjects();
         void TransferGameObjects();

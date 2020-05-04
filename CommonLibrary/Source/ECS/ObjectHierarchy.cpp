@@ -68,7 +68,7 @@ namespace CommonsLibrary
     {
         child->m_childIndex = m_children.size();
         if(child->m_activeChanged && child->m_active)
-            m_activeChangedIndices.push_back(&child->m_childIndex);
+            m_activeChangedObjects.push_back(child);
         else
             child->m_activeChanged = false;
 
@@ -94,12 +94,15 @@ namespace CommonsLibrary
 
         if(child->m_activeChanged)
         {
-            m_activeChangedIndices.erase(std::find(m_activeChangedIndices.begin(), m_activeChangedIndices.end(), &child->m_childIndex));
             child->m_activeChanged = false;
         }
         else
         {
-            m_activeChangedIndices.push_back(&child->m_childIndex);
+            if(!child->m_hasRequestedActiveChanged)
+            {
+                m_activeChangedObjects.push_back(child);
+                child->m_hasRequestedActiveChanged;
+            }
             child->m_activeChanged = true;
         }
 
@@ -135,15 +138,14 @@ namespace CommonsLibrary
             m_children.push_back(new GameObject());
             m_children.back()->m_childIndex = index;
             m_children.back()->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
-            m_activeChangedIndices.push_back(&m_children.back()->m_childIndex);
             m_children.back()->m_owningScene = m_gameObject->m_owningScene;
 
-            AddToStartCall();
+            m_activeChangedObjects.push_back(m_children.back());
+
+            AddToPostStartCall();
 
             return m_children.back();
         }
-        
-
     }
 
     void ObjectHierarchy::AddToStartCall()
@@ -180,15 +182,20 @@ namespace CommonsLibrary
     }
     void ObjectHierarchy::TransferGameObjects()
     {
-        if(m_activeChangedIndices.empty())
+        if(m_activeChangedObjects.empty())
             return;
 
-        for(auto componentIndex : m_activeChangedIndices)
+        for(auto child : m_activeChangedObjects)
         {
-            SwapObjectActive(*componentIndex);
+            if(!child)
+                continue;
+            if(child->GetParent().Get() != m_gameObject)
+                continue;
+
+            SwapObjectActive(child->m_childIndex);
         }
 
-        m_activeChangedIndices.clear();
+        m_activeChangedObjects.clear();
     }
     void ObjectHierarchy::ChangeParent()
     {
@@ -201,13 +208,12 @@ namespace CommonsLibrary
 
     void ObjectHierarchy::SwapObjectActive(size_t objectIndex)
     {
-        if(objectIndex > m_children.size())
-            return;
-
         if(!m_children[objectIndex]->m_activeChanged)
             return;
 
         m_children[objectIndex]->m_activeChanged = false;
+        m_children[objectIndex]->m_hasRequestedActiveChanged = false;
+
         if(m_children[objectIndex]->m_active)
         {
             if(objectIndex != m_firstInactiveObjectIndex)

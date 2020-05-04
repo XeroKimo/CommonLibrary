@@ -25,13 +25,14 @@ namespace CommonsLibrary
         std::string name;
 
     private:
-        Transform m_transform{this};
+        Transform m_transform;
         ObjectHierarchy m_hierarchy{this};
         ComponentManager m_componentManager{this};
 
         bool m_active = true;
         bool m_isDestroyed = false;
         bool m_activeChanged = true;
+        bool m_hasRequestedActiveChanged = true;
 
         size_t m_childIndex = 0;
 
@@ -60,8 +61,16 @@ namespace CommonsLibrary
         template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
         ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
 
-        Transform& GetTransform() { return m_transform; }
-        bool IsActiveInWorld() const { return (m_hierarchy.GetParent()) ? m_hierarchy.GetParent()->IsActiveInHeirarchy() && IsActiveInHeirarchy() : IsActiveInHeirarchy(); }
+        bool IsActiveInWorld() const 
+        { 
+            if(!IsActiveInHeirarchy())
+                return false;
+
+            if(GetParent())
+                return GetParent()->IsActiveInWorld();
+
+            return true;
+        }
         bool IsActiveInHeirarchy() const { return m_active; }
         void SetActive(bool active);
 
@@ -73,6 +82,37 @@ namespace CommonsLibrary
         ReferencePointer<GameObject> GetParent() const;
         std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
+    public:
+        void SetWorldPosition(Vector3 position) { m_transform.position = position + GetLocalPosition() - GetWorldPosition(); }
+        void SetLocalPosition(Vector3 position) { m_transform.position = position; }
+        void SetRotation(Quaternion rotation) { m_transform.rotation = rotation; }
+        void SetScale(Vector3 scale) { m_transform.scale = scale; }
+
+        Vector3 GetWorldPosition() const
+        { 
+            if(GetParent()) 
+                return GetParent()->GetWorldPosition() + GetLocalPosition();
+            return GetLocalPosition();
+        }
+        Vector3 GetLocalPosition() const { return m_transform.position; }
+        Quaternion GetRotation() const { return m_transform.rotation; }
+        Vector3 GetScale() const { return m_transform.scale; }
+
+        Matrix4x4 GetLocalTransformMatrix() const { return m_transform.GetMatrix(); }
+        Matrix4x4 GetWorldTransformMatrix() const
+        {
+            if(GetParent())
+                return GetParent()->GetWorldTransformMatrix() * GetLocalTransformMatrix();
+            return GetLocalTransformMatrix();
+        }
+
+        Vector3 Forward() const { return m_transform.Forward(); }
+        Vector3 Up() const { return m_transform.Up(); }
+        Vector3 Right() const { return m_transform.Right(); }
+
+        Vector3 Backward() const { return -Forward(); }
+        Vector3 Down() const { return -Up(); }
+        Vector3 Left() const { return -Right(); }
 
     private:
         void SetComponentActive(const ReferencePointer<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }
