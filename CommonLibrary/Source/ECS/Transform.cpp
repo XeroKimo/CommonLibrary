@@ -4,37 +4,26 @@
 
 namespace CommonsLibrary
 {
-    Matrix4x4 Transform::GetTransformMatrix()
+    Matrix4x4 Transform::GetLocalMatrix() const
     {
-        if(m_requiresRecache)
-        {
-            m_cachedTransform = m_rotation.Matrix() * Matrix4x4::ScaleMatrix(m_scale) * Matrix4x4::PositionMatrix(m_position);
-            if(m_owner->GetParent())
-                m_cachedTransform = m_owner->GetParent()->GetTransform().GetTransformMatrix() * m_cachedTransform;
+        return m_rotation.Matrix() * Matrix4x4::ScaleMatrix(m_scale) * Matrix4x4::PositionMatrix(m_position);
+    }
 
-            m_requiresRecache = false;
-        }
-
-        return m_cachedTransform;
+    Matrix4x4 Transform::GetWorldMatrix() const
+    {
+        if(GetParent())
+            return m_gameObject->GetParent()->GetTransform().GetWorldMatrix() * GetLocalMatrix();
+        return GetLocalMatrix();
     }
 
     Vector3 Transform::AccumulateWorldPosition(Vector3 position) const
     {
-        if(m_owner->GetParent())
-            return m_owner->GetParent()->GetTransform().AccumulateWorldPosition(position);
+        if(GetParent())
+            return GetParent()->GetTransform().AccumulateWorldPosition(position);
         return m_position + position;
     }
-
-    void Transform::SetFlagForChildren()
+    GameObject* Transform::GetParent() const
     {
-        if(m_requiresRecache)
-            return;
-
-        m_requiresRecache = true;
-        auto children = m_owner->GetChildren();
-        for(auto child : children)
-        {
-            child->GetTransform().SetFlagForChildren();
-        }
+        return m_gameObject->GetParent().Get();
     }
 }

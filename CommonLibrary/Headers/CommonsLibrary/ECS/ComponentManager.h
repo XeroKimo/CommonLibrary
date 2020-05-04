@@ -13,7 +13,7 @@ namespace CommonsLibrary
         using ComponentVector = std::vector<ReferencePointer<Component>>;
 
     private:
-        GameObject* m_owner;
+        GameObject* m_gameObject;
         std::priority_queue<size_t> m_destroyedComponentsIndices;
         std::vector<size_t*> m_activeChangedIndices;
 
@@ -23,7 +23,7 @@ namespace CommonsLibrary
         bool m_toldSceneToCallStart = false;
 
     public:
-        ComponentManager(GameObject* owner) : m_owner(owner) {}
+        ComponentManager(GameObject* owner) : m_gameObject(owner) {}
         ~ComponentManager();
 
     public:

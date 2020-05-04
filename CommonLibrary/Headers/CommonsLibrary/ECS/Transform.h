@@ -13,15 +13,14 @@ namespace CommonsLibrary
         friend class ComponentManager;
         friend class GameObjectManager;
     private:
-        GameObject* m_owner;
+        GameObject* m_gameObject;
+
         Vector3 m_position;
         Vector3 m_scale;
         Quaternion m_rotation;
 
-        Matrix4x4 m_cachedTransform;
-        bool m_requiresRecache = true;
     public:
-        Transform(GameObject* owner) : m_owner(owner) {}
+        Transform(GameObject* owner) : m_gameObject(owner) {}
         Transform(const Transform& other) = delete;
         Transform(Transform&& other) = delete;
 
@@ -36,27 +35,17 @@ namespace CommonsLibrary
 
     public:
         void SetPosition(Vector3 position) { SetLocalPosition(position - AccumulateWorldPosition(Vector3()));  }
-        void SetLocalPosition(Vector3 position) 
-        { 
-            m_position = position; 
-            SetFlagForChildren();
-        }
-        void SetLocalScale(Vector3 scale) 
-        { 
-            m_scale = scale;
-            SetFlagForChildren();
-        }
-        void SetRotation(Quaternion rotation) 
-        { 
-            m_rotation = rotation; 
-            SetFlagForChildren();
-        }
+        void SetLocalPosition(Vector3 position) { m_position = position; }
+        void SetLocalScale(Vector3 scale) { m_scale = scale; }
+        void SetRotation(Quaternion rotation) { m_rotation = rotation; }
 
         Vector3 GetPosition() const { return AccumulateWorldPosition(m_position); }
         Vector3 GetLocalPosition() const { return m_position; }
         Vector3 GetLocalScale() const { return m_scale; }
         Quaternion GetRotation() const { return m_rotation; }
-        Matrix4x4 GetTransformMatrix();
+
+        Matrix4x4 GetLocalMatrix() const;
+        Matrix4x4 GetWorldMatrix() const;
 
         Vector3 Forward() const { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Forward())).GetPosition(); }
         Vector3 Up() const { return (m_rotation.Matrix() * Matrix4x4::PositionMatrix(Vector3::Up())).GetPosition(); }
@@ -69,6 +58,6 @@ namespace CommonsLibrary
     private:
         Vector3 AccumulateWorldPosition(Vector3 position) const;
 
-        void SetFlagForChildren();
+        GameObject* GetParent() const;
     };
 }

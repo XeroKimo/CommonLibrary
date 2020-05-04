@@ -20,7 +20,7 @@ namespace CommonsLibrary
     void ComponentManager::Start()
     {
         m_toldSceneToCallStart = false;
-        if(m_owner->IsActiveInHeirarchy())
+        if(m_gameObject->IsActiveInHeirarchy())
         {
             ClearDestroyedComponents();
             TransferComponents();
@@ -73,7 +73,7 @@ namespace CommonsLibrary
         if(!m_toldSceneToCallStart)
         {
             m_toldSceneToCallStart = true;
-            m_owner->AddCallStartOnComponents();
+            m_gameObject->AddCallStartOnComponents();
         }
 
         AddToStartCall();
@@ -86,7 +86,7 @@ namespace CommonsLibrary
         if(!m_toldSceneToCallStart)
         {
             m_toldSceneToCallStart = true;
-            m_owner->AddCallStartOnComponents();
+            m_gameObject->AddCallStartOnComponents();
         }
     }
 
