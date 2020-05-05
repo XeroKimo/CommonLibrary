@@ -61,12 +61,15 @@ namespace CommonsLibrary
             return;
         if(component->m_activeChanged)
         {
-            m_activeChangedIndices.erase(std::find(m_activeChangedIndices.begin(), m_activeChangedIndices.end(), &component->m_componentIndex));
             component->m_activeChanged = false;
         }
         else
         {
-            m_activeChangedIndices.push_back(&component->m_componentIndex);
+            if(!component->m_hasRequestedActiveChanged)
+            {
+                m_activeChangedComponents.push_back(component);
+                component->m_hasRequestedActiveChanged = true;
+            }
             component->m_activeChanged = true;
         }
 
@@ -121,20 +124,27 @@ namespace CommonsLibrary
 
     void ComponentManager::TransferComponents()
     {
-        if(m_activeChangedIndices.empty())
+        if(m_activeChangedComponents.empty())
             return;
 
-        for(auto componentIndex : m_activeChangedIndices)
+        for(auto component : m_activeChangedComponents)
         {
-            SwapComponentActive(*componentIndex);
+            if(!component)
+                continue;
+
+            SwapComponentActive(component->m_componentIndex);
         }
 
-        m_activeChangedIndices.clear();
+        m_activeChangedComponents.clear();
     }
 
     void ComponentManager::SwapComponentActive(size_t index)
     {
+        m_components[index]->m_hasRequestedActiveChanged = false;
+        if(!m_components[index]->m_activeChanged)
+            return;
         m_components[index]->m_activeChanged = false;
+
         if(m_components[index]->m_active)
         {
             if(index > m_firstInactiveComponentIndex)
@@ -168,7 +178,7 @@ namespace CommonsLibrary
         auto copiedComponent = CreateComponent(gameObject, typeid(*component));
         copiedComponent->CopyComponent(component.Get());
         if(copiedComponent->m_active)
-            m_activeChangedIndices.push_back(&copiedComponent->m_componentIndex);
+            m_activeChangedComponents.push_back(copiedComponent);
 
         return copiedComponent;
     }

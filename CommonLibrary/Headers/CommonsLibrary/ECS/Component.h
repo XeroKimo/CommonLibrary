@@ -17,6 +17,7 @@ namespace CommonsLibrary
         bool m_isDestroyed = false;
         bool m_hasStarted = false;
         bool m_activeChanged = true;
+        bool m_hasRequestedActiveChanged = true;
 
         ReferencePointer<GameObject> m_gameObject;
 

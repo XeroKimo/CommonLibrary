@@ -15,7 +15,7 @@ namespace CommonsLibrary
     private:
         GameObject* m_gameObject;
         std::priority_queue<size_t> m_destroyedComponentsIndices;
-        std::vector<size_t*> m_activeChangedIndices;
+        std::vector<ReferencePointer<Component>> m_activeChangedComponents;
 
         size_t m_firstInactiveComponentIndex = 0;
         ComponentVector m_components;
@@ -46,7 +46,7 @@ namespace CommonsLibrary
         bool DestroyComponent(const ReferencePointer<Component>& component);
         void SetComponentActive(const ReferencePointer<Component>& component, bool active);
 
-        bool HasStartFlagsSet() const { return !m_destroyedComponentsIndices.empty() || !m_activeChangedIndices.empty(); }
+        bool HasStartFlagsSet() const { return !m_destroyedComponentsIndices.empty() || !m_activeChangedComponents.empty(); }
 
         void AddToStartCall();
     private:
@@ -84,7 +84,7 @@ namespace CommonsLibrary
         if(callAwake)
             component->Awake();
         if(component->m_active)
-            m_activeChangedIndices.push_back(&component->m_componentIndex);
+            m_activeChangedComponents.push_back(component);
 
         return component.StaticCast<Type>();
     }

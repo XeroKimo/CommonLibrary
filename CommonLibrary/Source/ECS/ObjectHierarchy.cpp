@@ -208,11 +208,12 @@ namespace CommonsLibrary
 
     void ObjectHierarchy::SwapObjectActive(size_t objectIndex)
     {
+-         m_children[objectIndex]->m_hasRequestedActiveChanged = false;
+
         if(!m_children[objectIndex]->m_activeChanged)
             return;
 
         m_children[objectIndex]->m_activeChanged = false;
-        m_children[objectIndex]->m_hasRequestedActiveChanged = false;
 
         if(m_children[objectIndex]->m_active)
         {
