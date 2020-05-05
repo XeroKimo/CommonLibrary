@@ -281,6 +281,13 @@ namespace CommonsLibrary
         template<class DerivedType>
         ReferencePointer<DerivedType> DynamicCast() const { return ReferencePointerDynamicCast<DerivedType>(*this); }
 
+        void Swap(ReferencePointer& other)
+        {
+            ReferencePointer temp = std::move(other);
+            other = std::move(*this);
+            *this = std::move(temp);
+        }
+
     private:
         void ResetPointer(Type* pointer)
         {
@@ -292,6 +299,10 @@ namespace CommonsLibrary
             m_pointer = pointer;
         }
     };
+
+
+
+
 
     template <class VariableType>
     class ReferencePointerEnableThis

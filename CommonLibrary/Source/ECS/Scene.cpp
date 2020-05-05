@@ -16,38 +16,9 @@ namespace CommonsLibrary
 
     void Scene::Start()
     {
-        if(!m_hierarchyStarts.empty())
-        {
-            for(auto gameObject : m_hierarchyStarts)
-            {
-                gameObject->StartHierarchy();
-            }
-
-            m_hierarchyStarts.clear();
-
-        }
-        if(!m_postStartCalls.empty())
-        {
-            for(auto gameObject : m_postStartCalls)
-            {
-                gameObject->PostStart();
-            }
-
-            m_postStartCalls.clear();
-        }
-
-        if(!m_componentStarts.empty())
-        {
-            auto copy = m_componentStarts;
-            size_t startingSize = copy.size();
-
-            for(size_t i = 0; i < startingSize; i++)
-            {
-                m_componentStarts[i]->StartComponents();
-            }
-
-            m_componentStarts.erase(m_componentStarts.begin(), m_componentStarts.begin() + startingSize);
-        }
+        TransferParents();
+        DestroyGameObjects();
+        TransferComponents();
     }
 
     void Scene::Update(float deltaTime)
@@ -55,7 +26,49 @@ namespace CommonsLibrary
         m_rootGameObject->Update(deltaTime);
     }
 
-    ReferencePointer<GameObject> Scene::Instantiate(std::string name)
+    void Scene::TransferParents()
+    {
+        if(!m_transferParents.empty())
+        {
+            for(auto gameObject : m_transferParents)
+            {
+                gameObject->TransferParent();
+            }
+
+            m_transferParents.clear();
+        }
+    }
+
+    void Scene::DestroyGameObjects()
+    {
+        if(!m_changeChildrenState.empty())
+        {
+            for(auto gameObject : m_changeChildrenState)
+            {
+                gameObject->ChangeChildrenState();
+            }
+
+            m_changeChildrenState.clear();
+        }
+    }
+
+    void Scene::TransferComponents()
+    {
+        if(!m_changeComponentState.empty())
+        {
+            auto copy = m_changeComponentState;
+            size_t startingSize = copy.size();
+
+            for(size_t i = 0; i < startingSize; i++)
+            {
+                m_changeComponentState[i]->ChangeComponentsState();
+            }
+
+            m_changeComponentState.erase(m_changeComponentState.begin(), m_changeComponentState.begin() + startingSize);
+        }
+    }
+
+    ReferencePointer<GameObject> Scene::CreateGameObject(std::string name)
     {
         auto object = m_rootGameObject->CreateChild();
         object->name = name;
@@ -63,5 +76,25 @@ namespace CommonsLibrary
             object->Awake();
 
         return object;
+    }
+    void Scene::MergeScene(Scene* other)
+    {
+        if(!m_isLoaded)
+        {
+            auto children = other->m_rootGameObject->GetChildren();
+            for(auto child : children)
+            {
+                child->RequestParentChange(m_rootGameObject);
+            }
+            other->TransferParents();
+        }
+        else
+        {
+            m_rootGameObject.Swap(other->m_rootGameObject);
+            m_changeComponentState.swap(other->m_changeComponentState);
+            m_transferParents.swap(other->m_transferParents);
+            m_changeChildrenState.swap(other->m_changeChildrenState);
+            m_sceneName = other->m_sceneName;
+        }
     }
 }

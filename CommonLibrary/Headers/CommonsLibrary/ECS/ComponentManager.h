@@ -20,7 +20,7 @@ namespace CommonsLibrary
         size_t m_firstInactiveComponentIndex = 0;
         ComponentVector m_components;
 
-        bool m_toldSceneToCallStart = false;
+        bool m_toldSceneChangeComponentsState = false;
 
     public:
         ComponentManager(GameObject* owner) : m_gameObject(owner) {}
@@ -29,7 +29,7 @@ namespace CommonsLibrary
     public:
         void Awake();
 
-        void Start();
+        void ChangeComponentsState();
         void Update(float deltaTime);
 
     public:
@@ -50,7 +50,7 @@ namespace CommonsLibrary
 
         void AddToStartCall();
     private:
-        ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, std::type_index type);
+        ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type);
 
         template<class Type>
         ReferencePointer<Type> GetComponent(const std::vector<ReferencePointer<Component>>& componentVector);
@@ -79,13 +79,7 @@ namespace CommonsLibrary
     template<class Type>
     inline ReferencePointer<Type> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake)
     {
-        auto component = CreateComponent(gameObject, typeid(Type));
-
-        if(callAwake)
-            component->Awake();
-        if(component->m_active)
-            m_activeChangedComponents.push_back(component);
-
+        auto component = CreateComponent(gameObject, callAwake, typeid(Type));
         return component.StaticCast<Type>();
     }
 

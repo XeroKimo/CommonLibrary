@@ -6,5 +6,5 @@
 #include "ECS/SceneManager.h"
 #include "ECS/ECSSystem.h"
 #include "ECS/ECSSystemManager.h"
-//#include "ECS/SceneManager.h"
+#include "ECS/SceneManager.h"
 //#include "ECS/World.h"

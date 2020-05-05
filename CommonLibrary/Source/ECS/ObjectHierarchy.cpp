@@ -3,39 +3,23 @@
 #include <assert.h>
 namespace CommonsLibrary
 {
-    void ObjectHierarchy::PreAwake()
-    {
-        auto childrenCopy = m_children;
-        for(auto gameObject : childrenCopy)
-            gameObject->PreAwake();
-
-        if(m_nextParent)
-        {
-            m_gameObject->m_active = false;
-            m_nextParent = nullptr;
-            m_gameObject->m_active = true;
-        }
-
-        //TransferObjects(m_inactiveGameObjects, m_activeGameObjects);
-
-    }
     void ObjectHierarchy::Awake()
     {
         for(auto child : m_children)
             child->Awake();
     }
 
-    void ObjectHierarchy::Start()
+    void ObjectHierarchy::TransferParent()
     {
-        m_toldSceneToCallStart = false;
+        m_toldSceneToTransferParent = false;
         ChangeParent();
     }
-    void ObjectHierarchy::PostStart()
+    void ObjectHierarchy::ChangeChildrenState()
     {
-        m_toldSceneToCallPostStart = false;
+        m_toldSceneToChangeChildrenState = false;
 
-        ClearDestroyedGameObjects();
-        TransferGameObjects();
+        ClearDestroyedChildren();
+        SwapChildrenStates();
     }
     void ObjectHierarchy::Update(float deltaTime)
     {
@@ -67,6 +51,7 @@ namespace CommonsLibrary
     void ObjectHierarchy::AddChild(ReferencePointer<GameObject> child)
     {
         child->m_childIndex = m_children.size();
+        child->m_hasRequestedActiveChanged = false;
         if(child->m_activeChanged && child->m_active)
             m_activeChangedObjects.push_back(child);
         else
@@ -120,19 +105,19 @@ namespace CommonsLibrary
 
         AddToPostStartCall();
     }
-    ReferencePointer<GameObject> ObjectHierarchy::CreateGameObject(bool sceneLoading)
+    ReferencePointer<GameObject> ObjectHierarchy::CreateGameObject()
     {
-        if(sceneLoading)
-        {
-            m_children.insert(m_children.begin() + m_firstInactiveObjectIndex, new GameObject());
-            m_children[m_firstInactiveObjectIndex]->m_childIndex = m_firstInactiveObjectIndex;
-            m_children[m_firstInactiveObjectIndex]->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
-            m_children[m_firstInactiveObjectIndex]->m_owningScene = m_gameObject->m_owningScene;
-            m_firstInactiveObjectIndex++;
+        //if(sceneLoading)
+        //{
+        //    m_children.insert(m_children.begin() + m_firstInactiveObjectIndex, new GameObject());
+        //    m_children[m_firstInactiveObjectIndex]->m_childIndex = m_firstInactiveObjectIndex;
+        //    m_children[m_firstInactiveObjectIndex]->m_hierarchy.m_parent = m_gameObject->GetReferencePointer();
+        //    m_children[m_firstInactiveObjectIndex]->m_owningScene = m_gameObject->m_owningScene;
+        //    m_firstInactiveObjectIndex++;
 
-            return m_children[m_firstInactiveObjectIndex - 1];
-        }
-        else
+        //    return m_children[m_firstInactiveObjectIndex - 1];
+        //}
+        //else
         {
             size_t index = m_children.size();
             m_children.push_back(new GameObject());
@@ -150,22 +135,22 @@ namespace CommonsLibrary
 
     void ObjectHierarchy::AddToStartCall()
     {
-        if(!m_toldSceneToCallStart)
+        if(!m_toldSceneToTransferParent)
         {
-            m_toldSceneToCallStart = true;
-            m_gameObject->AddCallStartOnHierarchy();
+            m_toldSceneToTransferParent = true;
+            m_gameObject->AddCallTransferParent();
         }
     }
     void ObjectHierarchy::AddToPostStartCall()
     {
-        if(!m_toldSceneToCallPostStart)
+        if(!m_toldSceneToChangeChildrenState)
         {
-            m_toldSceneToCallPostStart = true;
-            m_gameObject->AddPostStartCall();
+            m_toldSceneToChangeChildrenState = true;
+            m_gameObject->AddCallChangeChildrenState();
         }
     }
 
-    void ObjectHierarchy::ClearDestroyedGameObjects()
+    void ObjectHierarchy::ClearDestroyedChildren()
     {
         if(m_destroyedObjectIndices.empty())
             return;
@@ -180,7 +165,7 @@ namespace CommonsLibrary
 
         RecountIndicesStarting(finalIndex);
     }
-    void ObjectHierarchy::TransferGameObjects()
+    void ObjectHierarchy::SwapChildrenStates()
     {
         if(m_activeChangedObjects.empty())
             return;
@@ -208,7 +193,7 @@ namespace CommonsLibrary
 
     void ObjectHierarchy::SwapObjectActive(size_t objectIndex)
     {
--         m_children[objectIndex]->m_hasRequestedActiveChanged = false;
+         m_children[objectIndex]->m_hasRequestedActiveChanged = false;
 
         if(!m_children[objectIndex]->m_activeChanged)
             return;

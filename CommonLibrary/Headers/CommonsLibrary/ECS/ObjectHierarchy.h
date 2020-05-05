@@ -21,17 +21,16 @@ namespace CommonsLibrary
 
         std::vector<ReferencePointer<GameObject>> m_children;
 
-        bool m_toldSceneToCallStart = false;
-        bool m_toldSceneToCallPostStart = false;
+        bool m_toldSceneToTransferParent = false;
+        bool m_toldSceneToChangeChildrenState = false;
     public:
         ObjectHierarchy(GameObject* gameObject) : m_gameObject(gameObject) {}
 
     public:
-        void PreAwake();
 
         void Awake();
-        void Start();
-        void PostStart();
+        void TransferParent();
+        void ChangeChildrenState();
         void Update(float deltaTime);
 
     public:
@@ -44,7 +43,7 @@ namespace CommonsLibrary
         void SetActive(const ReferencePointer<GameObject>& child, bool active);
         void DestroyGameObject(const ReferencePointer<GameObject>& child);
     public:
-        ReferencePointer<GameObject> CreateGameObject(bool sceneLoading);
+        ReferencePointer<GameObject> CreateGameObject();
 
     public:
         ReferencePointer<GameObject> GetParent() const { return m_parent; }
@@ -55,8 +54,8 @@ namespace CommonsLibrary
         void AddToPostStartCall();
 
     private:        
-        void ClearDestroyedGameObjects();
-        void TransferGameObjects();
+        void ClearDestroyedChildren();
+        void SwapChildrenStates();
         void ChangeParent();
 
         void SwapObjectActive(size_t objectIndex);

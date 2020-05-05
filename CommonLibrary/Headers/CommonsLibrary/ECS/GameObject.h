@@ -21,6 +21,7 @@ namespace CommonsLibrary
         friend class ComponentManager;
         friend class ObjectHierarchy;
         friend class Scene;
+
     public:
         std::string name;
 
@@ -41,28 +42,9 @@ namespace CommonsLibrary
     private:
         GameObject() = default;
 
-    private:
-        void PreAwake();
-        void Awake()
-        {
-            m_componentManager.Awake();
-            m_hierarchy.Awake();
-        }
-        void StartComponents() { m_componentManager.Start(); }
-        void StartHierarchy() { m_hierarchy.Start(); }
-        void PostStart() { m_hierarchy.PostStart(); }
-        void Update(float deltaTime)
-        {
-            m_componentManager.Update(deltaTime);
-            m_hierarchy.Update(deltaTime);
-        }
-
     public:
-        template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
-        ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
-
-        bool IsActiveInWorld() const 
-        { 
+        bool IsActiveInWorld() const
+        {
             if(!IsActiveInHeirarchy())
                 return false;
 
@@ -75,10 +57,7 @@ namespace CommonsLibrary
         void SetActive(bool active);
 
     public:
-        ReferencePointer<GameObject> CreateChild() { return m_hierarchy.CreateGameObject(!SceneLoaded()); }
-
-    public:
-        void SetParent(const ReferencePointer<GameObject>& parent);
+        void RequestParentChange(const ReferencePointer<GameObject>& parent);
         ReferencePointer<GameObject> GetParent() const;
         std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
@@ -89,8 +68,8 @@ namespace CommonsLibrary
         void SetScale(Vector3 scale) { m_transform.scale = scale; }
 
         Vector3 GetWorldPosition() const
-        { 
-            if(GetParent()) 
+        {
+            if(GetParent())
                 return GetParent()->GetWorldPosition() + GetLocalPosition();
             return GetLocalPosition();
         }
@@ -114,6 +93,28 @@ namespace CommonsLibrary
         Vector3 Down() const { return -Up(); }
         Vector3 Left() const { return -Right(); }
 
+    public:
+        template<class Type, std::enable_if_t<std::conjunction_v<std::negation<std::is_same<Type, Component>>, std::is_base_of<Component, Type>>, int> = 0>
+        ReferencePointer<Type> AddComponent() { return m_componentManager.CreateComponent<Type>(GetReferencePointer(), SceneLoaded()); }
+
+    private:
+        void Awake()
+        {
+            m_componentManager.Awake();
+            m_hierarchy.Awake();
+        }
+        void ChangeComponentsState() { m_componentManager.ChangeComponentsState(); }
+        void TransferParent() { m_hierarchy.TransferParent(); }
+        void ChangeChildrenState() { m_hierarchy.ChangeChildrenState(); }
+        void Update(float deltaTime)
+        {
+            m_componentManager.Update(deltaTime);
+            m_hierarchy.Update(deltaTime);
+        }
+
+    private:
+        ReferencePointer<GameObject> CreateChild() { return m_hierarchy.CreateGameObject(); }
+
     private:
         void SetComponentActive(const ReferencePointer<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }
         void DestroyComponent(const ReferencePointer<Component>& component) { m_componentManager.DestroyComponent(component); }
@@ -123,13 +124,9 @@ namespace CommonsLibrary
 
     private:
         ReferencePointer<GameObject> GetRootObject();
-        void AddCallStartOnComponents();
-        void AddCallStartOnHierarchy();
-        void AddPostStartCall();
-
-    public:
-        //static ReferencePointer<GameObject> Construct();
-        //static ReferencePointer<GameObject> CopyConstruct(const ReferencePointer<GameObject>& other);
+        void AddCallChangeComponentsState();
+        void AddCallTransferParent();
+        void AddCallChangeChildrenState();
     };
 
     extern void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);

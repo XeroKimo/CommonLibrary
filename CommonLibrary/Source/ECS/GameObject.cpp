@@ -5,17 +5,12 @@
 
 namespace CommonsLibrary
 {
-    void GameObject::PreAwake()
-    {
-        m_hierarchy.PreAwake();
-    }
-
     void GameObject::SetActive(bool active)
     {
         m_hierarchy.GetParent()->m_hierarchy.SetActive(GetReferencePointer(), active);
     }
 
-    void GameObject::SetParent(const ReferencePointer<GameObject>& parent)
+    void GameObject::RequestParentChange(const ReferencePointer<GameObject>& parent)
     {
         if(!m_owningScene)
             return;
@@ -47,38 +42,20 @@ namespace CommonsLibrary
         return m_owningScene->GetRootGameObject();
     }
 
-    void GameObject::AddCallStartOnComponents()
+    void GameObject::AddCallChangeComponentsState()
     {
-        m_owningScene->m_componentStarts.push_back(GetReferencePointer());
+        m_owningScene->m_changeComponentState.push_back(GetReferencePointer());
     }
 
-    void GameObject::AddCallStartOnHierarchy()
+    void GameObject::AddCallTransferParent()
     {
-        m_owningScene->m_hierarchyStarts.push_back(GetReferencePointer());
+        m_owningScene->m_transferParents.push_back(GetReferencePointer());
     }
 
-    void GameObject::AddPostStartCall()
+    void GameObject::AddCallChangeChildrenState()
     {
-        m_owningScene->m_postStartCalls.push_back(GetReferencePointer());
+        m_owningScene->m_changeChildrenState.push_back(GetReferencePointer());
     }
-
-    //ReferencePointer<GameObject> GameObject::Construct()
-    //{
-    //    ReferencePointer<GameObject> newObject = ReferencePointer<GameObject>(new GameObject());
-    //    return newObject;
-    //}
-
-    //ReferencePointer<GameObject> GameObject::CopyConstruct(const ReferencePointer<GameObject>& other)
-    //{
-    //    ReferencePointer<GameObject> newObject = ReferencePointer<GameObject>(new GameObject());
-
-    //    newObject->name = other->name;
-    //    newObject->CopyComponents(other->m_componentManager);
-
-    //    return newObject;
-    //}
-
-
 
     void DestroyGameObject(const ReferencePointer<GameObject>& gameObject)
     {

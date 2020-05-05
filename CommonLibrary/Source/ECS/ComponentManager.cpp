@@ -17,9 +17,10 @@ namespace CommonsLibrary
         for(size_t i = 0; i < m_components.size(); i++)
             m_components[i]->Awake();
     }
-    void ComponentManager::Start()
+    void ComponentManager::ChangeComponentsState()
     {
-        m_toldSceneToCallStart = false;
+        m_toldSceneChangeComponentsState = false;
+
         if(m_gameObject->IsActiveInHeirarchy())
         {
             ClearDestroyedComponents();
@@ -59,6 +60,7 @@ namespace CommonsLibrary
     {
         if(component->m_active == active)
             return;
+
         if(component->m_activeChanged)
         {
             component->m_activeChanged = false;
@@ -73,10 +75,10 @@ namespace CommonsLibrary
             component->m_activeChanged = true;
         }
 
-        if(!m_toldSceneToCallStart)
+        if(!m_toldSceneChangeComponentsState)
         {
-            m_toldSceneToCallStart = true;
-            m_gameObject->AddCallStartOnComponents();
+            m_toldSceneChangeComponentsState = true;
+            m_gameObject->AddCallChangeComponentsState();
         }
 
         AddToStartCall();
@@ -86,20 +88,26 @@ namespace CommonsLibrary
 
     void ComponentManager::AddToStartCall()
     {
-        if(!m_toldSceneToCallStart)
+        if(!m_toldSceneChangeComponentsState)
         {
-            m_toldSceneToCallStart = true;
-            m_gameObject->AddCallStartOnComponents();
+            m_toldSceneChangeComponentsState = true;
+            m_gameObject->AddCallChangeComponentsState();
         }
     }
 
-    ReferencePointer<Component> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, std::type_index type)
+    ReferencePointer<Component> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type)
     {
         size_t index = m_components.size();
         m_components.push_back(ComponentRegistry::CreateComponent(type, gameObject));
         m_components.back()->m_componentIndex = index;
 
-        AddToStartCall();
+        if(callAwake)
+            m_components.back()->Awake();
+        if(m_components.back()->m_active)
+        {
+            m_activeChangedComponents.push_back(m_components.back());
+            AddToStartCall();
+        }
 
         return m_components.back();
     }
@@ -175,11 +183,8 @@ namespace CommonsLibrary
 
     ReferencePointer<Component> ComponentManager::Copy(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<Component>& component)
     {
-        auto copiedComponent = CreateComponent(gameObject, typeid(*component));
+        auto copiedComponent = CreateComponent(gameObject, false, typeid(*component));
         copiedComponent->CopyComponent(component.Get());
-        if(copiedComponent->m_active)
-            m_activeChangedComponents.push_back(copiedComponent);
-
         return copiedComponent;
     }
 

@@ -7,27 +7,37 @@ namespace CommonsLibrary
     class Scene
     {
         friend class GameObject;
+        friend class SceneManager;
+
     private:
         ReferencePointer<GameObject> m_rootGameObject;
         std::string m_sceneName;
 
-        std::vector<ReferencePointer<GameObject>> m_componentStarts;
-        std::vector<ReferencePointer<GameObject>> m_hierarchyStarts;
-        std::vector<ReferencePointer<GameObject>> m_postStartCalls;
+        std::vector<ReferencePointer<GameObject>> m_changeComponentState;
+        std::vector<ReferencePointer<GameObject>> m_transferParents;
+        std::vector<ReferencePointer<GameObject>> m_changeChildrenState;
 
         bool m_isLoaded = false;
-    public:
+    private:
         Scene(std::string name);
 
-    public:
+    private:
         void Awake();
         void Start();
         void Update(float deltaTime);
 
-    public:
-        ReferencePointer<GameObject> Instantiate(std::string name);
+    private:
+        void TransferParents();
+        void DestroyGameObjects();
+        void TransferComponents();
 
     private:
+        ReferencePointer<GameObject> CreateGameObject(std::string name);
+        void MergeScene(Scene* other);
+
         ReferencePointer<GameObject> GetRootGameObject() { return m_rootGameObject; }
+
+    protected:
+        virtual void Load() {};
     };
 }
