@@ -56,7 +56,7 @@ namespace CommonsLibrary
     {
         if(!m_changeComponentState.empty())
         {
-            auto copy = m_changeComponentState;
+            std::vector<ReferencePointer<GameObject>> copy = m_changeComponentState;
             size_t startingSize = copy.size();
 
             for(size_t i = 0; i < startingSize; i++)
@@ -70,7 +70,7 @@ namespace CommonsLibrary
 
     ReferencePointer<GameObject> Scene::CreateGameObject(std::string name)
     {
-        auto object = m_rootGameObject->CreateChild();
+        ReferencePointer<GameObject> object = m_rootGameObject->CreateChild();
         object->name = name;
         if(m_isLoaded)
             object->Awake();
@@ -79,9 +79,9 @@ namespace CommonsLibrary
     }
     void Scene::MergeScene(Scene* other)
     {
-        if(!m_isLoaded)
+        if(m_isLoaded)
         {
-            auto children = other->m_rootGameObject->GetChildren();
+            std::vector<ReferencePointer<GameObject>> children = other->m_rootGameObject->GetChildren();
             for(auto child : children)
             {
                 child->RequestParentChange(m_rootGameObject);

@@ -8,21 +8,31 @@ namespace CommonsLibrary
     class SceneManager
     {
         friend class GameObject;
+        static SceneManager* s_sceneManager;
     private:
         std::vector<std::unique_ptr<Scene>> m_buildScenes;
         std::vector<std::unique_ptr<Scene>> m_loadedScenes;
         Scene* m_activeScene;
-    public:
-        Scene* LoadScene(size_t buildIndex);
 
     private:
-        void Start();
+        SceneManager(std::vector<std::unique_ptr<Scene>> buildScenes) : 
+            m_buildScenes(std::move(buildScenes)) 
+        {
+            LoadScene(0);
+        }
+
+
+    public:
         void Update(float deltaTime);
 
     private:
-        void AddBuildScene(std::unique_ptr<Scene> scene);
-
-    private:
         ReferencePointer<GameObject> CreateGameObject(std::string name);
+
+    public:
+        static SceneManager* CreateSceneManager(std::vector<std::unique_ptr<Scene>> buildScenes);
+        static void ShutdownSceneManager();
+
+    public:
+        static Scene* LoadScene(size_t buildIndex);
     };
 }

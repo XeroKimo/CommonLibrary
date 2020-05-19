@@ -5,44 +5,51 @@
 
 namespace CommonsLibrary
 {
+    SceneManager* SceneManager::s_sceneManager = nullptr;
+
     Scene* SceneManager::LoadScene(size_t buildIndex)
     {
         using namespace std;
 
-        m_loadedScenes.clear();
+        s_sceneManager->m_loadedScenes.clear();
 
         unique_ptr<Scene> copy(new Scene("temp"));
-        m_activeScene = copy.get();
-        m_buildScenes[buildIndex]->Load();
+        s_sceneManager->m_activeScene = copy.get();
+        s_sceneManager->m_buildScenes[buildIndex]->Load();
 
-        m_activeScene->MergeScene(m_buildScenes[buildIndex].get());
-        m_activeScene->m_isLoaded = true;
-        m_activeScene->Awake();
+        s_sceneManager->m_activeScene->MergeScene(s_sceneManager->m_buildScenes[buildIndex].get());
+        s_sceneManager->m_activeScene->m_isLoaded = true;
+        s_sceneManager->m_activeScene->Awake();
 
-        m_loadedScenes.push_back(std::move(copy));
+        s_sceneManager->m_loadedScenes.push_back(std::move(copy));
 
-        return m_loadedScenes.back().get();
-    }
-    void SceneManager::Start()
-    {
-        for(auto& scene : m_loadedScenes)
-        {
-            scene->Start();
-        }
+        return s_sceneManager->m_loadedScenes.back().get();
     }
     void SceneManager::Update(float deltaTime)
     {
         for(auto& scene : m_loadedScenes)
         {
+            scene->Start();
+        }
+        for(auto& scene : m_loadedScenes)
+        {
             scene->Update(deltaTime);
         }
-    }
-    void SceneManager::AddBuildScene(std::unique_ptr<Scene> scene)
-    {
-        m_buildScenes.push_back(std::move(scene));
     }
     ReferencePointer<GameObject> SceneManager::CreateGameObject(std::string name)
     {
         return m_activeScene->CreateGameObject(name);
+    }
+    SceneManager* SceneManager::CreateSceneManager(std::vector<std::unique_ptr<Scene>> buildScenes)
+    {
+        if(s_sceneManager)
+            return nullptr;
+        s_sceneManager = new SceneManager(std::move(buildScenes));
+        return s_sceneManager;
+    }
+    void SceneManager::ShutdownSceneManager()
+    {
+        delete s_sceneManager;
+        s_sceneManager = nullptr;
     }
 }

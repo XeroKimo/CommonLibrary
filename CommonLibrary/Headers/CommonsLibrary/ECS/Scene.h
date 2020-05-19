@@ -31,8 +31,10 @@ namespace CommonsLibrary
         void DestroyGameObjects();
         void TransferComponents();
 
-    private:
+    protected:
         ReferencePointer<GameObject> CreateGameObject(std::string name);
+       
+    private:
         void MergeScene(Scene* other);
 
         ReferencePointer<GameObject> GetRootGameObject() { return m_rootGameObject; }

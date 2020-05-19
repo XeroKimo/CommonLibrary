@@ -14,39 +14,9 @@ namespace CommonsLibrary
         return GetRegisteredComponents()[name](gameObject);
     }
 
-    void ComponentRegistry::RegisteredStaticComponent(Component* component, void** staticPointer)
-    {
-        GetStaticComponents().push_back({ component, staticPointer });
-    }
-
-    void ComponentRegistry::ClearRegisteredStatics()
-    {
-        auto& s_components = GetStaticComponents();
-        for(auto component : s_components)
-        {
-            delete component.first;
-            (*component.second) = nullptr;
-        }
-        s_components.clear();
-        s_components.shrink_to_fit();
-    }
-
-    bool ComponentRegistry::IsComponentRegistered(std::type_index type)
-    {
-        std::string name = type.name();
-        name = name.substr(name.find(' ') + 1);
-        return GetRegisteredComponents().count(name) > 0;
-    }
-
     std::unordered_map<std::string, ComponentRegistry::CreateCallback>& ComponentRegistry::GetRegisteredComponents()
     {
         static std::unordered_map<std::string, CreateCallback> s_registeredComponents;
         return s_registeredComponents;
-    }
-
-    std::vector<std::pair<Component*, void**>>& ComponentRegistry::GetStaticComponents()
-    {
-        static std::vector<std::pair<Component*, void**>> s_components;
-        return s_components;
     }
 }

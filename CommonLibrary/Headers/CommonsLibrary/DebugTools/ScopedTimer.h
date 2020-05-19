@@ -4,31 +4,44 @@
 
 namespace CommonsLibrary
 {
-    template <class ChronoType = std::chrono::nanoseconds, class FundamentalType = double, std::enable_if_t<std::_Is_specialization_v<ChronoType, std::chrono::duration>, int> = 0, std::enable_if_t<std::is_fundamental_v<FundamentalType>, int> = 0>
     class ScopedTimer
     {
     public:
-        using OnDestroy = Delegate<void(ChronoType, FundamentalType)>;
-    private:
-        OnDestroy m_onDestroy;
-        std::chrono::high_resolution_clock::time_point m_initialValue;
-    public:
-        ScopedTimer() :
-            m_initialValue(std::chrono::high_resolution_clock::now()) { }
+        using Clock = std::chrono::high_resolution_clock;
+        using TimePoint = Clock::time_point;
 
-        ScopedTimer(OnDestroy onDestroy) :
-            m_onDestroy(onDestroy),
-            m_initialValue(std::chrono::high_resolution_clock::now()) { }
+        using Output = Delegate<void(Clock::duration)>;
+    private:
+        Output m_delegate;
+        TimePoint m_initialPoint = Clock::now();
+    public:
+        ScopedTimer() = default;
+        ScopedTimer(Output callback) : m_delegate(callback)
+        {
+
+        }
+        
         ~ScopedTimer()
         {
-            ChronoType chronoLifeTime = GetChronoLifeTime();
-            FundamentalType fundamentalLifeTime = std::chrono::duration<FundamentalType>(chronoLifeTime).count();
-            if (!m_onDestroy.IsNull())
-                m_onDestroy(chronoLifeTime, fundamentalLifeTime);
-        };
+            if(!m_delegate.IsNull())
+            {
+                m_delegate(Clock::now() - m_initialPoint);
+            }
+        }
 
-        ChronoType GetChronoLifeTime() const { return std::chrono::duration_cast<ChronoType>(std::chrono::high_resolution_clock::now() - m_initialValue); }
+        template<class Duration = std::chrono::nanoseconds, std::enable_if_t<std::_Is_specialization_v<Duration, std::chrono::duration>, int> = 0>
+        typename Duration::rep GetLifeTime()
+        {
+            return std::chrono::duration_cast<Duration>(Clock::now() - m_initialPoint).count();
+        }
+        
+        template<class Type = long double, std::enable_if_t<std::is_fundamental_v<Type>, int> = 0>
+        Type GetLifeTimeAs()
+        {
+            return std::chrono::duration<Type>(Clock::now() - m_initialPoint).count();
+        }
 
-        FundamentalType GetLifeTime() const { return std::chrono::duration<FundamentalType>(std::chrono::high_resolution_clock::now() - m_initialValue).count(); }
+    public:
+        static void ConsoleOutput(Clock::duration duration);
     };
 }

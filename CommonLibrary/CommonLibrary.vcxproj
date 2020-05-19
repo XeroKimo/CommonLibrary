@@ -211,6 +211,7 @@
     <ClInclude Include="Headers\CommonsLibrary\Windows\WindowsHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DebugTools\ScopedTimer.cpp" />
     <ClCompile Include="Source\ECS\Scene.cpp" />
     <ClCompile Include="Source\ECS\ComponentManager.cpp" />
     <ClCompile Include="Source\ECS\ObjectHierarchy.cpp" />

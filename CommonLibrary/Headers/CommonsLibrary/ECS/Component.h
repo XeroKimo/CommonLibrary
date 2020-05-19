@@ -45,7 +45,22 @@ namespace CommonsLibrary
         ReferencePointer<GameObject> GetGameObject() const { return m_gameObject; }
     };
 
+    class EmptyBase
+    {
+    };
 
+    template<class T>
+    class SelfRegisterComponent : EmptyBase
+    {
+        static SelfRegisterComponent<T>* s_internal;
+
+    public:
+        SelfRegisterComponent()
+        {
+            if(!ComponentRegistry::IsComponentRegistered(typeid(T)))
+                ComponentRegistry::RegisterComponent<T>();
+        }
+    };
 
     //inside .h
 #define ECS_COMPONENT_SETUP(ComponentType, BaseComponentType) \
@@ -55,36 +70,13 @@ public: \
     {} \
 public: \
     using Base = BaseComponentType; \
-    using Super = BaseComponentType; \
-    static ComponentType* s_internalComponent; \
-protected: \
-    ComponentType() : BaseComponentType() \
-    {   \
-        if(!ComponentRegistry::IsComponentRegistered(typeid(ComponentType)))    \
-            InternalReigsterComponent(); \
-    }  \
-private: \
-    void InternalReigsterComponent();   \
-
-
+    using Super = BaseComponentType;
 
 
     //Inside cpps
 #define ECS_COMPONENT_REGISTER_IN_NAMESPACE(ComponentType, NameSpace)   \
-    NameSpace::ComponentType* NameSpace::ComponentType::s_internalComponent = new NameSpace::ComponentType();    \
-    \
-    void NameSpace::ComponentType::InternalReigsterComponent()   \
-    {   \
-            ComponentRegistry::RegisterComponent<ComponentType>();    \
-            ComponentRegistry::RegisteredStaticComponent(this, reinterpret_cast<void**>(&s_internalComponent));    \
-    }   
+    CommonsLibrary::SelfRegisterComponent<NameSpace::ComponentType>* CommonsLibrary::SelfRegisterComponent<NameSpace::ComponentType>::s_internal = new SelfRegisterComponent<NameSpace::ComponentType>();
 
 #define ECS_COMPONENT_REGISTER(ComponentType)  \
-    ComponentType* ComponentType::s_internalComponent = new ComponentType();    \
-    \
-    void ComponentType::InternalReigsterComponent()   \
-    {   \
-            ComponentRegistry::RegisterComponent<ComponentType>();    \
-            ComponentRegistry::RegisteredStaticComponent(this, reinterpret_cast<void**>(&s_internalComponent));    \
-    }   
+    CommonsLibrary::SelfRegisterComponent<ComponentType>* CommonsLibrary::SelfRegisterComponent<ComponentType>::s_internal = new SelfRegisterComponent<ComponentType>();
 }
