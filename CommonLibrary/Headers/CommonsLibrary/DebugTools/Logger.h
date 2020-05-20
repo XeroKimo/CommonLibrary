@@ -1,5 +1,5 @@
 #pragma once
-#include "CommonsLibrary/Miscellaneous//Singleton.h"
+#include "CommonsLibrary\Miscellaneous\Singleton.h"
 #include <fstream>
 
 namespace CommonsLibrary

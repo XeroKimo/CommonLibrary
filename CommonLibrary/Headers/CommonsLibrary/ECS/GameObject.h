@@ -10,7 +10,7 @@
 namespace CommonsLibrary
 {
     class Scene;
-    class GameObject : public ReferencePointerEnableThis<GameObject>
+    class GameObject : public ReferenceViewEnableThis<GameObject>
     {
         friend void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
         friend void DestroyGameObject(const ReferencePointer<Component>& component);

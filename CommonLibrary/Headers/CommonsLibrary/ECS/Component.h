@@ -6,7 +6,7 @@ namespace CommonsLibrary
 {
     class GameObject;
 
-    class Component : public ReferencePointerEnableThis<Component>
+    class Component : public ReferenceViewEnableThis<Component>
     {
         friend class GameObject;
         friend class ComponentRegistry;
@@ -65,7 +65,7 @@ namespace CommonsLibrary
     //inside .h
 #define ECS_COMPONENT_SETUP(ComponentType, BaseComponentType) \
 public: \
-    ComponentType(const ReferencePointer<GameObject>& owningGameObject) : \
+    ComponentType(const CommonsLibrary::ReferencePointer<CommonsLibrary::GameObject>& owningGameObject) : \
         BaseComponentType(owningGameObject) \
     {} \
 public: \
