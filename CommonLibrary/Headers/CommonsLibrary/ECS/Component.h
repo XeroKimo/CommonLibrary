@@ -31,7 +31,7 @@ namespace CommonsLibrary
         virtual ~Component() = default;
 
     protected:
-        virtual void Awake() {};
+        virtual void Awake() = 0;
         virtual void Start() {}
         virtual void Update(float deltaTime) {}
         virtual void OnDestroyed() {}

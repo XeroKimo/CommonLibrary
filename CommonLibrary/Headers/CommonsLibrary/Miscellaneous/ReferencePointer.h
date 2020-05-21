@@ -22,7 +22,7 @@ namespace CommonsLibrary
     template <class Type>
     class ReferencePointer;
 
-    template <class Type>
+    template <class Type, std::enable_if_t<std::negation_v<std::is_pointer<Type>>, int> = 0>
     class ReferenceObject;
 
     template <class Type>
@@ -131,11 +131,6 @@ namespace CommonsLibrary
             return *m_exists != false;
         }
 
-        //friend bool operator==(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh);
-        //friend bool operator==(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh);
-        //friend bool operator!=(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh);
-        //friend bool operator!=(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh);
-
         operator bool() const
         {
             return *m_exists;
@@ -148,6 +143,7 @@ namespace CommonsLibrary
     public:
         Type* Get() const { return m_pointer.get(); }
 
+        bool IsAlive() const { return *m_exists; }
         void Swap(ReferencePointer& other)
         {
             ReferencePointer temp = std::move(other);
@@ -157,10 +153,7 @@ namespace CommonsLibrary
     };
 
 
-
-
-
-    template <class Type>
+    template<class Type, std::enable_if_t<std::negation_v<std::is_pointer<Type>>, int>>
     class ReferenceObject
     {
         template<class Derived>
@@ -225,6 +218,9 @@ namespace CommonsLibrary
         {
             (*m_exists) = false;
         }
+
+
+        bool IsAlive() const { return *m_exists; }
     };
 
 
@@ -247,7 +243,7 @@ namespace CommonsLibrary
         friend ReferenceView<To> ReferenceViewDynamicCast(ReferenceView<From> other);
 
     private:
-        std::shared_ptr<bool> m_exists = nullptr;
+        std::shared_ptr<bool> m_exists = std::make_shared<bool>(false);
         Type* m_pointer = nullptr;
 
 
@@ -258,18 +254,19 @@ namespace CommonsLibrary
         }
 
 
-        ReferenceView(const ReferenceObject<Type>& object) :
+        ReferenceView(ReferenceObject<Type>& object) :
             m_exists(object.m_exists),
             m_pointer(&object.object)
         {
         }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
-        ReferenceView(const ReferenceObject<Derived>& other) :
+        ReferenceView(ReferenceObject<Derived>& other) :
             m_exists(other.m_exists),
             m_pointer(&other.object)
         {
 
         }
+
         ReferenceView(const ReferencePointer<Type>& pointer) :
             m_exists(pointer.m_exists),
             m_pointer(pointer.m_pointer.get())
@@ -406,18 +403,6 @@ namespace CommonsLibrary
             return true;
         }
 
-
-        //friend bool operator==(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh);
-        //friend bool operator==(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh);
-        //friend bool operator!=(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh);
-        //friend bool operator!=(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh);
-
-
-        //friend bool operator==(const ReferenceView<Type>& lh, const ReferenceObject<Type>& rh);
-        //friend bool operator==(const ReferenceObject<Type>& lh, const ReferenceView<Type>& rh);
-        //friend bool operator!=(const ReferenceView<Type>& lh, const ReferenceObject<Type>& rh);
-        //friend bool operator!=(const ReferenceObject<Type>& lh, const ReferenceView<Type>& rh);
-
         operator bool() const
         {
             return *m_exists;
@@ -433,10 +418,12 @@ namespace CommonsLibrary
             return m_pointer;
         }
 
+    public:
         Type* Get() const
         {
             return m_pointer;
         }
+        bool IsAlive() const { return *m_exists; }
 
         template<class Derived>
         ReferenceView<Derived> StaticCast() { return ReferenceViewStaticCast(*this); }
@@ -452,7 +439,8 @@ namespace CommonsLibrary
     {
         template <class Derived>
         friend class ReferencePointer;
-        template <class Derived>
+
+        template<class Derived, std::enable_if_t<std::negation_v<std::is_pointer<Type>>, int>>
         friend class ReferenceObject;
     private:
         mutable ReferenceView<Type> m_refPointer;
@@ -486,80 +474,80 @@ namespace CommonsLibrary
         return ReferencePointer<Type>(new Type(variables...));
     }
 
-    //template<class Type>
-    //bool operator==(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh)
-    //{
-    //    if((*lh.m_exists) && (*rh.m_exists))
-    //    {
-    //        return lh.m_pointer == rh.m_pointer;
-    //    }
-    //    return false;
-    //}
-    //template<class Type>
-    //bool operator==(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh)
-    //{
-    //    if((*lh.m_exists) && (*rh.m_exists))
-    //    {
-    //        return lh.m_pointer == rh.m_pointer;
-    //    }
-    //    return false;
-    //}
-    //template<class Type>
-    //bool operator!=(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh)
-    //{
-    //    if((*lh.m_exists) && (*rh.m_exists))
-    //    {
-    //        return lh.m_pointer != rh.m_pointer;
-    //    }
-    //    return true;
-    //}
-    //template<class Type>
-    //bool operator!=(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh)
-    //{
-    //    if((*lh.m_exists) && (*rh.m_exists))
-    //    {
-    //        return lh.m_pointer != rh.m_pointer;
-    //    }
-    //    return true;
-    //}
+    template<class Type>
+    bool operator==(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return lh.Get() == rh.Get();
+        }
+        return false;
+    }
+    template<class Type>
+    bool operator==(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return lh.Get() == rh.Get();
+        }
+        return false;
+    }
+    template<class Type>
+    bool operator!=(const ReferenceView<Type>& lh, const ReferencePointer<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return lh.Get() != rh.Get();
+        }
+        return true;
+    }
+    template<class Type>
+    bool operator!=(const ReferencePointer<Type>& lh, const ReferenceView<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return lh.Get() != rh.Get();
+        }
+        return true;
+    }
 
 
-    //template<class Type>
-    //bool operator==(const ReferenceView<Type>& lh, const ReferenceObject<Type>& rh)
-    //{
-    //    if((*lh.m_exists))
-    //    {
-    //        return lh.m_pointer == &rh.object;
-    //    }
-    //    return false;
-    //}
-    //template<class Type>
-    //bool operator==(const ReferenceObject<Type>& lh, const ReferenceView<Type>& rh)
-    //{
-    //    if((*rh.m_exists))
-    //    {
-    //        return rh.m_pointer == &lh.object;
-    //    }
-    //    return false;
-    //}
-    //template<class Type>
-    //bool operator!=(const ReferenceView<Type>& lh, const ReferenceObject<Type>& rh)
-    //{
-    //    if((*lh.m_exists))
-    //    {
-    //        return lh.m_pointer != &rh.object;
-    //    }
-    //    return true;
-    //}
-    //template<class Type>
-    //bool operator!=(const ReferenceObject<Type>& lh, const ReferenceView<Type>& rh)
-    //{
-    //    if((*rh.m_exists))
-    //    {
-    //        return rh.m_pointer != &lh.object;
-    //    }
-    //    return true;
-    //}
+    template<class Type>
+    bool operator==(const ReferenceView<Type>& lh, const ReferenceObject<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return lh.Get() == &rh.object;
+        }
+        return false;
+    }
+    template<class Type>
+    bool operator==(const ReferenceObject<Type>& lh, const ReferenceView<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return rh.Get() == &lh.object;
+        }
+        return false;
+    }
+    template<class Type>
+    bool operator!=(const ReferenceView<Type>& lh, const ReferenceObject<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return lh.Get() != &rh.object;
+        }
+        return true;
+    }
+    template<class Type>
+    bool operator!=(const ReferenceObject<Type>& lh, const ReferenceView<Type>& rh)
+    {
+        if(lh.IsAlive() && rh.IsAlive())
+        {
+            return rh.Get() != &lh.object;
+        }
+        return true;
+    }
 
     template<class Type>
     struct std::hash<ReferencePointer<Type>>
