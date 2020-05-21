@@ -13,9 +13,9 @@ namespace CommonsLibrary
         ReferencePointer<GameObject> m_rootGameObject;
         std::string m_sceneName;
 
-        std::vector<ReferencePointer<GameObject>> m_changeComponentState;
-        std::vector<ReferencePointer<GameObject>> m_transferParents;
-        std::vector<ReferencePointer<GameObject>> m_changeChildrenState;
+        std::vector<ReferenceView<GameObject>> m_changeComponentState;
+        std::vector<ReferenceView<GameObject>> m_transferParents;
+        std::vector<ReferenceView<GameObject>> m_changeChildrenState;
 
         bool m_isLoaded = false;
     private:
@@ -32,12 +32,12 @@ namespace CommonsLibrary
         void TransferComponents();
 
     protected:
-        ReferencePointer<GameObject> CreateGameObject(std::string name);
+        ReferenceView<GameObject> CreateGameObject(std::string name);
        
     private:
         void MergeScene(Scene* other);
 
-        ReferencePointer<GameObject> GetRootGameObject() { return m_rootGameObject; }
+        ReferenceView<GameObject> GetRootGameObject() { return m_rootGameObject; }
 
     protected:
         virtual void Load() {};

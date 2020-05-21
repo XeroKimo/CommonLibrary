@@ -11,11 +11,11 @@ namespace CommonsLibrary
     {
         GameObject* m_gameObject;
 
-        ReferencePointer<GameObject> m_parent;
-        ReferencePointer<GameObject> m_nextParent;
+        ReferenceView<GameObject> m_parent;
+        ReferenceView<GameObject> m_nextParent;
 
         std::priority_queue<size_t> m_destroyedObjectIndices;
-        std::vector<ReferencePointer<GameObject>> m_activeChangedObjects;
+        std::vector<ReferenceView<GameObject>> m_activeChangedObjects;
 
         size_t m_firstInactiveObjectIndex = 0;
 
@@ -34,20 +34,25 @@ namespace CommonsLibrary
         void Update(float deltaTime);
 
     public:
-        void RequestParentChange(const ReferencePointer<GameObject>& parent);
+        void RequestParentChange(const ReferenceView<GameObject>& parent);
 
-        void SetParent(const ReferencePointer<GameObject>& parent);
+        void SetParent(const ReferenceView<GameObject>& parent);
         void AddChild(ReferencePointer<GameObject> child);
-        ReferencePointer<GameObject> RemoveChild(const ReferencePointer<GameObject>& child);
+        ReferencePointer<GameObject> RemoveChild(const ReferenceView<GameObject>& child);
 
-        void SetActive(const ReferencePointer<GameObject>& child, bool active);
-        void DestroyGameObject(const ReferencePointer<GameObject>& child);
+        void SetActive(const ReferenceView<GameObject>& child, bool active);
+        void DestroyGameObject(const ReferenceView<GameObject>& child);
     public:
-        ReferencePointer<GameObject> CreateGameObject();
+        ReferenceView<GameObject> CreateGameObject();
 
     public:
-        ReferencePointer<GameObject> GetParent() const { return m_parent; }
-        std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_children; }
+        ReferenceView<GameObject> GetParent() const { return m_parent; }
+        std::vector<ReferenceView<GameObject>> GetChildren() const
+        {
+            std::vector<ReferenceView<GameObject>> children;
+            std::copy(m_children.begin(), m_children.end(), std::back_inserter(children));
+            return children;
+        }
 
     private:
         void AddToStartCall();

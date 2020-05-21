@@ -57,9 +57,9 @@ namespace CommonsLibrary
         void SetActive(bool active);
 
     public:
-        void RequestParentChange(const ReferencePointer<GameObject>& parent);
-        ReferencePointer<GameObject> GetParent() const;
-        std::vector<ReferencePointer<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
+        void RequestParentChange(const ReferenceView<GameObject>& parent);
+        ReferenceView<GameObject> GetParent() const;
+        std::vector<ReferenceView<GameObject>> GetChildren() const { return m_hierarchy.GetChildren(); }
 
     public:
         void SetWorldPosition(Vector3 position) { m_transform.position = position + GetLocalPosition() - GetWorldPosition(); }
@@ -113,23 +113,23 @@ namespace CommonsLibrary
         }
 
     private:
-        ReferencePointer<GameObject> CreateChild() { return m_hierarchy.CreateGameObject(); }
+        ReferenceView<GameObject> CreateChild() { return m_hierarchy.CreateGameObject(); }
 
     private:
-        void SetComponentActive(const ReferencePointer<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }
-        void DestroyComponent(const ReferencePointer<Component>& component) { m_componentManager.DestroyComponent(component); }
+        void SetComponentActive(const ReferenceView<Component>& component, bool active) { m_componentManager.SetComponentActive(component, active); }
+        void DestroyComponent(const ReferenceView<Component>& component) { m_componentManager.DestroyComponent(component); }
         void CopyComponents(const ComponentManager& other) { m_componentManager.CopyComponents(GetReferencePointer(), other); }
 
         bool SceneLoaded();
 
     private:
-        ReferencePointer<GameObject> GetRootObject();
+        ReferenceView<GameObject> GetRootObject();
         void AddCallChangeComponentsState();
         void AddCallTransferParent();
         void AddCallChangeChildrenState();
     };
 
-    extern void DestroyGameObject(const ReferencePointer<GameObject>& gameObject);
-    extern void DestroyGameObject(const ReferencePointer<Component>& component);
-    extern void DestroyComponent(const ReferencePointer<Component>& component);
+    extern void DestroyGameObject(const ReferenceView<GameObject>& gameObject);
+    extern void DestroyGameObject(const ReferenceView<Component>& component);
+    extern void DestroyComponent(const ReferenceView<Component>& component);
 }

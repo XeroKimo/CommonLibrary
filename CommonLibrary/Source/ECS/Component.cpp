@@ -3,11 +3,6 @@
 
 namespace CommonsLibrary
 {
-    Component::Component(const ReferencePointer<GameObject>& owningGameObject) :
-        m_gameObject(owningGameObject)
-    {
-
-    }
 
     void Component::CopyComponent(const Component* const other)
     {

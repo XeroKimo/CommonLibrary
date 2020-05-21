@@ -146,7 +146,14 @@ namespace CommonsLibrary
         Type& operator*() const { return (*Get()); }
 
     public:
-        Type* Get() const { return m_pointer; }
+        Type* Get() const { return m_pointer.get(); }
+
+        void Swap(ReferencePointer& other)
+        {
+            ReferencePointer temp = std::move(other);
+            other = std::move(*this);
+            (*this) = std::move(temp);
+        }
     };
 
 
@@ -173,7 +180,7 @@ namespace CommonsLibrary
                 object.m_refPointer = *this;
             }
         }
-        ReferenceObject(Type defaultValue) :
+        ReferenceObject(const Type defaultValue) :
             object(defaultValue)
         {
             if constexpr(std::conjunction_v<IsReferenceThisEnabled<Type>>)
@@ -181,7 +188,7 @@ namespace CommonsLibrary
                 object->m_refPointer = *this;
             }
         }
-        ReferenceObject(Type& defaultValue) :
+        ReferenceObject(const Type& defaultValue) :
             object(defaultValue)
         {
             if constexpr(std::conjunction_v<IsReferenceThisEnabled<Type>>)
@@ -199,7 +206,7 @@ namespace CommonsLibrary
         }
 
         template<class... Args>
-        ReferenceObject(Args ...args) :
+        ReferenceObject(const Args ...args) :
             object(args...)
         {
             if constexpr(std::conjunction_v<IsReferenceThisEnabled<Type>>)
@@ -208,10 +215,10 @@ namespace CommonsLibrary
             }
         }
 
-        ReferenceObject(ReferenceObject& other) = delete;
+        ReferenceObject(const ReferenceObject& other) = delete;
         ReferenceObject(ReferenceObject&& other) noexcept = default;
 
-        ReferenceObject operator=(ReferenceObject& other) = delete;
+        ReferenceObject operator=(const ReferenceObject& other) = delete;
         ReferenceObject& operator=(ReferenceObject&& other) noexcept = default;
 
         ~ReferenceObject()
@@ -234,39 +241,43 @@ namespace CommonsLibrary
         friend class ReferenceViewEnableThis;
 
         template <class To, class From>
-        friend ReferenceView<To> ReferencePointerStaticCast(ReferenceView<From> other);
+        friend ReferenceView<To> ReferenceViewStaticCast(ReferenceView<From> other);
 
         template <class To, class From>
-        friend ReferenceView<To> ReferencePointerDynamicCast(ReferenceView<From> other);
+        friend ReferenceView<To> ReferenceViewDynamicCast(ReferenceView<From> other);
 
     private:
-        std::shared_ptr<bool> m_exists;
-        Type* m_pointer;
+        std::shared_ptr<bool> m_exists = nullptr;
+        Type* m_pointer = nullptr;
 
-    private:
-        ReferenceView() = default;
 
     public:
-        ReferenceView(ReferenceObject<Type>& object) :
+        ReferenceView() = default;
+        ReferenceView(std::nullptr_t)
+        {
+        }
+
+
+        ReferenceView(const ReferenceObject<Type>& object) :
             m_exists(object.m_exists),
             m_pointer(&object.object)
         {
         }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
-        ReferenceView(ReferenceObject<Derived>& other) :
+        ReferenceView(const ReferenceObject<Derived>& other) :
             m_exists(other.m_exists),
             m_pointer(&other.object)
         {
 
         }
-        ReferenceView(ReferencePointer<Type>& pointer) :
+        ReferenceView(const ReferencePointer<Type>& pointer) :
             m_exists(pointer.m_exists),
             m_pointer(pointer.m_pointer.get())
         {
 
         }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
-        ReferenceView(ReferencePointer<Derived>& other) :
+        ReferenceView(const ReferencePointer<Derived>& other) :
             m_exists(other.m_exists),
             m_pointer(other.m_pointer.get())
         {
@@ -280,10 +291,18 @@ namespace CommonsLibrary
 
         }
 
-        ReferenceView(ReferenceView& other) = default;
-        ReferenceView(ReferenceView&& other) noexcept = default;
+        ReferenceView(const ReferenceView& other) :
+            m_exists(other.m_exists),
+            m_pointer(other.m_pointer)
+        {
+        }
+        ReferenceView(ReferenceView&& other) noexcept :
+            m_exists(std::move(other.m_exists)),
+            m_pointer(std::move(other.m_pointer))
+        {
+        }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
-        ReferenceView(ReferenceView<Derived>& other) :
+        ReferenceView(const ReferenceView<Derived>& other) :
             m_exists(other.m_exists),
             m_pointer(other.m_pointer)
         {
@@ -304,14 +323,14 @@ namespace CommonsLibrary
             return *this;
         }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
-        ReferenceView operator=(ReferenceObject<Derived>& other)
+        ReferenceView operator=(const ReferenceObject<Derived>& other)
         {
             m_exists = other.m_exists;
             m_pointer = &other.m_object;
             return *this;
         }
 
-        ReferenceView operator=(ReferencePointer<Type>& other)
+        ReferenceView operator=(const  ReferencePointer<Type>& other)
         {
             m_exists = other.m_exists;
             m_pointer = other.m_pointer.get();
@@ -325,7 +344,7 @@ namespace CommonsLibrary
             return *this;
         }
 
-        ReferenceView operator=(ReferenceView& other)
+        ReferenceView operator=(const ReferenceView& other)
         {
             m_exists = other.m_exists;
             m_pointer = other.m_pointer;
@@ -362,27 +381,27 @@ namespace CommonsLibrary
         }
         bool operator==(ReferenceView& other) const
         {
-            if((*m_exists) && (*other->m_exists))
+            if((*m_exists) && (*other.m_exists))
                 return other.m_pointer == m_pointer;
             return false;
         }
         bool operator!=(ReferenceView& other) const
         {
-            if((*m_exists) && (*other->m_exists))
+            if((*m_exists) && (*other.m_exists))
                 return other.m_pointer != m_pointer;
             return true;
         }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
         bool operator==(ReferenceView<Derived>& other) const
         {
-            if((*m_exists) && (*other->m_exists))
+            if((*m_exists) && (*other.m_exists))
                 return other.m_pointer == m_pointer;
             return false;
         }
         template<class Derived, std::enable_if_t<std::is_convertible_v<Derived*, Type*>, int> = 0>
         bool operator!=(ReferenceView<Derived>& other) const
         {
-            if((*m_exists) && (*other->m_exists))
+            if((*m_exists) && (*other.m_exists))
                 return other.m_pointer != m_pointer;
             return true;
         }
@@ -419,6 +438,10 @@ namespace CommonsLibrary
             return m_pointer;
         }
 
+        template<class Derived>
+        ReferenceView<Derived> StaticCast() { return ReferenceViewStaticCast(*this); }
+        template<class Derived>
+        ReferenceView<Derived> DynamicCast() { return ReferenceViewDynamicCast(*this); }
     };
 
 
@@ -443,13 +466,13 @@ namespace CommonsLibrary
 
 
     template <class To, class From>
-    [[nodiscard]] ReferenceView<To> ReferencePointerStaticCast(ReferenceView<From> other)
+    [[nodiscard]] ReferenceView<To> ReferenceViewStaticCast(ReferenceView<From> other)
     {
         return ReferenceView<To>(static_cast<To*>(other.Get()), other.m_exists);
     }
 
     template <class To, class From>
-    [[nodiscard]] ReferenceView<To> ReferencePointerDynamicCast(ReferenceView<From> other)
+    [[nodiscard]] ReferenceView<To> ReferenceViewDynamicCast(ReferenceView<From> other)
     {
         To* pointer = dynamic_cast<To*>(other.Get());
         if(pointer)

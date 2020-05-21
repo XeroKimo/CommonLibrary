@@ -35,7 +35,7 @@ namespace CommonsLibrary
         }
     }
 
-    void ComponentManager::CopyComponents(const ReferencePointer<GameObject>& gameObject, const ComponentManager& other)
+    void ComponentManager::CopyComponents(const ReferenceView<GameObject>& gameObject, const ComponentManager& other)
     {
         for(const auto& component : other.m_components)
         {
@@ -44,7 +44,7 @@ namespace CommonsLibrary
         m_firstInactiveComponentIndex = other.m_firstInactiveComponentIndex;
     }
 
-    bool ComponentManager::DestroyComponent(const ReferencePointer<Component>& component)
+    bool ComponentManager::DestroyComponent(const ReferenceView<Component>& component)
     {
         if(component->m_isDestroyed)
             return false;
@@ -56,7 +56,7 @@ namespace CommonsLibrary
 
         return true;
     }
-    void ComponentManager::SetComponentActive(const ReferencePointer<Component>& component, bool active)
+    void ComponentManager::SetComponentActive(const ReferenceView<Component>& component, bool active)
     {
         if(component->m_active == active)
             return;
@@ -95,7 +95,7 @@ namespace CommonsLibrary
         }
     }
 
-    ReferencePointer<Component> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type)
+    ReferenceView<Component> ComponentManager::CreateComponent(const ReferenceView<GameObject>& gameObject, bool callAwake, std::type_index type)
     {
         size_t index = m_components.size();
         m_components.push_back(ComponentRegistry::CreateComponent(type, gameObject));
@@ -135,7 +135,7 @@ namespace CommonsLibrary
         if(m_activeChangedComponents.empty())
             return;
 
-        for(auto component : m_activeChangedComponents)
+        for(const auto& component : m_activeChangedComponents)
         {
             if(!component)
                 continue;
@@ -181,7 +181,7 @@ namespace CommonsLibrary
         m_components[lh]->m_componentIndex = lh;
     }
 
-    ReferencePointer<Component> ComponentManager::Copy(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<Component>& component)
+    ReferenceView<Component> ComponentManager::Copy(const ReferenceView<GameObject>& gameObject, const ReferenceView<Component>& component)
     {
         auto copiedComponent = CreateComponent(gameObject, false, typeid(*component));
         copiedComponent->CopyComponent(component.Get());

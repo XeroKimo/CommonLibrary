@@ -26,7 +26,7 @@ namespace CommonsLibrary
         void Update(float deltaTime);
 
     private:
-        ReferencePointer<GameObject> CreateGameObject(std::string name);
+        ReferenceView<GameObject> CreateGameObject(std::string name);
 
     public:
         static SceneManager* CreateSceneManager(std::vector<std::unique_ptr<Scene>> buildScenes);

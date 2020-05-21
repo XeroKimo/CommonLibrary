@@ -15,7 +15,7 @@ namespace CommonsLibrary
     {
         friend class ComponentManager;
 
-        using CreateCallback = Delegate<ReferencePointer<Component>(const ReferencePointer<GameObject>&)>;
+        using CreateCallback = Delegate<ReferencePointer<Component>(const ReferenceView<GameObject>&)>;
 
     public:
         template <class Type, std::enable_if_t<std::is_base_of_v<Component, Type>, int> = 0>
@@ -34,12 +34,12 @@ namespace CommonsLibrary
         }
 
     public:
-        static ReferencePointer<Component> CreateComponent(std::type_index type, const ReferencePointer<GameObject>& gameObject);
-        static ReferencePointer<Component> CreateComponent(std::string name, const ReferencePointer<GameObject>& gameObject);
+        static ReferencePointer<Component> CreateComponent(std::type_index type, const ReferenceView<GameObject>& gameObject);
+        static ReferencePointer<Component> CreateComponent(std::string name, const ReferenceView<GameObject>& gameObject);
 
     private:
         template <class Type>
-        static ReferencePointer<Component> CreateComponentCallback(const ReferencePointer<GameObject>& gameObject)
+        static ReferencePointer<Component> CreateComponentCallback(const ReferenceView<GameObject>& gameObject)
         {
             return MakeReference<Type>(gameObject);
         }

@@ -15,7 +15,7 @@ namespace CommonsLibrary
     private:
         GameObject* m_gameObject;
         std::priority_queue<size_t> m_destroyedComponentsIndices;
-        std::vector<ReferencePointer<Component>> m_activeChangedComponents;
+        std::vector<ReferenceView<Component>> m_activeChangedComponents;
 
         size_t m_firstInactiveComponentIndex = 0;
         ComponentVector m_components;
@@ -34,29 +34,29 @@ namespace CommonsLibrary
 
     public:
         template<class Type>
-        ReferencePointer<Type> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake);
+        ReferenceView<Type> CreateComponent(const ReferenceView<GameObject>& gameObject, bool callAwake);
 
         template<class Type>
-        ReferencePointer<Type> GetComponent();
+        ReferenceView<Type> GetComponent();
         template<class Type>
-        std::vector<ReferencePointer<Type>> GetComponents();
+        std::vector<ReferenceView<Type>> GetComponents();
 
     public:
-        void CopyComponents(const ReferencePointer<GameObject>& gameObject, const ComponentManager& other);
-        bool DestroyComponent(const ReferencePointer<Component>& component);
-        void SetComponentActive(const ReferencePointer<Component>& component, bool active);
+        void CopyComponents(const ReferenceView<GameObject>& gameObject, const ComponentManager& other);
+        bool DestroyComponent(const ReferenceView<Component>& component);
+        void SetComponentActive(const ReferenceView<Component>& component, bool active);
 
         bool HasStartFlagsSet() const { return !m_destroyedComponentsIndices.empty() || !m_activeChangedComponents.empty(); }
 
         void AddToStartCall();
     private:
-        ReferencePointer<Component> CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake, std::type_index type);
+        ReferenceView<Component> CreateComponent(const ReferenceView<GameObject>& gameObject, bool callAwake, std::type_index type);
 
         template<class Type>
-        ReferencePointer<Type> GetComponent(const std::vector<ReferencePointer<Component>>& componentVector);
+        ReferenceView<Type> GetComponent(const std::vector<ReferenceView<Component>>& componentVector);
 
         template<class Type>
-        void GetComponents(const std::vector<ReferencePointer<Component>>& componentVector, std::vector<ReferencePointer<Component>>& outVector);
+        void GetComponents(const std::vector<ReferenceView<Component>>& componentVector, std::vector<ReferenceView<Component>>& outVector);
 
     private:
         void ClearDestroyedComponents();
@@ -65,7 +65,7 @@ namespace CommonsLibrary
         void SwapComponentActive(size_t componentIndex);
         void SwapComponents(size_t lh, size_t rh);
 
-        ReferencePointer<Component> Copy(const ReferencePointer<GameObject>& gameObject, const ReferencePointer<Component>& component);
+        ReferenceView<Component> Copy(const ReferenceView<GameObject>& gameObject, const ReferenceView<Component>& component);
 
     private:
 
@@ -77,14 +77,14 @@ namespace CommonsLibrary
 
 
     template<class Type>
-    inline ReferencePointer<Type> ComponentManager::CreateComponent(const ReferencePointer<GameObject>& gameObject, bool callAwake)
+    inline ReferenceView<Type> ComponentManager::CreateComponent(const ReferenceView<GameObject>& gameObject, bool callAwake)
     {
         auto component = CreateComponent(gameObject, callAwake, typeid(Type));
         return component.StaticCast<Type>();
     }
 
     template<class Type>
-    inline ReferencePointer<Type> ComponentManager::GetComponent()
+    inline ReferenceView<Type> ComponentManager::GetComponent()
     {
         std::type_index originalKey(typeid(Type));
         std::type_index currentKey(typeid(Component));
@@ -95,7 +95,7 @@ namespace CommonsLibrary
     }
 
     template<class Type>
-    inline std::vector<ReferencePointer<Type>> ComponentManager::GetComponents()
+    inline std::vector<ReferenceView<Type>> ComponentManager::GetComponents()
     {
         std::vector<Type> output;
 
@@ -105,7 +105,7 @@ namespace CommonsLibrary
     }
 
     template<class Type>
-    inline ReferencePointer<Type> ComponentManager::GetComponent(const std::vector<ReferencePointer<Component>>& componentVector)
+    inline ReferenceView<Type> ComponentManager::GetComponent(const std::vector<ReferenceView<Component>>& componentVector)
     {
         if(componentVector.empty())
             return nullptr;
@@ -126,7 +126,7 @@ namespace CommonsLibrary
     }
 
     template<class Type>
-    inline void ComponentManager::GetComponents(const std::vector<ReferencePointer<Component>>& componentVector, std::vector<ReferencePointer<Component>>& outVector)
+    inline void ComponentManager::GetComponents(const std::vector<ReferenceView<Component>>& componentVector, std::vector<ReferenceView<Component>>& outVector)
     {
         if(componentVector.empty())
             return;

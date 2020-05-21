@@ -10,7 +10,7 @@ namespace CommonsLibrary
         m_hierarchy.GetParent()->m_hierarchy.SetActive(GetReferencePointer(), active);
     }
 
-    void GameObject::RequestParentChange(const ReferencePointer<GameObject>& parent)
+    void GameObject::RequestParentChange(const ReferenceView<GameObject>& parent)
     {
         if(!m_owningScene)
             return;
@@ -21,7 +21,7 @@ namespace CommonsLibrary
             m_hierarchy.RequestParentChange(parent);
     }
 
-    ReferencePointer<GameObject> GameObject::GetParent() const
+    ReferenceView<GameObject> GameObject::GetParent() const
     {
         if(m_owningScene)
         {
@@ -37,7 +37,7 @@ namespace CommonsLibrary
         return m_owningScene->m_isLoaded;
     }
 
-    ReferencePointer<GameObject> GameObject::GetRootObject()
+    ReferenceView<GameObject> GameObject::GetRootObject()
     {
         return m_owningScene->GetRootGameObject();
     }

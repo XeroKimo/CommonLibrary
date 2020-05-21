@@ -5,7 +5,7 @@ namespace CommonsLibrary
 {
     void ObjectHierarchy::Awake()
     {
-        for(auto child : m_children)
+        for(const auto& child : m_children)
             child->Awake();
     }
 
@@ -30,7 +30,7 @@ namespace CommonsLibrary
     }
 
 
-    void ObjectHierarchy::RequestParentChange(const ReferencePointer<GameObject>& parent)
+    void ObjectHierarchy::RequestParentChange(const ReferenceView<GameObject>& parent)
     {
         if(parent == m_parent)
             m_nextParent = nullptr;
@@ -39,7 +39,7 @@ namespace CommonsLibrary
 
         AddToStartCall();
     }
-    void ObjectHierarchy::SetParent(const ReferencePointer<GameObject>& parent)
+    void ObjectHierarchy::SetParent(const ReferenceView<GameObject>& parent)
     {
         ReferencePointer<GameObject> owningSelf = m_parent->m_hierarchy.RemoveChild(m_gameObject->GetReferencePointer());
         if(m_gameObject->m_isDestroyed)
@@ -59,7 +59,7 @@ namespace CommonsLibrary
 
         m_children.push_back(std::move(child));
     }
-    ReferencePointer<GameObject> ObjectHierarchy::RemoveChild(const ReferencePointer<GameObject>& child)
+    ReferencePointer<GameObject> ObjectHierarchy::RemoveChild(const ReferenceView<GameObject>& child)
     {
         auto it = (m_children.begin() + child->m_childIndex);
         auto gameObject = std::move(*it);
@@ -72,7 +72,7 @@ namespace CommonsLibrary
     }
 
 
-    void ObjectHierarchy::SetActive(const ReferencePointer<GameObject>& child, bool active)
+    void ObjectHierarchy::SetActive(const ReferenceView<GameObject>& child, bool active)
     {
         if(child->m_active == active)
             return;
@@ -95,7 +95,7 @@ namespace CommonsLibrary
 
         AddToPostStartCall();
     }
-    void ObjectHierarchy::DestroyGameObject(const ReferencePointer<GameObject>& child)
+    void ObjectHierarchy::DestroyGameObject(const ReferenceView<GameObject>& child)
     {
         if(child->m_isDestroyed)
             return;
@@ -105,7 +105,7 @@ namespace CommonsLibrary
 
         AddToPostStartCall();
     }
-    ReferencePointer<GameObject> ObjectHierarchy::CreateGameObject()
+    ReferenceView<GameObject> ObjectHierarchy::CreateGameObject()
     {
         //if(sceneLoading)
         //{

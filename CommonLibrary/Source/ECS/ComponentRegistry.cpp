@@ -3,13 +3,13 @@
 
 namespace CommonsLibrary
 {
-    ReferencePointer<Component> ComponentRegistry::CreateComponent(std::type_index type, const ReferencePointer<GameObject>& gameObject)
+    ReferencePointer<Component> ComponentRegistry::CreateComponent(std::type_index type, const ReferenceView<GameObject>& gameObject)
     {
         std::string name = type.name();
         return CreateComponent(name.substr(name.find(' ') + 1), gameObject);
     }
 
-    ReferencePointer<Component> ComponentRegistry::CreateComponent(std::string name, const ReferencePointer<GameObject>& gameObject)
+    ReferencePointer<Component> ComponentRegistry::CreateComponent(std::string name, const ReferenceView<GameObject>& gameObject)
     {
         return GetRegisteredComponents()[name](gameObject);
     }

@@ -36,7 +36,7 @@ namespace CommonsLibrary
             scene->Update(deltaTime);
         }
     }
-    ReferencePointer<GameObject> SceneManager::CreateGameObject(std::string name)
+    ReferenceView<GameObject> SceneManager::CreateGameObject(std::string name)
     {
         return m_activeScene->CreateGameObject(name);
     }

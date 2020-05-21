@@ -19,7 +19,8 @@ namespace CommonsLibrary
         bool m_activeChanged = true;
         bool m_hasRequestedActiveChanged = true;
 
-        ReferencePointer<GameObject> m_gameObject;
+        ReferenceView<GameObject> m_gameObject;
+        ReferenceView<int> test;
 
         size_t m_componentIndex = 0;
 
@@ -27,11 +28,10 @@ namespace CommonsLibrary
         Component() = default;
 
     public:
-        Component(const ReferencePointer<GameObject>& owningGameObject);
         virtual ~Component() = default;
 
     protected:
-        virtual void Awake() = 0;
+        virtual void Awake() {};
         virtual void Start() {}
         virtual void Update(float deltaTime) {}
         virtual void OnDestroyed() {}
@@ -42,7 +42,7 @@ namespace CommonsLibrary
         void SetActive(bool active);
 
         bool GetActive() const { return m_active; }
-        ReferencePointer<GameObject> GetGameObject() const { return m_gameObject; }
+        ReferenceView<GameObject> GetGameObject() const { return m_gameObject; }
     };
 
     class EmptyBase
@@ -63,14 +63,6 @@ namespace CommonsLibrary
     };
 
     //inside .h
-#define ECS_COMPONENT_SETUP(ComponentType, BaseComponentType) \
-public: \
-    ComponentType(const CommonsLibrary::ReferencePointer<CommonsLibrary::GameObject>& owningGameObject) : \
-        BaseComponentType(owningGameObject) \
-    {} \
-public: \
-    using Base = BaseComponentType; \
-    using Super = BaseComponentType;
 
 
     //Inside cpps

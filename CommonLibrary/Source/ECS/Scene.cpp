@@ -30,7 +30,7 @@ namespace CommonsLibrary
     {
         if(!m_transferParents.empty())
         {
-            for(auto gameObject : m_transferParents)
+            for(const auto& gameObject : m_transferParents)
             {
                 gameObject->TransferParent();
             }
@@ -43,7 +43,7 @@ namespace CommonsLibrary
     {
         if(!m_changeChildrenState.empty())
         {
-            for(auto gameObject : m_changeChildrenState)
+            for(const auto& gameObject : m_changeChildrenState)
             {
                 gameObject->ChangeChildrenState();
             }
@@ -56,7 +56,7 @@ namespace CommonsLibrary
     {
         if(!m_changeComponentState.empty())
         {
-            std::vector<ReferencePointer<GameObject>> copy = m_changeComponentState;
+            std::vector<ReferenceView<GameObject>> copy = m_changeComponentState;
             size_t startingSize = copy.size();
 
             for(size_t i = 0; i < startingSize; i++)
@@ -68,9 +68,9 @@ namespace CommonsLibrary
         }
     }
 
-    ReferencePointer<GameObject> Scene::CreateGameObject(std::string name)
+    ReferenceView<GameObject> Scene::CreateGameObject(std::string name)
     {
-        ReferencePointer<GameObject> object = m_rootGameObject->CreateChild();
+        ReferenceView<GameObject> object = m_rootGameObject->CreateChild();
         object->name = name;
         if(m_isLoaded)
             object->Awake();
@@ -81,7 +81,7 @@ namespace CommonsLibrary
     {
         if(m_isLoaded)
         {
-            std::vector<ReferencePointer<GameObject>> children = other->m_rootGameObject->GetChildren();
+            std::vector<ReferenceView<GameObject>> children = other->m_rootGameObject->GetChildren();
             for(auto child : children)
             {
                 child->RequestParentChange(m_rootGameObject);
