@@ -167,6 +167,7 @@
     <ClInclude Include="Headers\CommonsLibrary\DebugTools.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\ECS.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\PriorityQueue.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialInputFile.h" />
@@ -202,6 +203,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DebugTools\ScopedTimer.cpp" />
+    <ClCompile Include="Source\ECS\ComponentManager.cpp" />
+    <ClCompile Include="Source\ECS\ComponentRegistry.cpp" />
+    <ClCompile Include="Source\ECS\GameObject.cpp" />
+    <ClCompile Include="Source\ECS\Scene.cpp" />
     <ClCompile Include="Source\FileIO\SerialInputFile.cpp" />
     <ClCompile Include="Source\FileIO\SerialOutputFile.cpp" />
     <ClCompile Include="Source\Miscellaneous\ApplicationClock.cpp" />

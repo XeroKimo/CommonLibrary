@@ -46,4 +46,10 @@ namespace CommonsLibrary
 
         static std::unordered_map<std::string, CreateCallback>& GetRegisteredComponents();
     };
+
+
+    namespace Test
+    {
+       
+    }
 }

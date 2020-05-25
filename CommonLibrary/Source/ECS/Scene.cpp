@@ -1,8 +1,26 @@
-#include "CommonsLibrary/ECS.h"
+#include "CommonsLibrary/ECS/ECS.h"
 
 namespace CommonsLibrary
 {
-    Scene::Scene(std::string name) :
+    Scene::~Scene()
+    {
+        m_sceneDestroyed = true;
+    }
+
+    ReferenceView<Component> CommonsLibrary::Scene::CreateComponent(std::string type, const ReferenceView<GameObject>& gameObject)
+    {
+        auto it = m_componentManagerMap.find(type);
+        if(it == m_componentManagerMap.end())
+        {
+            m_componentManagerMap.insert(ComponentRegistry::CreateComponentManager(type));
+            it = m_componentManagerMap.find(type);
+        }
+
+        return it->second->CreateComponent(gameObject);
+    }
+
+
+   /* Scene::Scene(std::string name) :
         m_sceneName(name),
         m_rootGameObject(new GameObject())
     {
@@ -96,5 +114,5 @@ namespace CommonsLibrary
             m_changeChildrenState.swap(other->m_changeChildrenState);
             m_sceneName = other->m_sceneName;
         }
-    }
+    }*/
 }

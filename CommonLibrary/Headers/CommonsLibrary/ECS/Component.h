@@ -20,7 +20,6 @@ namespace CommonsLibrary
         bool m_hasRequestedActiveChanged = true;
 
         ReferenceView<GameObject> m_gameObject;
-        ReferenceView<int> test;
 
         size_t m_componentIndex = 0;
 

@@ -37,7 +37,7 @@ namespace CommonsLibrary
             return m_funcPtr != func.m_funcPtr;
         }
 
-        Method(const TMethodPtr& other)
+        Method(TMethodPtr other)
         {
             m_funcPtr = other.m_funcPtr;
         }
