@@ -33,5 +33,7 @@ namespace CommonsLibrary
         ReturnType operator()(FunctionParameters... params) const { return (*m_funcPtr)(params...); }
 
         bool IsNull() const { return m_funcPtr == nullptr; }
+
+        operator bool() const { return !IsNull(); }
     };
 }

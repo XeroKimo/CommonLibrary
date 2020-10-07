@@ -61,5 +61,6 @@ namespace CommonsLibrary
 
         bool IsNull() { return m_funcPtr == nullptr; }
 
+        operator bool() const { return !IsNull(); }
     };
 }

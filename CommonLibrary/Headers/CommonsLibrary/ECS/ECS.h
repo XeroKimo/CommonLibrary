@@ -163,7 +163,7 @@ namespace CommonsLibrary
             m_managedComponents.emplace_back(MakeReference<Type>());
             m_managedComponents.back()->m_gameObject = gameObject;
             m_managedComponents.back()->m_componentIndex = currentIndex;
-            m_activeChangedComponents(m_managedComponents.back());
+            m_activeChangedComponents.push_back(m_managedComponents.back());
 
             return ReferenceView<Component>(m_managedComponents[m_firstInactiveComponent++]);
         }
@@ -171,7 +171,7 @@ namespace CommonsLibrary
     private:
         bool ComponentActiveChanged(const ReferenceView<Component> component)
         {
-            return component->m_active != component->m_previousActive
+            return component->m_active != component->m_previousActive;
         }
     };
 
