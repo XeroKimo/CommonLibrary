@@ -126,6 +126,9 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\CommonsLibrary\ECS\NewECS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DebugTools\Logger.cpp">

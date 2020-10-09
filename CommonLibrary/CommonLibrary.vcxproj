@@ -168,6 +168,7 @@
     <ClInclude Include="Headers\CommonsLibrary\ECS.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ComponentContainer.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\ECS.h" />
+    <ClInclude Include="Headers\CommonsLibrary\ECS\NewECS.h" />
     <ClInclude Include="Headers\CommonsLibrary\ECS\PriorityQueue.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO.h" />
     <ClInclude Include="Headers\CommonsLibrary\FileIO\SerialInputFile.h" />
