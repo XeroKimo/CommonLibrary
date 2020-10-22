@@ -393,7 +393,7 @@ namespace CommonsLibrary
 
         operator bool() const
         {
-            return *m_exists;
+            return (m_exists) ? *m_exists : false;
         }
 
         Type& operator*() const
